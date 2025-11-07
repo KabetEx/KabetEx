@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData().copyWith(
         brightness: Brightness.light,
         colorScheme: kLightColorScheme,
-        scaffoldBackgroundColor: Colors.white,
+        scaffoldBackgroundColor: const Color.fromARGB(255, 255, 241, 228),
         textTheme: GoogleFonts.robotoTextTheme().copyWith(
           titleLarge: GoogleFonts.roboto(
             fontSize: 32,
