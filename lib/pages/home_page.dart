@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kabetex/widgets/app_title_row.dart';
 import 'package:kabetex/widgets/category_gridview.dart';
+import 'package:kabetex/widgets/drawer.dart';
 import 'package:kabetex/widgets/products_gridview.dart';
 import 'package:kabetex/widgets/search_bar.dart';
 
@@ -21,6 +22,7 @@ class _HomePageState extends State<HomePage> {
         FocusScope.of(context).unfocus();
       },
       child: const Scaffold(
+        drawer: Mydrawer(),
         body: SafeArea(
           child: Column(
             children: [

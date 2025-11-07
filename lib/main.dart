@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:kabetex/pages/home_page.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -11,7 +13,7 @@ final kLightColorScheme = ColorScheme.fromSeed(
   seedColor: const Color.fromARGB(255, 255, 145, 0),
 );
 final kDarkColorScheme = ColorScheme.fromSeed(
-  seedColor: const Color.fromARGB(255, 255, 145, 0),
+  seedColor: const Color.fromARGB(255, 130, 74, 0),
 );
 
 class MyApp extends StatelessWidget {
@@ -21,37 +23,44 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'KabetEx',
+      scrollBehavior: const MaterialScrollBehavior().copyWith(
+        dragDevices: {
+          PointerDeviceKind.touch,
+          PointerDeviceKind.mouse,
+          PointerDeviceKind.trackpad,
+        },
+      ),
       themeMode: ThemeMode.system,
       //light mode
       theme: ThemeData().copyWith(
         brightness: Brightness.light,
         colorScheme: kLightColorScheme,
-        scaffoldBackgroundColor: const Color.fromARGB(255, 255, 241, 228),
-        textTheme: GoogleFonts.robotoTextTheme().copyWith(
-          titleLarge: GoogleFonts.roboto(
+        scaffoldBackgroundColor: const Color.fromARGB(255, 255, 245, 236),
+        textTheme: GoogleFonts.poppinsTextTheme().copyWith(
+          titleLarge: GoogleFonts.poppins(
             fontSize: 32,
             fontWeight: FontWeight.bold,
             color: kLightColorScheme.onPrimaryContainer,
           ),
-          titleMedium: GoogleFonts.roboto(
+          titleMedium: GoogleFonts.poppins(
             fontSize: 28,
             color: kLightColorScheme.onPrimaryContainer,
           ),
-          titleSmall: GoogleFonts.roboto(
+          titleSmall: GoogleFonts.poppins(
             fontSize: 24,
             color: kLightColorScheme.onPrimaryContainer,
           ),
-          labelLarge: GoogleFonts.roboto(
+          labelLarge: GoogleFonts.poppins(
             fontSize: 20,
             fontWeight: FontWeight.bold,
             color: kLightColorScheme.onPrimaryContainer,
           ),
-          labelMedium: GoogleFonts.roboto(
+          labelMedium: GoogleFonts.poppins(
             fontSize: 18,
             fontWeight: FontWeight.bold,
             color: kLightColorScheme.onPrimaryContainer,
           ),
-          labelSmall: GoogleFonts.roboto(
+          labelSmall: GoogleFonts.poppins(
             fontSize: 16,
             fontWeight: FontWeight.bold,
             color: kLightColorScheme.onPrimaryContainer,
@@ -69,7 +78,7 @@ class MyApp extends StatelessWidget {
         brightness: Brightness.dark,
         colorScheme: kDarkColorScheme,
         scaffoldBackgroundColor: Colors.black,
-        textTheme: GoogleFonts.robotoTextTheme().copyWith(
+        textTheme: GoogleFonts.poppinsTextTheme().copyWith(
           titleLarge: GoogleFonts.poppins(
             fontSize: 32,
             fontWeight: FontWeight.bold,

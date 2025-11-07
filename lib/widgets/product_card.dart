@@ -9,6 +9,10 @@ class ProductCard extends StatefulWidget {
 }
 
 class _ProductCardState extends State<ProductCard> {
+  bool get isLightMode {
+    return Theme.of(context).brightness == Brightness.light;
+  }
+
   bool isFavorite = false;
   late final int height;
 
@@ -17,7 +21,7 @@ class _ProductCardState extends State<ProductCard> {
   @override
   void initState() {
     super.initState();
-    height = 250 + random.nextInt(50);
+    height = 300 + random.nextInt(50);
   }
 
   @override
@@ -26,10 +30,16 @@ class _ProductCardState extends State<ProductCard> {
     return Container(
       height: height.toDouble(),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isLightMode
+            ? const Color.fromARGB(255, 255, 252, 248)
+            : const Color(0xFF1E1E1E),
         borderRadius: BorderRadius.circular(12),
-        boxShadow: const [
-          BoxShadow(color: Colors.grey, blurRadius: 4, offset: Offset(2, 2)),
+        boxShadow: [
+          BoxShadow(
+            color: isLightMode ? Colors.grey : Colors.orange[100]!,
+            blurRadius: 1,
+            offset: const Offset(1, 1),
+          ),
         ],
       ),
       child: Stack(
@@ -62,20 +72,26 @@ class _ProductCardState extends State<ProductCard> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Product Name',
+                        'Used Macbook Pc 2020',
                         style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onPrimaryContainer,
+                          color: isLightMode
+                              ? Theme.of(context).colorScheme.onPrimaryContainer
+                              : Colors.white,
                         ),
                         textAlign: TextAlign.left,
                       ),
                       const SizedBox(height: 4),
                       Text(
                         'KES ${random.nextInt(5000)}',
-                        style: Theme.of(context).textTheme.bodyMedium,
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          color: isLightMode
+                              ? Theme.of(context).colorScheme.primary
+                              : Colors.orange,
+                        ),
                         textAlign: TextAlign.left,
                       ),
                     ],
@@ -100,8 +116,16 @@ class _ProductCardState extends State<ProductCard> {
                 duration: const Duration(milliseconds: 200),
                 curve: Curves.easeInOut,
                 child: Icon(
-                  isFavorite ? Icons.favorite : Icons.favorite_border,
-                  color: isFavorite ? Colors.red : Colors.black,
+                  isFavorite
+                      ? Icons.check_circle_sharp
+                      : Icons.add_shopping_cart_sharp,
+                  color: isLightMode
+                      ? isFavorite
+                            ? Colors.red
+                            : Colors.black
+                      : isFavorite
+                      ? Colors.red
+                      : Colors.white,
                 ),
               ),
             ),

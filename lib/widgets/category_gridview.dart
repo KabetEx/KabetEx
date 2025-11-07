@@ -29,7 +29,7 @@ class _MyCategoryGridState extends State<MyCategoryGrid> {
               child: Padding(
                 padding: const EdgeInsets.symmetric(
                   vertical: 8.0,
-                  horizontal: 8,
+                  horizontal: 4,
                 ),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
@@ -38,7 +38,7 @@ class _MyCategoryGridState extends State<MyCategoryGrid> {
                     borderRadius: BorderRadius.circular(8),
                     color: _selectedCat == cat.name
                         ? Colors.black
-                        : Colors.white,
+                        : const Color.fromARGB(255, 237, 237, 237),
                     boxShadow: [
                       BoxShadow(
                         color: Theme.of(context).colorScheme.onPrimaryContainer,
