@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kabetex/models/product.dart';
 import 'package:kabetex/providers/selected_category.dart';
 import 'package:kabetex/providers/theme_provider.dart';
-
-enum Categories { all, food, electronics, clothing, books }
 
 class MyCategoryGrid extends ConsumerWidget {
   const MyCategoryGrid({super.key});
@@ -26,7 +25,7 @@ class MyCategoryGrid extends ConsumerWidget {
           children: Categories.values.map((cat) {
             return GestureDetector(
               onTap: () {
-                ref.read(selectedCategoryProvider.notifier).state = cat.name;
+                ref.read(selectedCategoryProvider.notifier).state = cat;
               },
               child: Padding(
                 padding: const EdgeInsets.symmetric(
@@ -40,7 +39,7 @@ class MyCategoryGrid extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(8),
                     color:
                         //if selected
-                        selectedCategory == cat.name
+                        selectedCategory == cat
                         ? isDarkMode
                               ? const Color.fromARGB(255, 237, 237, 237)
                               : Colors.black
@@ -65,7 +64,7 @@ class MyCategoryGrid extends ConsumerWidget {
                     style: Theme.of(context).textTheme.bodySmall!.copyWith(
                       color:
                           //if selected
-                          selectedCategory == cat.name
+                          selectedCategory == cat
                           ? isDarkMode
                                 ? Colors.black
                                 : Colors.white

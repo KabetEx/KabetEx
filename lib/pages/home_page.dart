@@ -5,7 +5,7 @@ import 'package:kabetex/custom%20widgets/category_gridview.dart';
 import 'package:kabetex/custom%20widgets/hero_banner.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 import 'package:kabetex/widgets/drawer.dart';
-import 'package:kabetex/widgets/products_gridview.dart';
+import 'package:kabetex/widgets/products_listview.dart';
 import 'package:kabetex/widgets/search_bar.dart';
 
 class HomePage extends ConsumerWidget {

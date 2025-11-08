@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kabetex/models/product.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 
 class ProductCard extends ConsumerStatefulWidget {
-  const ProductCard({super.key});
+  const ProductCard({super.key, required this.product});
 
+  final Product product;
   @override
   ConsumerState<ProductCard> createState() => _ProductCardState();
 }
@@ -20,22 +22,22 @@ class _ProductCardState extends ConsumerState<ProductCard> {
   @override
   void initState() {
     super.initState();
-    height = 250 + random.nextInt(30);
+    height = 300 + random.nextInt(40);
   }
 
   @override
   Widget build(BuildContext context) {
-    final isLightMode = ref.watch(isDarkModeProvider);
+    final isDarkMode = ref.watch(isDarkModeProvider);
 
     // Heights between 200 and 250
     return Container(
       height: height.toDouble(),
       decoration: BoxDecoration(
-        color: isLightMode ? const Color(0xFF1E1E1E) : Colors.grey,
+        color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: isLightMode ? Colors.grey : Colors.orange[100]!,
+            color: isDarkMode ? Colors.white : Colors.black,
             blurRadius: 1,
             offset: const Offset(1, 1),
           ),
@@ -52,7 +54,7 @@ class _ProductCardState extends ConsumerState<ProductCard> {
                   top: Radius.circular(16),
                 ),
                 child: Image.network(
-                  'https://images.unsplash.com/photo-1517336714731-489689fd1ca8',
+                  widget.product.imageUrl,
                   height: height * 0.6,
                   width: double.infinity,
                   fit: BoxFit.cover,
@@ -71,11 +73,11 @@ class _ProductCardState extends ConsumerState<ProductCard> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Used Macbook Pc 2020',
+                        widget.product.name,
                         style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
-                          color: isLightMode
+                          color: isDarkMode
                               ? Colors.white
                               : Theme.of(
                                   context,
@@ -85,11 +87,11 @@ class _ProductCardState extends ConsumerState<ProductCard> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'KES ${random.nextInt(5000)}',
+                        widget.product.price.toString(),
                         style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
-                          color: isLightMode
+                          color: isDarkMode
                               ? Colors.orange
                               : Theme.of(context).colorScheme.primary,
                         ),
@@ -120,7 +122,7 @@ class _ProductCardState extends ConsumerState<ProductCard> {
                   isFavorite
                       ? Icons.check_circle_sharp
                       : Icons.add_shopping_cart_sharp,
-                  color: !isLightMode
+                  color: !isDarkMode
                       ? isFavorite
                             ? Colors.red
                             : Colors.black
