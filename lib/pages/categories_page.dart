@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:kabetex/custom%20widgets/gradient_container.dart';
 
 class CategoriesPage extends StatelessWidget {
   const CategoriesPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Scaffold(
+      appBar: AppBar(title: const Text('All categories')),
+      body: const MyGradientContainer(child: Text('data')),
+    );
   }
 }

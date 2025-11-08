@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:kabetex/widgets/product_card.dart';
+import 'package:kabetex/custom%20widgets/product_card.dart';
 
 class MyProductsGridview extends StatelessWidget {
   const MyProductsGridview({super.key});
@@ -9,15 +9,15 @@ class MyProductsGridview extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: Padding(
-        padding: const EdgeInsets.only(left: 8.0, right: 8),
+        padding: const EdgeInsets.only(left: 18.0, right: 18),
         child: MasonryGridView.builder(
           shrinkWrap: true,
-          physics: const ClampingScrollPhysics(),
+          physics: const BouncingScrollPhysics(),
           gridDelegate: const SliverSimpleGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
           ),
-          mainAxisSpacing: 8,
-          crossAxisSpacing: 8,
+          mainAxisSpacing: 16,
+          crossAxisSpacing: 16,
           itemCount: 12,
           itemBuilder: (context, index) {
             return const ProductCard();

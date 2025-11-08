@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
 
-class ProductCard extends StatefulWidget {
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kabetex/providers/theme_provider.dart';
+
+class ProductCard extends ConsumerStatefulWidget {
   const ProductCard({super.key});
 
   @override
-  State<ProductCard> createState() => _ProductCardState();
+  ConsumerState<ProductCard> createState() => _ProductCardState();
 }
 
-class _ProductCardState extends State<ProductCard> {
-  bool get isLightMode {
-    return Theme.of(context).brightness == Brightness.light;
-  }
-
+class _ProductCardState extends ConsumerState<ProductCard> {
   bool isFavorite = false;
   late final int height;
 
@@ -21,18 +20,18 @@ class _ProductCardState extends State<ProductCard> {
   @override
   void initState() {
     super.initState();
-    height = 300 + random.nextInt(50);
+    height = 250 + random.nextInt(30);
   }
 
   @override
   Widget build(BuildContext context) {
+    final isLightMode = ref.watch(isDarkModeProvider);
+
     // Heights between 200 and 250
     return Container(
       height: height.toDouble(),
       decoration: BoxDecoration(
-        color: isLightMode
-            ? const Color.fromARGB(255, 255, 252, 248)
-            : const Color(0xFF1E1E1E),
+        color: isLightMode ? const Color(0xFF1E1E1E) : Colors.grey,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
@@ -77,8 +76,10 @@ class _ProductCardState extends State<ProductCard> {
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
                           color: isLightMode
-                              ? Theme.of(context).colorScheme.onPrimaryContainer
-                              : Colors.white,
+                              ? Colors.white
+                              : Theme.of(
+                                  context,
+                                ).colorScheme.onPrimaryContainer,
                         ),
                         textAlign: TextAlign.left,
                       ),
@@ -89,8 +90,8 @@ class _ProductCardState extends State<ProductCard> {
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
                           color: isLightMode
-                              ? Theme.of(context).colorScheme.primary
-                              : Colors.orange,
+                              ? Colors.orange
+                              : Theme.of(context).colorScheme.primary,
                         ),
                         textAlign: TextAlign.left,
                       ),
@@ -119,7 +120,7 @@ class _ProductCardState extends State<ProductCard> {
                   isFavorite
                       ? Icons.check_circle_sharp
                       : Icons.add_shopping_cart_sharp,
-                  color: isLightMode
+                  color: !isLightMode
                       ? isFavorite
                             ? Colors.red
                             : Colors.black

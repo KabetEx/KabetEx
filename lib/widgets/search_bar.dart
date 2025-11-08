@@ -1,32 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kabetex/providers/theme_provider.dart';
 
-class MySearchBar extends StatefulWidget {
+class MySearchBar extends ConsumerStatefulWidget {
   const MySearchBar({super.key, required this.hint});
 
   final String hint;
 
   @override
-  State<MySearchBar> createState() => _MySearchBarState();
+  ConsumerState<MySearchBar> createState() => _MySearchBarState();
 }
 
-class _MySearchBarState extends State<MySearchBar> {
-  bool get isLightMode {
-    return Theme.of(context).brightness == Brightness.light;
-  }
-
+class _MySearchBarState extends ConsumerState<MySearchBar> {
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = ref.watch(isDarkModeProvider);
+
     return SizedBox(
       height: 70,
       width: double.infinity,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 4),
         child: TextField(
           decoration: InputDecoration(
             //not focused border
             enabledBorder: OutlineInputBorder(
               borderSide: BorderSide(
-                color: isLightMode ? Colors.black : Colors.white,
+                color: isDarkMode ? Colors.white : Colors.black,
                 width: 1.5,
               ),
               borderRadius: BorderRadius.circular(16),
@@ -35,11 +35,11 @@ class _MySearchBarState extends State<MySearchBar> {
             focusedBorder: const OutlineInputBorder(),
             hintText: widget.hint,
             hintStyle: TextStyle(
-              color: isLightMode ? Colors.black54 : Colors.white70,
+              color: isDarkMode ? Colors.white : Colors.black,
             ),
             suffixIcon: Icon(
               Icons.search,
-              color: isLightMode ? Colors.black : Colors.white,
+              color: isDarkMode ? Colors.white : Colors.black,
             ),
           ),
           keyboardType: TextInputType.text,
