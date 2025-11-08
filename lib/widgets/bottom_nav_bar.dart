@@ -38,7 +38,39 @@ class MyBottomNav extends ConsumerWidget {
           unselectedColor: unselectedColor,
         ),
         SalomonBottomBarItem(
-          icon: const Icon(Icons.shopping_bag_outlined),
+          icon: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              const Icon(Icons.shopping_bag_outlined),
+              Positioned(
+                top: -6,
+                left: -6,
+                child: Container(
+                  height: 16,
+                  width: 16,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: Colors.green,
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                  constraints: const BoxConstraints(
+                    minHeight: 16,
+                    minWidth: 16,
+                  ),
+
+                  child: const Text(
+                    '1',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
           title: const Text('Cart'),
           selectedColor: selectedColor,
           unselectedColor: unselectedColor,

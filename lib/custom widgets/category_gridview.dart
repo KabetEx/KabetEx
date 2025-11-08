@@ -1,22 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kabetex/providers/selected_category.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 
 enum Categories { all, food, electronics, clothing, books }
 
-class MyCategoryGrid extends ConsumerStatefulWidget {
+class MyCategoryGrid extends ConsumerWidget {
   const MyCategoryGrid({super.key});
 
   @override
-  ConsumerState<MyCategoryGrid> createState() => _MyCategoryGridState();
-}
-
-class _MyCategoryGridState extends ConsumerState<MyCategoryGrid> {
-  String _selectedCat = 'all';
-
-  @override
-  Widget build(BuildContext context) {
-    final isLightMode = ref.watch(isDarkModeProvider);
+  Widget build(BuildContext context, ref) {
+    final isDarkMode = ref.watch(isDarkModeProvider);
+    final selectedCategory = ref.watch(selectedCategoryProvider);
 
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -31,9 +26,7 @@ class _MyCategoryGridState extends ConsumerState<MyCategoryGrid> {
           children: Categories.values.map((cat) {
             return GestureDetector(
               onTap: () {
-                setState(() {
-                  _selectedCat = cat.name;
-                });
+                ref.read(selectedCategoryProvider.notifier).state = cat.name;
               },
               child: Padding(
                 padding: const EdgeInsets.symmetric(
@@ -47,19 +40,19 @@ class _MyCategoryGridState extends ConsumerState<MyCategoryGrid> {
                     borderRadius: BorderRadius.circular(8),
                     color:
                         //if selected
-                        _selectedCat == cat.name
-                        ? isLightMode
+                        selectedCategory == cat.name
+                        ? isDarkMode
                               ? const Color.fromARGB(255, 237, 237, 237)
                               : Colors.black
                         :
                           //if is not selected
-                          isLightMode
+                          isDarkMode
                         ? Colors.black
                         : Colors.white,
 
                     boxShadow: [
                       BoxShadow(
-                        color: isLightMode ? Colors.grey : Colors.black,
+                        color: isDarkMode ? Colors.grey : Colors.black,
                         blurRadius: 3,
                         offset: const Offset(1, 0.5),
                       ),
@@ -72,12 +65,12 @@ class _MyCategoryGridState extends ConsumerState<MyCategoryGrid> {
                     style: Theme.of(context).textTheme.bodySmall!.copyWith(
                       color:
                           //if selected
-                          _selectedCat == cat.name
-                          ? isLightMode
+                          selectedCategory == cat.name
+                          ? isDarkMode
                                 ? Colors.black
                                 : Colors.white
                           //not selected
-                          : isLightMode
+                          : isDarkMode
                           ? Colors.white
                           : Colors.black,
                       fontWeight: FontWeight.w500,

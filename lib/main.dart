@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kabetex/pages/Tabs_screen.dart';
+import 'package:kabetex/pages/tabs_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 

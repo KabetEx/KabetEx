@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_switch/flutter_switch.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 
 class AppTitleRow extends ConsumerStatefulWidget {
@@ -21,10 +22,10 @@ class _AppTitleRowState extends ConsumerState<AppTitleRow> {
           //first row
           Padding(
             padding: const EdgeInsets.only(
-              top: 4,
+              top: 2,
               right: 8,
               left: 8,
-              bottom: 0,
+              bottom: 4,
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -36,7 +37,7 @@ class _AppTitleRowState extends ConsumerState<AppTitleRow> {
                   },
                   child: Icon(
                     Icons.menu_rounded,
-                    size: 32,
+                    size: 35,
                     color: isDarkMode ? Colors.white : Colors.black,
                   ),
                 ),
@@ -44,12 +45,43 @@ class _AppTitleRowState extends ConsumerState<AppTitleRow> {
                 const Spacer(),
 
                 //theme switch
-                Switch(
+                FlutterSwitch(
                   value: isDarkMode,
-                  onChanged: (newval) {
+                  width: 60,
+                  height: 35,
+                  //inactive
+                  inactiveColor: isDarkMode
+                      ? Colors.white
+                      : Theme.of(context).colorScheme.secondaryContainer,
+                  inactiveIcon: const Icon(
+                    Icons.wb_sunny,
+                    color: Colors.yellow,
+                  ),
+                  inactiveToggleColor: isDarkMode ? Colors.black : Colors.black,
+                  inactiveSwitchBorder: isDarkMode
+                      ? Border.all(color: Colors.grey, width: 1.5)
+                      : Border.all(color: Colors.grey, width: 1.5),
+
+                  //active
+                  activeIcon: const Icon(
+                    Icons.nightlight_round,
+                    color: Colors.black,
+                  ),
+                  activeColor: isDarkMode
+                      ? const Color.fromARGB(255, 66, 60, 51)
+                      : Theme.of(context).colorScheme.primaryContainer,
+
+                  onToggle: (newval) {
                     ref.read(isDarkModeProvider.notifier).state = newval;
                   },
                 ),
+
+                // Switch(
+                //   value: isDarkMode,
+                //   onChanged: (newval) {
+                //     ref.read(isDarkModeProvider.notifier).state = newval;
+                //   },
+                // ),
               ],
             ),
           ),
