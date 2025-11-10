@@ -7,8 +7,12 @@ final List<Product> dummyProducts = [
     name: 'Apple iPhone 13',
     category: categories[3]['name'],
     price: 120000.99,
-    imageUrl:
-        'https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/iphone-13-pro-family-hero',
+    imageUrl: [
+      'https://images.pexels.com/photos/5876154/pexels-photo-5876154.jpeg',
+      'https://images.pexels.com/photos/5876154/pexels-photo-5876154.jpeg',
+      'https://images.pexels.com/photos/5876154/pexels-photo-5876154.jpeg',
+      'https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/iphone-13-pro-family-hero',
+    ],
     description:
         'The latest iPhone with advanced features and improved performance.',
   ),
@@ -17,8 +21,11 @@ final List<Product> dummyProducts = [
     name: 'Nike Air Max',
     category: categories[4]['name'],
     price: 12000.99,
-    imageUrl:
-        'https://images.pexels.com/photos/3611797/pexels-photo-3611797.jpeg',
+    imageUrl: [
+      'https://images.pexels.com/photos/5876154/pexels-photo-5876154.jpeg',
+      'https://images.pexels.com/photos/5876154/pexels-photo-5876154.jpeg',
+      'https://images.pexels.com/photos/5876154/pexels-photo-5876154.jpeg',
+    ],
     description: 'Comfortable and stylish sneakers for everyday wear.',
   ),
   Product(
@@ -26,8 +33,12 @@ final List<Product> dummyProducts = [
     name: 'The Great Gatsby',
     category: categories[4]['name'],
     price: 1200.99,
-    imageUrl:
-        'https://images-na.ssl-images-amazon.com/images/I/81af+MCATTL.jpg',
+    imageUrl: [
+      'https://images.pexels.com/photos/5876154/pexels-photo-5876154.jpeg',
+      'https://images.pexels.com/photos/5876154/pexels-photo-5876154.jpeg',
+      'https://images.pexels.com/photos/5876154/pexels-photo-5876154.jpeg',
+    ],
+
     description:
         'A classic novel by F. Scott Fitzgerald that explores themes of decadence and excess.',
   ),
@@ -37,8 +48,12 @@ final List<Product> dummyProducts = [
     name: 'Organic Bananas',
     category: categories[1]['name'],
     price: 150.29,
-    imageUrl:
-        'https://upload.wikimedia.org/wikipedia/commons/8/8a/Banana-Single.jpg',
+    imageUrl: [
+      'https://images.pexels.com/photos/5876154/pexels-photo-5876154.jpeg',
+      'https://images.pexels.com/photos/5876154/pexels-photo-5876154.jpeg',
+      'https://images.pexels.com/photos/5876154/pexels-photo-5876154.jpeg',
+    ],
+
     description: 'Fresh organic bananas sourced from local farms.',
   ),
 ];
