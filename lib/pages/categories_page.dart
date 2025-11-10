@@ -19,7 +19,7 @@ class CategoriesPage extends ConsumerWidget {
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
             ),
-            itemCount: 6,
+            itemCount: allCategories.length,
             itemBuilder: (context, index) {
               return CategoryCard(category: allCategories[index]);
             },

@@ -22,7 +22,7 @@ class MyBottomNav extends ConsumerWidget {
           : Theme.of(context).colorScheme.primaryContainer.withAlpha(200),
       currentIndex: selectedIndex,
       onTap: (i) => ref.read(tabsProvider.notifier).state = i,
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+      margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
 
       items: [
         SalomonBottomBarItem(

@@ -15,16 +15,16 @@ final List<Product> dummyProducts = [
   Product(
     id: '2',
     name: 'Nike Air Max',
-    category: categories[5]['name'],
+    category: categories[4]['name'],
     price: 12000.99,
     imageUrl:
-        'https://static.nike.com/a/images/c_limit,w_592,f_auto/t_product_v1/3c5f1e1f-3f4e-4d6e-8f6e-5b6e5f6e5f6e/air-max-270-shoe-KkLcGR.png',
+        'https://images.pexels.com/photos/3611797/pexels-photo-3611797.jpeg',
     description: 'Comfortable and stylish sneakers for everyday wear.',
   ),
   Product(
     id: '3',
     name: 'The Great Gatsby',
-    category: categories[5]['name'],
+    category: categories[4]['name'],
     price: 1200.99,
     imageUrl:
         'https://images-na.ssl-images-amazon.com/images/I/81af+MCATTL.jpg',
@@ -35,7 +35,7 @@ final List<Product> dummyProducts = [
   Product(
     id: '4',
     name: 'Organic Bananas',
-    category: categories[4]['name'],
+    category: categories[1]['name'],
     price: 150.29,
     imageUrl:
         'https://upload.wikimedia.org/wikipedia/commons/8/8a/Banana-Single.jpg',
