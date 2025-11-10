@@ -1,3 +1,4 @@
+
 class Product {
   const Product({
     required this.id,
@@ -10,10 +11,9 @@ class Product {
 
   final String id;
   final String name;
-  final Categories category;
+  final String category;
   final double price;
   final String imageUrl;
   final String description;
 }
 
-enum Categories { all, food, electronics, clothing, books }

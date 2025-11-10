@@ -13,7 +13,7 @@ class _CartPageState extends State<CartPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Your Cart ')),
-      body: const MyGradientContainer(child: Text('data')),
+      body: const MyGradientContainer(child: Text('')),
     );
   }
 }

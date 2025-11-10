@@ -1,11 +1,9 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/physics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:kabetex/custom%20widgets/product_card.dart';
 import 'package:kabetex/models/product.dart';
-import 'package:kabetex/providers/dummy_products.dart';
+import 'package:kabetex/providers/products_provider.dart';
 import 'package:kabetex/providers/selected_category.dart';
 
 class MyProductsGridview extends ConsumerWidget {
@@ -18,7 +16,8 @@ class MyProductsGridview extends ConsumerWidget {
 
     List<Product> getProductsByCat() {
       List<Product> filteredProducts;
-      if (selectedCategory == Categories.all) {
+
+      if (selectedCategory == 'all') {
         filteredProducts = products;
       } else {
         filteredProducts = products.where((p) {

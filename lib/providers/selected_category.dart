@@ -1,7 +1,6 @@
-import 'package:flutter/foundation.dart';
-import 'package:kabetex/models/product.dart';
 import 'package:riverpod/legacy.dart';
+import 'package:kabetex/dummy data/dummy_categories.dart';
 
-final selectedCategoryProvider = StateProvider<Categories>((ref) {
-  return Categories.all;
+final selectedCategoryProvider = StateProvider<String>((ref) {
+  return categories[0]['name']; //defaults to category 'all'
 });

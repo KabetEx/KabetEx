@@ -22,7 +22,7 @@ class _ProductCardState extends ConsumerState<ProductCard> {
   @override
   void initState() {
     super.initState();
-    height = 300 + random.nextInt(40);
+    height = 250 + random.nextInt(30);
   }
 
   @override

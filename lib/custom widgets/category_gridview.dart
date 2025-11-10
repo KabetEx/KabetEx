@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kabetex/models/product.dart';
+import 'package:kabetex/providers/categories_provider.dart';
 import 'package:kabetex/providers/selected_category.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 
@@ -11,6 +11,7 @@ class MyCategoryGrid extends ConsumerWidget {
   Widget build(BuildContext context, ref) {
     final isDarkMode = ref.watch(isDarkModeProvider);
     final selectedCategory = ref.watch(selectedCategoryProvider);
+    final allCategories = ref.watch(allCategoriesProvider);
 
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -22,10 +23,10 @@ class MyCategoryGrid extends ConsumerWidget {
           bottom: 0,
         ),
         child: Row(
-          children: Categories.values.map((cat) {
+          children: allCategories.map((cat) {
             return GestureDetector(
               onTap: () {
-                ref.read(selectedCategoryProvider.notifier).state = cat;
+                ref.read(selectedCategoryProvider.notifier).state = cat['name'];
               },
               child: Padding(
                 padding: const EdgeInsets.symmetric(
@@ -39,7 +40,7 @@ class MyCategoryGrid extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(8),
                     color:
                         //if selected
-                        selectedCategory == cat
+                        selectedCategory == cat['name']
                         ? isDarkMode
                               ? const Color.fromARGB(255, 237, 237, 237)
                               : Colors.black
@@ -60,11 +61,11 @@ class MyCategoryGrid extends ConsumerWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   alignment: Alignment.center,
                   child: Text(
-                    cat.name.toUpperCase(),
+                    cat['name'].toUpperCase(),
                     style: Theme.of(context).textTheme.bodySmall!.copyWith(
                       color:
                           //if selected
-                          selectedCategory == cat
+                          selectedCategory == cat['name']
                           ? isDarkMode
                                 ? Colors.black
                                 : Colors.white

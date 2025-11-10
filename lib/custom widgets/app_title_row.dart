@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_switch/flutter_switch.dart';
+import 'package:kabetex/pages/search_page.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 
 class AppTitleRow extends ConsumerStatefulWidget {
@@ -45,35 +46,58 @@ class _AppTitleRowState extends ConsumerState<AppTitleRow> {
                 const Spacer(),
 
                 //theme switch
-                FlutterSwitch(
-                  value: isDarkMode,
-                  width: 60,
-                  height: 35,
-                  //inactive
-                  inactiveColor: isDarkMode
-                      ? Colors.white
-                      : Theme.of(context).colorScheme.secondaryContainer,
-                  inactiveIcon: const Icon(
-                    Icons.wb_sunny,
-                    color: Colors.yellow,
-                  ),
-                  inactiveToggleColor: isDarkMode ? Colors.black : Colors.black,
-                  inactiveSwitchBorder: isDarkMode
-                      ? Border.all(color: Colors.grey, width: 1.5)
-                      : Border.all(color: Colors.grey, width: 1.5),
+                Row(
+                  children: [
+                    //search Icon
+                    IconButton(
+                      icon: Icon(
+                        Icons.search_outlined,
+                        size: 28,
+                        color: isDarkMode ? Colors.white : Colors.black,
+                      ),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const SearchPage(),
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(width: 16),
+                    FlutterSwitch(
+                      value: isDarkMode,
+                      width: 60,
+                      height: 35,
+                      //inactive
+                      inactiveColor: isDarkMode
+                          ? Colors.white
+                          : Theme.of(context).colorScheme.secondaryContainer,
+                      inactiveIcon: const Icon(
+                        Icons.wb_sunny,
+                        color: Colors.yellow,
+                      ),
+                      inactiveToggleColor: isDarkMode
+                          ? Colors.black
+                          : Colors.black,
+                      inactiveSwitchBorder: isDarkMode
+                          ? Border.all(color: Colors.grey, width: 1.5)
+                          : Border.all(color: Colors.grey, width: 1.5),
 
-                  //active
-                  activeIcon: const Icon(
-                    Icons.nightlight_round,
-                    color: Colors.black,
-                  ),
-                  activeColor: isDarkMode
-                      ? const Color.fromARGB(255, 66, 60, 51)
-                      : Theme.of(context).colorScheme.primaryContainer,
+                      //active
+                      activeIcon: const Icon(
+                        Icons.nightlight_round,
+                        color: Colors.black,
+                      ),
+                      activeColor: isDarkMode
+                          ? const Color.fromARGB(255, 66, 60, 51)
+                          : Theme.of(context).colorScheme.primaryContainer,
 
-                  onToggle: (newval) {
-                    ref.read(isDarkModeProvider.notifier).state = newval;
-                  },
+                      onToggle: (newval) {
+                        ref.read(isDarkModeProvider.notifier).state = newval;
+                      },
+                    ),
+                  ],
                 ),
 
                 // Switch(
