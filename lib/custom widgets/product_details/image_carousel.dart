@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/models/product.dart';
+import 'package:kabetex/providers/theme_provider.dart';
 
-class ProductGallery extends StatefulWidget {
+class ProductGallery extends ConsumerStatefulWidget {
   final List<String> images;
   final Product product;
   const ProductGallery({
@@ -13,14 +15,16 @@ class ProductGallery extends StatefulWidget {
   });
 
   @override
-  State<ProductGallery> createState() => _ProductGalleryState();
+  ConsumerState<ProductGallery> createState() => _ProductGalleryState();
 }
 
-class _ProductGalleryState extends State<ProductGallery> {
+class _ProductGalleryState extends ConsumerState<ProductGallery> {
   int _currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = ref.watch(isDarkModeProvider);
+
     return Column(
       children: [
         CarouselSlider.builder(
@@ -42,6 +46,7 @@ class _ProductGalleryState extends State<ProductGallery> {
                   margin: const EdgeInsets.symmetric(horizontal: 8),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
+                    //color: isDarkMode ? Colors.white : Colors.black,
                     image: DecorationImage(
                       image: NetworkImage(widget.images[index]),
                       fit: BoxFit.cover,
@@ -83,7 +88,13 @@ class _ProductGalleryState extends State<ProductGallery> {
               width: isActive ? 18 : 8, // wider active dot
               height: 8,
               decoration: BoxDecoration(
-                color: isActive ? Colors.black : Colors.grey,
+                color: isDarkMode
+                    ? isActive
+                          ? Colors.orange
+                          : Colors.white
+                    : isActive
+                    ? Colors.orange
+                    : Colors.grey,
                 borderRadius: BorderRadius.circular(12),
               ),
             );

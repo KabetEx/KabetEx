@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kabetex/providers/theme_provider.dart';
 
 class CategoryCard extends ConsumerWidget {
   const CategoryCard({super.key, required this.category});
@@ -7,6 +8,8 @@ class CategoryCard extends ConsumerWidget {
   final Map<String, dynamic> category;
   @override
   Widget build(BuildContext context, ref) {
+    final isDark = ref.watch(isDarkModeProvider);
+
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Material(
@@ -28,14 +31,18 @@ class CategoryCard extends ConsumerWidget {
                 children: [
                   Icon(
                     category['icon'],
-                    color: Theme.of(context).colorScheme.primary,
+                    color: isDark
+                        ? Colors.white
+                        : Theme.of(context).colorScheme.onPrimaryContainer,
                     size: 28,
                   ),
                   const SizedBox(height: 6),
                   Text(
                     category['name'],
                     style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      color: Theme.of(context).colorScheme.onSurface,
+                      color: isDark
+                          ? Colors.white
+                          : Theme.of(context).colorScheme.onPrimaryContainer,
                       fontWeight: FontWeight.w600,
                     ),
                   ),

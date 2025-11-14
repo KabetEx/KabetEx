@@ -40,7 +40,7 @@ final List<Product> dummyProducts = [
     ],
 
     description:
-        'A classic novel by F. Scott Fitzgerald that explores themes of decadence and excess.',
+        'A classic novel by F. Scott Fitzgerald that explores themes of decadence and excess.,A classic novel by F. Scott Fitzgerald that explores themes of decadence and excess.',
   ),
   //food
   Product(

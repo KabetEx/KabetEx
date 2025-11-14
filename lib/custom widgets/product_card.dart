@@ -2,6 +2,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kabetex/providers/cart/all_cart_products.dart';
+import 'package:kabetex/utils/slide_routing.dart';
 import 'package:kabetex/models/product.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 import 'package:shimmer/shimmer.dart';
@@ -17,16 +19,19 @@ class ProductCard extends ConsumerStatefulWidget {
 }
 
 class _ProductCardState extends ConsumerState<ProductCard> {
-  bool isFavorite = false;
+  //bool isInCart = false;
   late final double height;
   bool isLoading = true;
 
   final Random random = Random();
 
+  void addToCart() {
+    ref.read(cartProductsProvider.notifier).addToCart(widget.product!);
+  }
+
   @override
   void initState() {
     super.initState();
-
     // Random height for masonry effect
     height =
         250 +
@@ -47,6 +52,7 @@ class _ProductCardState extends ConsumerState<ProductCard> {
   @override
   Widget build(BuildContext context) {
     final isDarkMode = ref.watch(isDarkModeProvider);
+    final allCartList = ref.watch(cartProductsProvider);
 
     // ---------------- Shimmer ----------------//
     if (isLoading || widget.product == null) {
@@ -110,11 +116,7 @@ class _ProductCardState extends ConsumerState<ProductCard> {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (context) {
-              return ProdDetailsPage(product: widget.product!);
-            },
-          ),
+          SlideRouting(page: ProdDetailsPage(product: widget.product!)),
         );
       },
       child: Container(
@@ -212,24 +214,20 @@ class _ProductCardState extends ConsumerState<ProductCard> {
               bottom: 4,
               right: 4,
               child: IconButton(
-                onPressed: () {
-                  setState(() {
-                    isFavorite = !isFavorite;
-                  });
-                },
+                onPressed: addToCart,
                 icon: AnimatedScale(
-                  scale: isFavorite ? 1.1 : 1.0,
+                  scale: allCartList.contains(widget.product) ? 1.1 : 1.0,
                   duration: const Duration(milliseconds: 200),
                   curve: Curves.easeInOut,
                   child: Icon(
-                    isFavorite
+                    allCartList.contains(widget.product)
                         ? Icons.check_circle_sharp
                         : Icons.add_shopping_cart_sharp,
                     color: !isDarkMode
-                        ? isFavorite
+                        ? allCartList.contains(widget.product)
                               ? Colors.red
                               : Colors.black
-                        : isFavorite
+                        : allCartList.contains(widget.product)
                         ? Colors.red
                         : Colors.white,
                   ),

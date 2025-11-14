@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/custom%20widgets/gradient_container.dart';
+import 'package:kabetex/pages/cart_page.dart';
+import 'package:kabetex/pages/categories_page.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 
 class Mydrawer extends ConsumerStatefulWidget {
@@ -75,30 +77,15 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
                 Navigator.pop(context);
               },
             ),
+
+            //settings
             ListTile(
               leading: Icon(
-                Icons.category_outlined,
+                Icons.settings,
                 color: isDarkMode ? Colors.white : Colors.black,
               ),
               title: Text(
-                'Cart',
-                style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                  color: isDarkMode ? Colors.white : Colors.black,
-                ),
-              ),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: Icon(
-                Icons.person_rounded,
-                color: isDarkMode ? Colors.white : Colors.black,
-              ),
-              title: Text(
-                'Explore Categories',
+                'Settings',
                 style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                   fontWeight: FontWeight.bold,
                   fontSize: 18,
@@ -122,9 +109,8 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
                 ),
                 child: Text(
                   'Seller\'s Section',
-                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
+                  style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                    fontSize: 15,
                     color: isDarkMode
                         ? Colors.white
                         : Theme.of(context).primaryColor,
@@ -134,8 +120,10 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
             ),
             ListTile(
               leading: Icon(
-                Icons.add_box_rounded,
-                color: Theme.of(context).colorScheme.onPrimaryContainer,
+                Icons.add_box_outlined,
+                color: isDarkMode
+                    ? Colors.white
+                    : Theme.of(context).colorScheme.onPrimaryContainer,
               ),
               title: Text(
                 'Add products',
@@ -152,7 +140,9 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
             ListTile(
               leading: Icon(
                 Icons.list_rounded,
-                color: Theme.of(context).colorScheme.onPrimaryContainer,
+                color: isDarkMode
+                    ? Colors.white
+                    : Theme.of(context).colorScheme.onPrimaryContainer,
               ),
               title: Text(
                 'My products',
@@ -167,12 +157,76 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
               },
             ),
 
+            //feedback section
+            const Divider(),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12.0,
+                  vertical: 8,
+                ),
+                child: Text(
+                  'Feedback & support',
+                  style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                    fontSize: 15,
+                    color: isDarkMode
+                        ? Colors.white
+                        : Theme.of(context).primaryColor,
+                  ),
+                ),
+              ),
+            ),
+            ListTile(
+              leading: Icon(
+                Icons.note_alt_outlined,
+                color: isDarkMode
+                    ? Colors.white
+                    : Theme.of(context).colorScheme.onPrimaryContainer,
+              ),
+              title: Text(
+                'Report a problem',
+                style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  color: isDarkMode ? Colors.white : Colors.black,
+                ),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+
+            ListTile(
+              leading: Icon(
+                Icons.contact_page_outlined,
+                color: isDarkMode
+                    ? Colors.white
+                    : Theme.of(context).colorScheme.onPrimaryContainer,
+              ),
+              title: Text(
+                'Contact us',
+                style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  color: isDarkMode ? Colors.white : Colors.black,
+                ),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
             const Spacer(),
 
             //sign out
             const Divider(),
             ListTile(
-              leading: const Icon(Icons.logout_rounded),
+              leading: Icon(
+                Icons.logout_rounded,
+                color: isDarkMode
+                    ? Colors.white
+                    : Theme.of(context).colorScheme.onPrimaryContainer,
+              ),
               title: Text(
                 'SIGN OUT',
                 style: Theme.of(context).textTheme.labelLarge!.copyWith(

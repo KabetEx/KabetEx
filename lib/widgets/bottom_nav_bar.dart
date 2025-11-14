@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kabetex/providers/cart/all_cart_products.dart';
 import 'package:kabetex/providers/nav_bar.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 
@@ -58,14 +59,19 @@ class MyBottomNav extends ConsumerWidget {
                     minWidth: 16,
                   ),
 
-                  child: const Text(
-                    '1',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  child: Consumer(
+                    builder: (context, ref, child) {
+                      final cartLength = ref.watch(cartProductsProvider);
+                      return Text(
+                        cartLength.length.toString(),
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      );
+                    },
                   ),
                 ),
               ),

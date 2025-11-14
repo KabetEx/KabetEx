@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:kabetex/pages/tabs_screen.dart';
 import 'package:kabetex/providers/theme_provider.dart';
-import 'package:kabetex/providers/products_provider.dart';
 
 void main() {
   runApp(const ProviderScope(child: MyApp()));
@@ -23,7 +22,6 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, ref) {
     final isLightMode = ref.watch(isDarkModeProvider);
-    final products = ref.watch(productsProvider);
 
     return AnimatedTheme(
       duration: const Duration(milliseconds: 500),
@@ -72,7 +70,7 @@ class MyApp extends ConsumerWidget {
           ),
           elevatedButtonTheme: ElevatedButtonThemeData(
             style: ElevatedButton.styleFrom(
-              backgroundColor: kLightColorScheme.onPrimaryContainer,
+              backgroundColor: kLightColorScheme.primary,
               foregroundColor: Colors.white,
             ),
           ),

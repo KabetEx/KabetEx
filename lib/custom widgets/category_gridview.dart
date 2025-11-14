@@ -53,8 +53,8 @@ class MyCategoryGrid extends ConsumerWidget {
                     boxShadow: [
                       BoxShadow(
                         color: isDarkMode ? Colors.grey : Colors.black,
-                        blurRadius: 3,
-                        offset: const Offset(1, 0.5),
+                        blurRadius: 1,
+                        offset: const Offset(0.5, 0.5),
                       ),
                     ],
                   ),
