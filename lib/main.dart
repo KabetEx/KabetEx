@@ -2,10 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:kabetex/pages/auth/login.dart';
-import 'package:kabetex/pages/tabs_screen.dart';
 import 'package:kabetex/providers/theme_provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Supabase.initialize(
+    url: 'https://pxrucvvnywlgpcczrzse.supabase.co',
+    anonKey:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB4cnVjdnZueXdsZ3BjY3pyenNlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMyMTY0ODksImV4cCI6MjA3ODc5MjQ4OX0.fqMzsjy51ASTnZR1mNBTvxNHUPDDuU5RgeuNFYGt4bs',
+  );
   runApp(const ProviderScope(child: MyApp()));
 }
 
@@ -40,6 +47,10 @@ class MyApp extends ConsumerWidget {
           brightness: Brightness.light,
           colorScheme: kLightColorScheme,
           textTheme: GoogleFonts.poppinsTextTheme().copyWith(
+            headlineLarge: GoogleFonts.baloo2(
+              fontSize: 40,
+              fontWeight: FontWeight.bold,
+            ),
             titleLarge: GoogleFonts.poppins(
               fontSize: 32,
               fontWeight: FontWeight.bold,
@@ -53,18 +64,18 @@ class MyApp extends ConsumerWidget {
               fontSize: 24,
               color: kLightColorScheme.onPrimaryContainer,
             ),
-            labelLarge: GoogleFonts.poppins(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: kLightColorScheme.onPrimaryContainer,
-            ),
-            labelMedium: GoogleFonts.poppins(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: kLightColorScheme.onPrimaryContainer,
-            ),
-            labelSmall: GoogleFonts.poppins(
+            labelLarge: GoogleFonts.lato(
               fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: kLightColorScheme.onPrimaryContainer,
+            ),
+            labelMedium: GoogleFonts.lato(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: kLightColorScheme.onPrimaryContainer,
+            ),
+            labelSmall: GoogleFonts.lato(
+              fontSize: 12,
               fontWeight: FontWeight.bold,
               color: kLightColorScheme.onPrimaryContainer,
             ),

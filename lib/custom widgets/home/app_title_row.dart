@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_switch/flutter_switch.dart';
 import 'package:kabetex/pages/search_page.dart';
 import 'package:kabetex/providers/theme_provider.dart';
+import 'package:kabetex/services/auth_services.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AppTitleRow extends ConsumerStatefulWidget {
   const AppTitleRow({super.key});
@@ -12,6 +14,34 @@ class AppTitleRow extends ConsumerStatefulWidget {
 }
 
 class _AppTitleRowState extends ConsumerState<AppTitleRow> {
+  String firstName = '';
+  AuthService authService = AuthService();
+
+  @override
+  void initState() {
+    super.initState();
+    loadUserName();
+  }
+
+  //capitalize name
+  String capitalize(String text) {
+    if (text.isEmpty) return text;
+    return text[0].toUpperCase() + text.substring(1).toLowerCase();
+  }
+
+  void loadUserName() async {
+    final profile = await AuthService().getProfile();
+
+    if (profile != null) {
+      final fullName = profile['full_name'] ?? '';
+      final first = fullName.split(' ').first;
+
+      setState(() {
+        firstName = capitalize(first);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDarkMode = ref.watch(isDarkModeProvider);
@@ -99,13 +129,6 @@ class _AppTitleRowState extends ConsumerState<AppTitleRow> {
                     ),
                   ],
                 ),
-
-                // Switch(
-                //   value: isDarkMode,
-                //   onChanged: (newval) {
-                //     ref.read(isDarkModeProvider.notifier).state = newval;
-                //   },
-                // ),
               ],
             ),
           ),
@@ -119,7 +142,7 @@ class _AppTitleRowState extends ConsumerState<AppTitleRow> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'Hello Moha',
+                    'Hello $firstName',
                     style: Theme.of(context).textTheme.titleMedium!.copyWith(
                       fontSize: 24,
                       fontWeight: FontWeight.w500,

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/custom%20widgets/theme/gradient_container.dart';
+import 'package:kabetex/pages/auth/login.dart';
 import 'package:kabetex/providers/theme_provider.dart';
+import 'package:kabetex/services/auth_services.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Mydrawer extends ConsumerStatefulWidget {
   const Mydrawer({super.key});
@@ -14,6 +17,7 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
   @override
   Widget build(BuildContext context) {
     final isDarkMode = ref.watch(isDarkModeProvider);
+    final authService = AuthService();
 
     return Drawer(
       backgroundColor: isDarkMode
@@ -44,7 +48,7 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'JohnDoe@gmail.com',
+                      ' Hello ${authService.user!.email as String}',
                       style: Theme.of(context).textTheme.titleMedium!.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -234,6 +238,10 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
               ),
               onTap: () {
                 Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginPage()),
+                );
               },
             ),
           ],

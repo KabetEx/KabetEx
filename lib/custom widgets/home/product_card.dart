@@ -136,8 +136,8 @@ class _ProductCardState extends ConsumerState<ProductCard> {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: isDarkMode ? const Color(0xFF141414) : Colors.black26,
-              blurRadius: 2,
+              color: isDarkMode ? Colors.grey[700]! : const Color(0xFF141414),
+              blurRadius: 1,
               offset: const Offset(2, 2),
             ),
           ],
