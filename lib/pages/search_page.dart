@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kabetex/custom%20widgets/gradient_container.dart';
+import 'package:kabetex/custom%20widgets/theme/gradient_container.dart';
 import 'package:kabetex/widgets/search_bar.dart';
 
 class SearchPage extends StatelessWidget {

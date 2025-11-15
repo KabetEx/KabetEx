@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kabetex/custom%20widgets/app_title_row.dart';
-import 'package:kabetex/custom%20widgets/category_gridview.dart';
-import 'package:kabetex/custom%20widgets/gradient_container.dart';
-import 'package:kabetex/custom%20widgets/hero_banner.dart';
+import 'package:kabetex/custom%20widgets/home/app_title_row.dart';
+import 'package:kabetex/custom%20widgets/home/category_gridview.dart';
+import 'package:kabetex/custom%20widgets/theme/gradient_container.dart';
+import 'package:kabetex/custom%20widgets/home/hero_banner.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 import 'package:kabetex/widgets/drawer.dart';
-import 'package:kabetex/custom%20widgets/products_listview.dart';
+import 'package:kabetex/custom%20widgets/home/products_listview.dart';
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});

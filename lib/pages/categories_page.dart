@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/custom%20widgets/category_card.dart';
-import 'package:kabetex/custom%20widgets/gradient_container.dart';
-import 'package:kabetex/providers/categories_provider.dart';
+import 'package:kabetex/custom%20widgets/theme/gradient_container.dart';
+import 'package:kabetex/providers/categories/categories_provider.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 
 class CategoriesPage extends ConsumerWidget {

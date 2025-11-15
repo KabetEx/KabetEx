@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kabetex/custom widgets/gradient_container.dart';
+import 'package:kabetex/custom%20widgets/theme/gradient_container.dart';
 import 'package:kabetex/custom widgets/product_details/image_carousel.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/models/product.dart';

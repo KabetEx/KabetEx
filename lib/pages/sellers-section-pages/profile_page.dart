@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kabetex/custom%20widgets/gradient_container.dart';
+import 'package:kabetex/custom%20widgets/theme/gradient_container.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});

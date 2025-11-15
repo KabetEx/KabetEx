@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:kabetex/pages/auth/login.dart';
 import 'package:kabetex/pages/tabs_screen.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 
@@ -108,7 +109,7 @@ class MyApp extends ConsumerWidget {
             ),
           ),
         ),
-        home: const TabsScreen(),
+        home: const LoginPage(),
       ),
     );
   }

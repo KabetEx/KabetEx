@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/custom%20widgets/cart/cart_item.dart';
-import 'package:kabetex/custom%20widgets/gradient_container.dart';
+import 'package:kabetex/custom%20widgets/theme/gradient_container.dart';
 import 'package:kabetex/providers/cart/all_cart_products.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 
@@ -18,6 +18,7 @@ class _CartPageState extends ConsumerState<CartPage> {
     final cartProducts = ref.watch(cartProductsProvider);
     final totalCart = ref.watch(cartTotalProvider);
     final isDarkMode = ref.watch(isDarkModeProvider);
+
 
     return Scaffold(
       body: SafeArea(
@@ -47,6 +48,20 @@ class _CartPageState extends ConsumerState<CartPage> {
                         ref
                             .read(cartProductsProvider.notifier)
                             .deleteFromCart(cartProducts[index]);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text('Product removed from cart'),
+                            duration: const Duration(seconds: 1),
+                            action: SnackBarAction(
+                              label: 'undo',
+                              onPressed: () {
+                                ref
+                                    .read(cartProductsProvider.notifier)
+                                    .addToCart(cartProducts[index]);
+                              },
+                            ),
+                          ),
+                        );
                       },
                       child: CartItem(product: cartProducts[index]),
                     );

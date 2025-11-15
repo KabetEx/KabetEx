@@ -6,7 +6,7 @@ final List<Product> dummyProducts = [
     id: '1',
     name: 'Apple iPhone 13',
     category: categories[3]['name'],
-    price: 120000.99,
+    price: 120000,
     imageUrl: [
       'https://images.pexels.com/photos/5876154/pexels-photo-5876154.jpeg',
       'https://images.pexels.com/photos/5876154/pexels-photo-5876154.jpeg',
@@ -20,7 +20,7 @@ final List<Product> dummyProducts = [
     id: '2',
     name: 'Nike Air Max',
     category: categories[4]['name'],
-    price: 12000.99,
+    price: 12000,
     imageUrl: [
       'https://images.pexels.com/photos/5876154/pexels-photo-5876154.jpeg',
       'https://images.pexels.com/photos/5876154/pexels-photo-5876154.jpeg',
@@ -32,7 +32,7 @@ final List<Product> dummyProducts = [
     id: '3',
     name: 'The Great Gatsby',
     category: categories[4]['name'],
-    price: 1200.99,
+    price: 1200,
     imageUrl: [
       'https://images.pexels.com/photos/5876154/pexels-photo-5876154.jpeg',
       'https://images.pexels.com/photos/5876154/pexels-photo-5876154.jpeg',
@@ -47,7 +47,7 @@ final List<Product> dummyProducts = [
     id: '4',
     name: 'Organic Bananas',
     category: categories[1]['name'],
-    price: 150.29,
+    price: 150,
     imageUrl: [
       'https://images.pexels.com/photos/5876154/pexels-photo-5876154.jpeg',
       'https://images.pexels.com/photos/5876154/pexels-photo-5876154.jpeg',

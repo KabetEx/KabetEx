@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:kabetex/custom%20widgets/product_card.dart';
+import 'package:kabetex/custom%20widgets/home/product_card.dart';
 import 'package:kabetex/models/product.dart';
 import 'package:kabetex/providers/products_provider.dart';
-import 'package:kabetex/providers/selected_category.dart';
+import 'package:kabetex/providers/categories/selected_category.dart';
 
 class MyProductsGridview extends ConsumerWidget {
   const MyProductsGridview({super.key});

@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/models/product.dart';
 import 'package:riverpod/legacy.dart';
@@ -18,7 +17,6 @@ class CartProducts extends StateNotifier<List<Product>> {
     }).toList();
   }
 }
-
 
 final cartProductsProvider = StateNotifierProvider<CartProducts, List<Product>>(
   (ref) {

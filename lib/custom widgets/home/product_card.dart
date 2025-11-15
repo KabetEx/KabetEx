@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:kabetex/providers/cart/all_cart_products.dart';
 import 'package:kabetex/utils/slide_routing.dart';
 import 'package:kabetex/models/product.dart';
@@ -19,14 +20,22 @@ class ProductCard extends ConsumerStatefulWidget {
 }
 
 class _ProductCardState extends ConsumerState<ProductCard> {
-  //bool isInCart = false;
   late final double height;
   bool isLoading = true;
 
   final Random random = Random();
 
+  bool get productInCart {
+    final allCart = ref.watch(cartProductsProvider);
+    return allCart.contains(widget.product);
+  }
+
   void addToCart() {
-    ref.read(cartProductsProvider.notifier).addToCart(widget.product!);
+    if (!productInCart) {
+      ref.read(cartProductsProvider.notifier).addToCart(widget.product!);
+    } else {
+      ref.read(cartProductsProvider.notifier).deleteFromCart(widget.product!);
+    }
   }
 
   @override
@@ -40,6 +49,7 @@ class _ProductCardState extends ConsumerState<ProductCard> {
     //simulate delay
     final randomDelay = 250 + random.nextInt(60);
     // simulate network loading
+    //to be removed later when using supabase for data fetching
     Future.delayed(Duration(milliseconds: randomDelay), () {
       if (mounted) {
         setState(() {
@@ -126,7 +136,7 @@ class _ProductCardState extends ConsumerState<ProductCard> {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: isDarkMode ? Colors.white12 : Colors.black26,
+              color: isDarkMode ? const Color(0xFF141414) : Colors.black26,
               blurRadius: 2,
               offset: const Offset(2, 2),
             ),
@@ -145,7 +155,7 @@ class _ProductCardState extends ConsumerState<ProductCard> {
                     tag: ValueKey(widget.product!.id),
                     child: CachedNetworkImage(
                       //Thumbnail image
-                      imageUrl: widget.product!.imageUrl[1],
+                      imageUrl: widget.product!.imageUrl[0],
                       height: height * 0.6,
                       width: double.infinity,
                       fit: BoxFit.cover,
@@ -193,7 +203,12 @@ class _ProductCardState extends ConsumerState<ProductCard> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          widget.product!.price.toString(),
+                          NumberFormat.currency(
+                            locale: 'en_KE',
+                            symbol: 'KSh ',
+                            decimalDigits:
+                                0, // so prices don’t show like 2,500.00 unless you want that
+                          ).format(widget.product!.price),
                           style: Theme.of(context).textTheme.bodyMedium!
                               .copyWith(
                                 fontWeight: FontWeight.bold,
@@ -220,14 +235,14 @@ class _ProductCardState extends ConsumerState<ProductCard> {
                   duration: const Duration(milliseconds: 200),
                   curve: Curves.easeInOut,
                   child: Icon(
-                    allCartList.contains(widget.product)
+                    productInCart
                         ? Icons.check_circle_sharp
                         : Icons.add_shopping_cart_sharp,
                     color: !isDarkMode
-                        ? allCartList.contains(widget.product)
+                        ? productInCart
                               ? Colors.red
                               : Colors.black
-                        : allCartList.contains(widget.product)
+                        : productInCart
                         ? Colors.red
                         : Colors.white,
                   ),
