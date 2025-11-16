@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:kabetex/pages/tabs_screen.dart';
 import 'package:kabetex/utils/slide_routing.dart';
 import 'package:kabetex/services/auth_services.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -12,7 +13,7 @@ class SignupPage extends StatefulWidget {
 
 class _SignupPageState extends State<SignupPage> {
   final authService = AuthService();
- 
+
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
@@ -24,31 +25,43 @@ class _SignupPageState extends State<SignupPage> {
   bool isSigningUp = false;
 
   void submitForm() async {
-    if (_formKey.currentState!.validate()) {
-      setState(() => isSigningUp = true);
+    if (!_formKey.currentState!.validate()) return;
 
-      try {
-        await authService.signUp(
-          email: _emailController.text,
-          password: _passwordController.text,
-          name: _nameController.text,
-          phone: _phoneController.text,
-          year: _selectedYear!,
+    setState(() => isSigningUp = true);
+
+    try {
+      await authService.signUp(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+        name: _nameController.text.trim(),
+        phone: _phoneController.text.trim(),
+        year: _selectedYear!,
+      );
+
+      final session = Supabase.instance.client.auth.currentSession;
+
+      //successful signup
+      if (session != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Sign Up successful! 🎉'),
+            backgroundColor: Colors.green,
+          ),
         );
 
-        // Navigate only after successful signup
         Navigator.pushReplacement(
           context,
           SlideRouting(page: const TabsScreen()),
         );
-      } catch (e) {
-        // Handle errors
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Signup failed: $e')));
-      } finally {
-        setState(() => isSigningUp = false);
       }
+    } on AuthException catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message), backgroundColor: Colors.red),
+      );
+    } finally {
+      setState(() {
+        isSigningUp = false;
+      });
     }
   }
 

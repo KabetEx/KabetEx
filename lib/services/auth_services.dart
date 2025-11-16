@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AuthService {
@@ -18,40 +19,50 @@ class AuthService {
         password: password,
       );
 
-      if (response.user != null) {
-        // Create profile after signup
-        await createProfile(
-          id: response.user!.id,
-          name: name,
-          email: email,
-          phone: phone,
-          year: year,
-        );
-        print('User signed up and profile created!');
-        print('$name, $email, $email, $phone, $year ');
+      // 🔥 If user is null → signup failed → throw AuthException manually
+      if (response.user == null) {
+        throw const AuthException('Signup failed.');
       }
+
+      // Create profile after successful signup
+      await createProfile(
+        id: response.user!.id,
+        name: name,
+        email: email,
+        phone: phone,
+        year: year,
+      );
+      print('User signed up and profile created!');
     } on AuthException catch (error) {
-      print('SignUp Error: ${error.message}');
+      rethrow;
     } catch (e) {
-      print('Unexpected Error: $e');
+      // 🔥 rethrow general errors too so UI can show them
+      throw Exception('Unexpected Error: $e');
     }
   }
 
   // ---------------- LOGIN ----------------
-  Future<void> signIn({required String email, required String password}) async {
+  Future<void> signInfcn({
+    required String email,
+    required String password,
+  }) async {
     try {
-      final response = await supabase.auth.signInWithPassword(
+      final res = await supabase.auth.signInWithPassword(
         email: email,
         password: password,
       );
 
-      if (response.user != null) {
-        print('Logged in as: ${response.user!.email}');
+      //successful login
+      if (res.session != null) {
+        print('Logged in as: ${res.user?.email}');
+      } else {
+        print('Login failed: session is null.');
       }
     } on AuthException catch (error) {
-      print('Login Error: ${error.message}');
+      throw AuthException(error.message);
     } catch (e) {
-      print('Unexpected Error: $e');
+      // 🔥 Send unexpected errors to UI too
+      throw Exception('Unexpected Error: $e');
     }
   }
 
@@ -64,7 +75,6 @@ class AuthService {
       print('SignOut Error: $e');
     }
   }
-
 
   // ---------------- CREATE PROFILE ----------------
   Future<void> createProfile({

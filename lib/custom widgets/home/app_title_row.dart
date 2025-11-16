@@ -4,7 +4,6 @@ import 'package:flutter_switch/flutter_switch.dart';
 import 'package:kabetex/pages/search_page.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 import 'package:kabetex/services/auth_services.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AppTitleRow extends ConsumerStatefulWidget {
   const AppTitleRow({super.key});
@@ -15,7 +14,6 @@ class AppTitleRow extends ConsumerStatefulWidget {
 
 class _AppTitleRowState extends ConsumerState<AppTitleRow> {
   String firstName = '';
-  AuthService authService = AuthService();
 
   @override
   void initState() {

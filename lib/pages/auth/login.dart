@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:kabetex/pages/auth/sign_up.dart';
 import 'package:kabetex/pages/tabs_screen.dart';
+import 'package:kabetex/services/auth_services.dart';
 import 'package:kabetex/utils/slide_routing.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -11,21 +13,49 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  bool hidePass = true;
   final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passController = TextEditingController();
+  AuthService authService = AuthService();
   bool isLogging = false;
+  bool hidePass = true;
 
-  void login() {
-    if (_formKey.currentState!.validate()) {
-      setState(() {
-        isLogging = true;
-      });
-      _formKey.currentState!.save();
+  Future<void> login() async {
+    if (!_formKey.currentState!.validate()) return;
 
-      setState(() {
-        isLogging = false;
-      });
-      Navigator.push(context, SlideRouting(page: const TabsScreen()));
+    setState(() => isLogging = true);
+
+    try {
+      await authService.signInfcn(
+        email: _emailController.text.trim(),
+        password: _passController.text.trim(),
+      );
+
+      final user = Supabase.instance.client.auth.currentUser;
+
+      if (user != null) {
+        Navigator.pushReplacement(
+          context,
+          SlideRouting(page: const TabsScreen()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Login failed, check your credentials')),
+        );
+      }
+    } on AuthException catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message), backgroundColor: Colors.red),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Unexpected error: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      setState(() => isLogging = false);
     }
   }
 
@@ -121,6 +151,7 @@ class _LoginPageState extends State<LoginPage> {
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                   ),
+                                  controller: _emailController,
                                   validator: (value) {
                                     if (value == null ||
                                         value.isEmpty ||
@@ -188,6 +219,7 @@ class _LoginPageState extends State<LoginPage> {
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                   ),
+                                  controller: _passController,
                                   validator: (value) {
                                     if (value == null ||
                                         value.isEmpty ||
