@@ -133,4 +133,5 @@ class AuthService {
 
   // ---------------- AUTH STATE STREAM ----------------
   Stream<AuthState> get authStateChanges => supabase.auth.onAuthStateChange;
+  
 }

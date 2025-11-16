@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/custom%20widgets/theme/gradient_container.dart';
 import 'package:kabetex/pages/auth/login.dart';
+import 'package:kabetex/pages/sellers-section-pages/upload_product/post_product_page.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 import 'package:kabetex/services/auth_services.dart';
 
@@ -13,6 +14,7 @@ class Mydrawer extends ConsumerStatefulWidget {
 }
 
 class _MydrawerState extends ConsumerState<Mydrawer> {
+  bool isSigningOut = false;
   @override
   Widget build(BuildContext context) {
     final isDarkMode = ref.watch(isDarkModeProvider);
@@ -36,22 +38,14 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    CircleAvatar(
-                      radius: 32,
-                      backgroundColor: Colors.white,
-                      child: Icon(
-                        Icons.person_rounded,
-                        size: 40,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
                     Text(
-                      ' Hello ${authService.user!.email ?? 'null'}',
+                      'From books to snacks \n — all here 🎒🍹',
+                      textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.titleMedium!.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
-                        fontSize: 16,
+                        fontSize: 18,
+                        fontFamily: 'Quicksand',
                       ),
                     ),
                   ],
@@ -69,9 +63,10 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
               title: Text(
                 'Home',
                 style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w500,
                   fontSize: 18,
                   color: isDarkMode ? Colors.white : Colors.black,
+                  fontFamily: 'Quicksand',
                 ),
               ),
               onTap: () {
@@ -88,9 +83,10 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
               title: Text(
                 'Settings',
                 style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w500,
                   fontSize: 18,
                   color: isDarkMode ? Colors.white : Colors.black,
+                  fontFamily: 'Quicksand',
                 ),
               ),
               onTap: () {
@@ -127,15 +123,24 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
                     : Theme.of(context).colorScheme.onPrimaryContainer,
               ),
               title: Text(
-                'Add products',
+                'Upload a product',
                 style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w500,
                   fontSize: 18,
                   color: isDarkMode ? Colors.white : Colors.black,
+                  fontFamily: 'Quicksand',
                 ),
               ),
               onTap: () {
                 Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return const PostProductPage();
+                    },
+                  ),
+                );
               },
             ),
             ListTile(
@@ -148,9 +153,10 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
               title: Text(
                 'My products',
                 style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w500,
                   fontSize: 18,
                   color: isDarkMode ? Colors.white : Colors.black,
+                  fontFamily: 'Quicksand',
                 ),
               ),
               onTap: () {
@@ -188,9 +194,10 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
               title: Text(
                 'Report a problem',
                 style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w500,
                   fontSize: 18,
                   color: isDarkMode ? Colors.white : Colors.black,
+                  fontFamily: 'Quicksand',
                 ),
               ),
               onTap: () {
@@ -208,9 +215,10 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
               title: Text(
                 'Contact us',
                 style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w500,
                   fontSize: 18,
                   color: isDarkMode ? Colors.white : Colors.black,
+                  fontFamily: 'Quicksand',
                 ),
               ),
               onTap: () {
@@ -228,15 +236,34 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
                     ? Colors.white
                     : Theme.of(context).colorScheme.onPrimaryContainer,
               ),
-              title: Text(
-                'SIGN OUT',
-                style: Theme.of(context).textTheme.labelLarge!.copyWith(
-                  color: Colors.red,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              title: isSigningOut
+                  ? const SizedBox(
+                      height: 14,
+                      width: 14,
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 1,
+                        ),
+                      ),
+                    )
+                  : Text(
+                      'SIGN OUT',
+                      style: Theme.of(context).textTheme.labelLarge!.copyWith(
+                        fontWeight: FontWeight.w500,
+                        fontSize: 18,
+                        color: Colors.red,
+                        fontFamily: 'Quicksand',
+                      ),
+                    ),
               onTap: () {
+                setState(() {
+                  isSigningOut = true;
+                });
                 authService.signOut();
+                setState(() {
+                  isSigningOut = true;
+                });
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const LoginPage()),

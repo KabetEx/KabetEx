@@ -13,7 +13,7 @@ import 'package:kabetex/pages/prod_details.dart';
 class ProductCard extends ConsumerStatefulWidget {
   const ProductCard({super.key, required this.product});
 
-  final Product? product;
+  final Product product;
 
   @override
   ConsumerState<ProductCard> createState() => _ProductCardState();
@@ -25,18 +25,18 @@ class _ProductCardState extends ConsumerState<ProductCard> {
 
   final Random random = Random();
 
-  bool get productInCart {
-    final allCart = ref.watch(cartProductsProvider);
-    return allCart.contains(widget.product);
-  }
+  // bool get productInCart {
+  //   final allCart = ref.watch(cartProductsProvider);
+  //   return allCart.contains(widget.id); //corrected later....
+  // }
 
-  void addToCart() {
-    if (!productInCart) {
-      ref.read(cartProductsProvider.notifier).addToCart(widget.product!);
-    } else {
-      ref.read(cartProductsProvider.notifier).deleteFromCart(widget.product!);
-    }
-  }
+  // void addToCart() {
+  //   if (!productInCart) {
+  //     ref.read(cartProductsProvider.notifier).addToCart(widget.product!);
+  //   } else {
+  //     ref.read(cartProductsProvider.notifier).deleteFromCart(widget.product!);
+  //   }
+  // }
 
   @override
   void initState() {
@@ -65,7 +65,7 @@ class _ProductCardState extends ConsumerState<ProductCard> {
     final allCartList = ref.watch(cartProductsProvider);
 
     // ---------------- Shimmer ----------------//
-    if (isLoading || widget.product == null) {
+    if (isLoading) {
       return Column(
         children: [
           // Image shimmer
@@ -126,7 +126,7 @@ class _ProductCardState extends ConsumerState<ProductCard> {
       onTap: () {
         Navigator.push(
           context,
-          SlideRouting(page: ProdDetailsPage(product: widget.product!)),
+          SlideRouting(page: ProdDetailsPage(product: widget.product)),
         );
       },
       child: Container(
@@ -152,10 +152,10 @@ class _ProductCardState extends ConsumerState<ProductCard> {
                     top: Radius.circular(12),
                   ),
                   child: Hero(
-                    tag: ValueKey(widget.product!.id),
+                    tag: ValueKey(widget.product.id),
                     child: CachedNetworkImage(
                       //Thumbnail image
-                      imageUrl: widget.product!.imageUrl[0],
+                      imageUrl: widget.product.imageUrls[0],
                       height: height * 0.6,
                       width: double.infinity,
                       fit: BoxFit.cover,
@@ -188,8 +188,9 @@ class _ProductCardState extends ConsumerState<ProductCard> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        //product title
                         Text(
-                          widget.product!.name,
+                          widget.product.title,
                           style: Theme.of(context).textTheme.bodyLarge!
                               .copyWith(
                                 fontWeight: FontWeight.bold,
@@ -206,9 +207,8 @@ class _ProductCardState extends ConsumerState<ProductCard> {
                           NumberFormat.currency(
                             locale: 'en_KE',
                             symbol: 'KSh ',
-                            decimalDigits:
-                                0, // so prices don’t show like 2,500.00 unless you want that
-                          ).format(widget.product!.price),
+                            decimalDigits: 0,
+                          ).format(widget.product.price),
                           style: Theme.of(context).textTheme.bodyMedium!
                               .copyWith(
                                 fontWeight: FontWeight.bold,
@@ -225,30 +225,30 @@ class _ProductCardState extends ConsumerState<ProductCard> {
               ],
             ),
             // Favorite Button
-            Positioned(
-              bottom: 4,
-              right: 4,
-              child: IconButton(
-                onPressed: addToCart,
-                icon: AnimatedScale(
-                  scale: allCartList.contains(widget.product) ? 1.1 : 1.0,
-                  duration: const Duration(milliseconds: 200),
-                  curve: Curves.easeInOut,
-                  child: Icon(
-                    productInCart
-                        ? Icons.check_circle_sharp
-                        : Icons.add_shopping_cart_sharp,
-                    color: !isDarkMode
-                        ? productInCart
-                              ? Colors.red
-                              : Colors.black
-                        : productInCart
-                        ? Colors.red
-                        : Colors.white,
-                  ),
-                ),
-              ),
-            ),
+            // Positioned(
+            //   bottom: 4,
+            //   right: 4,
+            //   child: IconButton(
+            //     onPressed: addToCart,
+            //     icon: AnimatedScale(
+            //       scale: allCartList.contains(widget.product) ? 1.1 : 1.0,
+            //       duration: const Duration(milliseconds: 200),
+            //       curve: Curves.easeInOut,
+            //       child: Icon(
+            //         productInCart
+            //             ? Icons.check_circle_sharp
+            //             : Icons.add_shopping_cart_sharp,
+            //         color: !isDarkMode
+            //             ? productInCart
+            //                   ? Colors.red
+            //                   : Colors.black
+            //             : productInCart
+            //             ? Colors.red
+            //             : Colors.white,
+            //       ),
+            //     ),
+            //   ),
+            // ),
           ],
         ),
       ),

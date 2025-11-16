@@ -1,17 +1,45 @@
 class Product {
-  const Product({
+  final String id;
+  final String title;
+  final String category;
+  final String description;
+  final double price;
+  final List<String> imageUrls;
+  final String sellerId;
+
+  Product({
     required this.id,
-    required this.name,
+    required this.title,
     required this.category,
-    required this.price,
-    required this.imageUrl,
     required this.description,
+    required this.price,
+    required this.imageUrls,
+    required this.sellerId,
   });
 
-  final String id;
-  final String name;
-  final String category;
-  final double price;
-  final List<String> imageUrl;
-  final String description;
+  // Factory constructor to create a Product from Supabase map
+  factory Product.fromMap(Map<String, dynamic> map) {
+    return Product(
+      id: map['id'] as String,
+      title: map['title'] as String,
+      category: map['category'] as String,
+      description: map['description'] as String,
+      price: (map['price'] as num).toDouble(), // supabase numeric → double
+      imageUrls: List<String>.from(map['image_urls'] ?? []),
+      sellerId: map['seller_id'] as String,
+    );
+  }
+
+  // Convert Product to a map for inserting/updating in Supabase
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'title': title,
+      'category': category,
+      'description': description,
+      'price': price,
+      'image_urls': imageUrls,
+      'seller_id': sellerId,
+    };
+  }
 }

@@ -35,7 +35,7 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
                       //product gallery
                       const SizedBox(height: 8),
                       ProductGallery(
-                        images: widget.product.imageUrl,
+                        images: widget.product.imageUrls,
                         product: widget.product,
                       ),
 
@@ -53,7 +53,7 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
                             Align(
                               alignment: Alignment.centerLeft,
                               child: Text(
-                                widget.product.name,
+                                widget.product.title,
                                 style: Theme.of(context).textTheme.titleLarge!
                                     .copyWith(
                                       color: isDarkMode

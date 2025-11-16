@@ -13,7 +13,7 @@ class AppTitleRow extends ConsumerStatefulWidget {
 }
 
 class _AppTitleRowState extends ConsumerState<AppTitleRow> {
-  String firstName = '';
+  String? firstName = '';
 
   @override
   void initState() {
@@ -139,13 +139,19 @@ class _AppTitleRowState extends ConsumerState<AppTitleRow> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    'Hello $firstName',
-                    style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w500,
-                      color: isDarkMode ? Colors.white : Colors.black,
-                      height: 1,
+                  RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: 'Hello ',
+                          style: Theme.of(context).textTheme.titleSmall!,
+                        ),
+                        TextSpan(
+                          text: firstName ?? '🤓 loading...',
+                          style: Theme.of(context).textTheme.titleSmall!
+                              .copyWith(fontWeight: FontWeight.w600),
+                        ),
+                      ],
                     ),
                   ),
                   Text(

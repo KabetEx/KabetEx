@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:kabetex/pages/auth/login.dart';
+import 'package:kabetex/pages/home_page.dart';
+import 'package:kabetex/pages/tabs_screen.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -120,7 +122,18 @@ class MyApp extends ConsumerWidget {
             ),
           ),
         ),
-        home: const LoginPage(),
+        home: StreamBuilder(
+          stream: Supabase.instance.client.auth.onAuthStateChange,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (!snapshot.hasData) {
+              return const LoginPage();
+            }
+            return const TabsScreen();
+          },
+        ),
       ),
     );
   }

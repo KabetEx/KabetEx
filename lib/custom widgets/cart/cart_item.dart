@@ -30,7 +30,7 @@ class _CartItemState extends ConsumerState<CartItem> {
             ClipRRect(
               borderRadius: BorderRadius.circular(16),
               child: CachedNetworkImage(
-                imageUrl: widget.product.imageUrl[1],
+                imageUrl: widget.product.imageUrls[1],
                 height: 80,
                 width: 80,
                 // THIS runs whether cached or not:
@@ -57,7 +57,7 @@ class _CartItemState extends ConsumerState<CartItem> {
                 children: [
                   //title
                   Text(
-                    widget.product.name,
+                    widget.product.title,
                     style: Theme.of(context).textTheme.titleMedium!.copyWith(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,

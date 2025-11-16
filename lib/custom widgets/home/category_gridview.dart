@@ -27,6 +27,7 @@ class MyCategoryGrid extends ConsumerWidget {
             return GestureDetector(
               onTap: () {
                 ref.read(selectedCategoryProvider.notifier).state = cat['name'];
+                print(cat['name']);
               },
               child: Padding(
                 padding: const EdgeInsets.symmetric(
