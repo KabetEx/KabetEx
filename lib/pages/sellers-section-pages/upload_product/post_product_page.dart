@@ -1,28 +1,32 @@
 import 'dart:typed_data';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kabetex/models/product.dart';
+import 'package:kabetex/pages/auth/sign_up.dart';
 import 'package:kabetex/pages/sellers-section-pages/upload_product/product_image.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:kabetex/providers/categories/categories_provider.dart';
 import 'package:kabetex/services/product_services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class PostProductPage extends StatefulWidget {
+class PostProductPage extends ConsumerStatefulWidget {
   const PostProductPage({super.key});
 
   @override
-  State<PostProductPage> createState() => PostProductPageState();
+  ConsumerState<PostProductPage> createState() => PostProductPageState();
 }
 
-class PostProductPageState extends State<PostProductPage> {
+class PostProductPageState extends ConsumerState<PostProductPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
 
   final productService = ProductService();
+  final user = Supabase.instance.client.auth.currentUser;
 
-  String? _selectedCategory;
+  String _selectedCategory = 'all';
   List<XFile> _pickedImages = [];
   bool isUploading = false;
 
@@ -52,14 +56,24 @@ class PostProductPageState extends State<PostProductPage> {
       // 1. Upload images to Supabase Storage
       final imageUrls = await productService.uploadImages(imagesBytes);
 
+      final profile = await Supabase.instance.client
+          .from('profiles')
+          .select('phone_number')
+          .eq('id', user!.id)
+          .single();
+
+      final sellerNumber = profile['phoneNumber'];
       // 2. Create product in Supabase
       await productService.createProduct(
-        title: _titleController.text.trim(),
-        description: _descController.text.trim(),
-        category: _selectedCategory!,
-        price: double.parse(_priceController.text.trim()),
-        imageUrls: imageUrls,
-        sellerId: Supabase.instance.client.auth.currentUser!.id,
+        Product(
+          title: _titleController.text,
+          category: _selectedCategory,
+          description: _descController.text,
+          price: double.tryParse(_priceController.text)!,
+          imageUrls: imageUrls,
+          sellerId: user!.id,
+          sellerNumber: profile['phone_number'],
+        ),
       );
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -78,6 +92,38 @@ class PostProductPageState extends State<PostProductPage> {
 
   @override
   Widget build(BuildContext context) {
+    final allCategories = ref.watch(allCategoriesProvider);
+
+    if (user == null) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Upload a product'),
+          centerTitle: true,
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const Text('You have to create \n an account to post'),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.deepOrange,
+                ),
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => const SignupPage()),
+                  );
+                },
+                child: const Text('Create an account'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(title: const Text('Upload a product'), centerTitle: true),
       backgroundColor: Colors.white,
@@ -105,19 +151,23 @@ class PostProductPageState extends State<PostProductPage> {
                 const SizedBox(height: 16),
 
                 // CATEGORY DROPDOWN
-                DropdownButtonFormField<String>(
-                  initialValue: _selectedCategory,
+                DropdownButtonFormField<Map<String, dynamic>>(
+                  initialValue: allCategories[0], //defaults to 'all'
                   decoration: const InputDecoration(
                     labelText: 'Select Category',
                     border: OutlineInputBorder(),
                   ),
-                  items: ['Electronics', 'Food', 'Clothes', 'Books']
+                  items: allCategories
                       .map(
-                        (cat) => DropdownMenuItem(value: cat, child: Text(cat)),
+                        (cat) => DropdownMenuItem(
+                          value: cat,
+                          child: Text(cat['name']),
+                        ),
                       )
                       .toList(),
-                  onChanged: (val) => setState(() => _selectedCategory = val),
-                  validator: (val) => val == null ? 'Select a category' : null,
+                  onChanged: (val) =>
+                      setState(() => _selectedCategory = val!['name']),
+                  validator: (val) => null,
                 ),
                 const SizedBox(height: 16),
 

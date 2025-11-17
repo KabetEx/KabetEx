@@ -12,15 +12,11 @@ class MyBottomNav extends ConsumerWidget {
   @override
   Widget build(BuildContext context, ref) {
     final selectedIndex = ref.watch(tabsProvider);
-    final selectedColor = isDarkMode
-        ? Colors.orange
-        : Theme.of(context).colorScheme.primary;
+    final selectedColor = isDarkMode ? Colors.deepOrange : Colors.deepOrange;
     final unselectedColor = isDarkMode ? Colors.white : Colors.black;
 
     return SalomonBottomBar(
-      backgroundColor: isDarkMode
-          ? const Color.fromARGB(255, 66, 60, 51)
-          : Theme.of(context).colorScheme.primaryContainer.withAlpha(200),
+      backgroundColor: isDarkMode ? Colors.black : Colors.white,
       currentIndex: selectedIndex,
       onTap: (i) => ref.read(tabsProvider.notifier).state = i,
       margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),

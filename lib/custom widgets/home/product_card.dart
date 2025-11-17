@@ -20,23 +20,8 @@ class ProductCard extends ConsumerStatefulWidget {
 }
 
 class _ProductCardState extends ConsumerState<ProductCard> {
-  late final double height;
-  bool isLoading = true;
-
   final Random random = Random();
-
-  // bool get productInCart {
-  //   final allCart = ref.watch(cartProductsProvider);
-  //   return allCart.contains(widget.id); //corrected later....
-  // }
-
-  // void addToCart() {
-  //   if (!productInCart) {
-  //     ref.read(cartProductsProvider.notifier).addToCart(widget.product!);
-  //   } else {
-  //     ref.read(cartProductsProvider.notifier).deleteFromCart(widget.product!);
-  //   }
-  // }
+  late double height;
 
   @override
   void initState() {
@@ -45,18 +30,6 @@ class _ProductCardState extends ConsumerState<ProductCard> {
     height =
         250 +
         random.nextInt(60).toDouble(); // variable height for Pinterest style
-
-    //simulate delay
-    final randomDelay = 250 + random.nextInt(60);
-    // simulate network loading
-    //to be removed later when using supabase for data fetching
-    Future.delayed(Duration(milliseconds: randomDelay), () {
-      if (mounted) {
-        setState(() {
-          isLoading = false;
-        });
-      }
-    });
   }
 
   @override
@@ -65,61 +38,6 @@ class _ProductCardState extends ConsumerState<ProductCard> {
     final allCartList = ref.watch(cartProductsProvider);
 
     // ---------------- Shimmer ----------------//
-    if (isLoading) {
-      return Column(
-        children: [
-          // Image shimmer
-          Shimmer.fromColors(
-            baseColor: Colors.grey[400]!, // darker for image
-            highlightColor: Colors.grey[300]!,
-            child: Container(
-              height: height * 0.6,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.grey[400],
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(12),
-                ),
-              ),
-            ),
-          ),
-          // Text shimmer
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Shimmer.fromColors(
-                  baseColor: Colors.grey[500]!, // darker for text
-                  highlightColor: Colors.grey[350]!,
-                  child: Container(
-                    height: 16,
-                    width: 120,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[500],
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Shimmer.fromColors(
-                  baseColor: Colors.grey[500]!,
-                  highlightColor: Colors.grey[350]!,
-                  child: Container(
-                    height: 14,
-                    width: 80,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[500],
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      );
-    }
 
     // ---------------- Real Card ----------------
     return GestureDetector(
@@ -163,7 +81,7 @@ class _ProductCardState extends ConsumerState<ProductCard> {
                         baseColor: Colors.grey[300]!,
                         highlightColor: Colors.grey[100]!,
                         child: Container(
-                          height: height * 0.6,
+                          height: 60,
                           width: double.infinity,
                           color: Colors.grey[400],
                         ),
@@ -214,8 +132,8 @@ class _ProductCardState extends ConsumerState<ProductCard> {
                                 fontWeight: FontWeight.bold,
                                 fontSize: 14,
                                 color: isDarkMode
-                                    ? Colors.orange
-                                    : Theme.of(context).colorScheme.primary,
+                                    ? Colors.deepOrange
+                                    : Colors.deepOrange,
                               ),
                         ),
                       ],

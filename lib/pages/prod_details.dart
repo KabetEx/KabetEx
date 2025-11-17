@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:kabetex/custom%20widgets/theme/gradient_container.dart';
 import 'package:kabetex/custom widgets/product_details/image_carousel.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/models/product.dart';
 import 'package:kabetex/providers/theme_provider.dart';
+import 'package:kabetex/services/product_services.dart';
 
 class ProdDetailsPage extends ConsumerStatefulWidget {
   const ProdDetailsPage({super.key, required this.product});
@@ -16,156 +16,161 @@ class ProdDetailsPage extends ConsumerStatefulWidget {
 
 class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
   bool isAdded = false;
+  final productServive = ProductService();
+
+  void contactSeller() async {
+    final sellerNumber = await productServive.getSellerNumber(
+      widget.product.sellerId,
+    );
+
+    print(sellerNumber);
+  }
 
   @override
   Widget build(BuildContext context) {
     final isDarkMode = ref.watch(isDarkModeProvider);
 
     return Scaffold(
+      backgroundColor: isDarkMode
+          ? Colors.black
+          : const Color.fromARGB(255, 237, 228, 225),
       appBar: AppBar(backgroundColor: isDarkMode ? Colors.grey : Colors.white),
       body: SafeArea(
         child: Stack(
           children: [
-            MyGradientContainer(
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 2.0),
-                  child: Column(
-                    children: [
-                      //product gallery
-                      const SizedBox(height: 8),
-                      ProductGallery(
-                        images: widget.product.imageUrls,
-                        product: widget.product,
+            SingleChildScrollView(
+              padding: const EdgeInsets.only(bottom: 90),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 2.0),
+                child: Column(
+                  children: [
+                    //product gallery
+                    const SizedBox(height: 8),
+                    ProductGallery(
+                      images: widget.product.imageUrls,
+                      product: widget.product,
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    //product title
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0,
+                        vertical: 4,
                       ),
+                      child: Row(
+                        children: [
+                          //title
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              widget.product.title,
+                              style: Theme.of(context).textTheme.titleLarge!
+                                  .copyWith(
+                                    color: isDarkMode
+                                        ? Colors.white
+                                        : Colors.black,
+                                    fontSize: 26,
+                                  ),
+                            ),
+                          ),
 
-                      const SizedBox(height: 16),
+                          const Spacer(),
 
-                      //product title
-                      Padding(
+                          //add to cart
+                          IconButton(
+                            onPressed: () {
+                              setState(() {
+                                isAdded = !isAdded;
+                              });
+                            },
+                            icon: AnimatedScale(
+                              scale: isAdded ? 1.3 : 1.0,
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.bounceIn,
+                              child: isAdded
+                                  ? const Icon(
+                                      Icons.shopping_cart_checkout,
+                                      size: 24,
+                                      color: Colors.black,
+                                    )
+                                  : const Icon(
+                                      Icons.check,
+                                      color: Colors.orange,
+                                      size: 24,
+                                    ),
+                            ),
+                            color: isDarkMode ? Colors.white : Colors.black,
+                          ),
+                        ],
+                      ),
+                    ),
+                    //price
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Padding(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 16.0,
-                          vertical: 4,
+                          vertical: 8,
                         ),
-                        child: Row(
-                          children: [
-                            //title
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                widget.product.title,
-                                style: Theme.of(context).textTheme.titleLarge!
-                                    .copyWith(
-                                      color: isDarkMode
-                                          ? Colors.white
-                                          : Colors.black,
-                                      fontSize: 26,
-                                    ),
+                        child: Text(
+                          NumberFormat.currency(
+                            locale: 'en_KE',
+                            symbol: 'KSh ',
+                          ).format(widget.product.price),
+                          style: Theme.of(context).textTheme.bodyLarge!
+                              .copyWith(
+                                color: isDarkMode ? Colors.white : Colors.black,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w300,
                               ),
-                            ),
+                        ),
+                      ),
+                    ),
 
-                            const Spacer(),
+                    const SizedBox(height: 8),
 
-                            //add to cart
-                            IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  isAdded = !isAdded;
-                                });
-                              },
-                              icon: AnimatedScale(
-                                scale: isAdded ? 1.3 : 1.0,
-                                duration: const Duration(milliseconds: 300),
-                                curve: Curves.bounceIn,
-                                child: isAdded
-                                    ? const Icon(
-                                        Icons.shopping_cart_checkout,
-                                        size: 24,
-                                        color: Colors.black,
-                                      )
-                                    : const Icon(
-                                        Icons.check,
-                                        color: Colors.orange,
-                                        size: 24,
-                                      ),
+                    //product description
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16.0,
+                          vertical: 8,
+                        ),
+                        child: Text(
+                          'Description',
+                          style: Theme.of(context).textTheme.titleMedium!
+                              .copyWith(
+                                color: isDarkMode ? Colors.white : Colors.black,
+                                fontSize: 24,
+                                fontWeight: FontWeight.w700,
+                                decoration: TextDecoration.underline,
                               ),
-                              color: isDarkMode ? Colors.white : Colors.black,
-                            ),
-                          ],
                         ),
                       ),
-                      //price
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16.0,
-                            vertical: 8,
-                          ),
-                          child: Text(
-                            NumberFormat.currency(
-                              locale: 'en_KE',
-                              symbol: 'KSh ',
-                            ).format(widget.product.price),
-                            style: Theme.of(context).textTheme.bodyLarge!
-                                .copyWith(
-                                  color: isDarkMode
-                                      ? Colors.white
-                                      : Colors.black,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w300,
-                                ),
-                          ),
+                    ),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16.0,
+                          vertical: 8,
+                        ),
+                        child: Text(
+                          widget.product.description,
+                          style: Theme.of(context).textTheme.bodyLarge!
+                              .copyWith(
+                                color: isDarkMode ? Colors.white : Colors.black,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w200,
+                              ),
                         ),
                       ),
-
-                      const SizedBox(height: 8),
-
-                      //product description
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16.0,
-                            vertical: 8,
-                          ),
-                          child: Text(
-                            'Description',
-                            style: Theme.of(context).textTheme.titleMedium!
-                                .copyWith(
-                                  color: isDarkMode
-                                      ? Colors.white
-                                      : Colors.black,
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.w700,
-                                  decoration: TextDecoration.underline,
-                                ),
-                          ),
-                        ),
-                      ),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16.0,
-                            vertical: 8,
-                          ),
-                          child: Text(
-                            widget.product.description,
-                            style: Theme.of(context).textTheme.bodyLarge!
-                                .copyWith(
-                                  color: isDarkMode
-                                      ? Colors.white
-                                      : Colors.black,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w200,
-                                ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
                 ),
               ),
             ),
@@ -174,7 +179,7 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
               left: 16,
               right: 16,
               child: ElevatedButton.icon(
-                onPressed: () {},
+                onPressed: contactSeller,
                 icon: const Icon(Icons.chat, color: Colors.white, size: 30),
                 label: Text(
                   'Contact seller',
@@ -195,28 +200,6 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
           ],
         ),
       ),
-
-      // bottomNavigationBar: SizedBox(
-      //   height: 70,
-      //   child: Padding(
-      //     padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 12),
-      //     //button
-      //     child: ElevatedButton.icon(
-      //       onPressed: () {},
-      //       label: const Text('Contact seller'),
-      //       icon: const Icon(Icons.chat),
-      //       style: ElevatedButton.styleFrom(
-      //         backgroundColor: Theme.of(context).colorScheme.primary,
-      //         foregroundColor: Colors.white,
-      //         iconColor: Colors.white,
-      //         shape: RoundedRectangleBorder(
-      //           side: BorderSide.none,
-      //           borderRadius: BorderRadius.circular(8),
-      //         ),
-      //       ),
-      //     ),
-      //   ),
-      // ),
     );
   }
 }

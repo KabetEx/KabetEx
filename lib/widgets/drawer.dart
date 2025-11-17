@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kabetex/custom%20widgets/theme/gradient_container.dart';
 import 'package:kabetex/pages/auth/login.dart';
+import 'package:kabetex/pages/sellers-section-pages/my_products_page.dart';
 import 'package:kabetex/pages/sellers-section-pages/upload_product/post_product_page.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 import 'package:kabetex/services/auth_services.dart';
+import 'package:kabetex/utils/slide_routing.dart';
 
 class Mydrawer extends ConsumerStatefulWidget {
   const Mydrawer({super.key});
@@ -21,10 +22,12 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
     final authService = AuthService();
 
     return Drawer(
-      backgroundColor: isDarkMode
-          ? Theme.of(context).colorScheme.primary
-          : Colors.orange,
-      child: MyGradientContainer(
+      child: Container(
+        decoration: BoxDecoration(
+          color: isDarkMode
+              ? Colors.black
+              : const Color.fromARGB(255, 237, 228, 225),
+        ),
         child: Column(
           children: [
             SizedBox(
@@ -32,7 +35,7 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
               child: DrawerHeader(
                 decoration: BoxDecoration(
                   color: isDarkMode
-                      ? Theme.of(context).colorScheme.primary
+                      ? const Color.fromARGB(255, 129, 42, 16)
                       : Theme.of(context).colorScheme.onPrimaryContainer,
                 ),
                 child: Column(
@@ -161,6 +164,10 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
               ),
               onTap: () {
                 Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  SlideRouting(page: const MyProductsPage()),
+                );
               },
             ),
 

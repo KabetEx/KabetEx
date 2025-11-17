@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:kabetex/pages/auth/login.dart';
-import 'package:kabetex/pages/home_page.dart';
 import 'package:kabetex/pages/tabs_screen.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -19,12 +18,8 @@ void main() async {
 }
 
 //colorschemes
-final kLightColorScheme = ColorScheme.fromSeed(
-  seedColor: const Color.fromARGB(255, 255, 145, 0),
-);
-final kDarkColorScheme = ColorScheme.fromSeed(
-  seedColor: const Color.fromARGB(255, 130, 74, 0),
-);
+final kLightColorScheme = ColorScheme.fromSeed(seedColor: Colors.deepOrange);
+final kDarkColorScheme = ColorScheme.fromSeed(seedColor: Colors.deepOrange);
 
 class MyApp extends ConsumerWidget {
   const MyApp({super.key});

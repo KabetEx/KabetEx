@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'package:kabetex/models/product.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProductService {
@@ -11,7 +12,7 @@ class ProductService {
     for (var i = 0; i < images.length; i++) {
       final fileName =
           'product_${DateTime.now().millisecondsSinceEpoch}_$i.jpg';
-      final response = await supabase.storage
+      await supabase.storage
           .from('product-images')
           .uploadBinary(fileName, images[i]);
 
@@ -24,23 +25,32 @@ class ProductService {
     return urls;
   }
 
+  //get seller Whatsapp number
+  Future<String?> getSellerNumber(String sellerId) async {
+    final res = await supabase
+        .from('products')
+        .select('seller_number')
+        .eq('seller_id', sellerId)
+        .maybeSingle();
+    if (res == null) return null;
+    return res['seller_number'];
+  }
+
   // ---------------- CREATE PRODUCT ----------------
-  Future<void> createProduct({
-    required String title,
-    required String description,
-    required String category,
-    required double price,
-    required List<String> imageUrls,
-    required String sellerId,
-  }) async {
-    await supabase.from('products').insert({
-      'title': title,
-      'description': description,
-      'category': category,
-      'price': price,
-      'image_urls': imageUrls, // your text[] column
-      'seller_id': sellerId,
-    });
+  Future<void> createProduct(Product product) async {
+    await supabase.from('products').insert(product.toMap());
+  }
+
+  //fetch specific user products
+  Future<List<Product>> getMyProducts(String sellerId) async {
+    final res = await supabase
+        .from('products')
+        .select()
+        .eq('seller_id', sellerId);
+
+    return res.map((p) {
+      return Product.fromMap(p);
+    }).toList();
   }
 
   // fetch products
