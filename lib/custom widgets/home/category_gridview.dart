@@ -43,21 +43,27 @@ class MyCategoryGrid extends ConsumerWidget {
                         //if selected
                         selectedCategory == cat['name']
                         ? isDarkMode
-                              ? const Color.fromARGB(255, 237, 237, 237)
-                              : Colors.black
+                              ? Colors.deepOrange
+                              : Colors.deepOrange
                         :
                           //if is not selected
                           isDarkMode
                         ? Colors.black
                         : Colors.white,
 
-                    boxShadow: [
-                      BoxShadow(
-                        color: isDarkMode ? Colors.grey : Colors.black,
-                        blurRadius: 1,
-                        offset: const Offset(0.5, 0.5),
-                      ),
-                    ],
+                    border: Border.all(
+                      color: selectedCategory == cat['name']
+                          ? Colors.deepOrange
+                          : Colors.grey,
+                      width: 0.8,
+                    ),
+                    // boxShadow: [
+                    //   BoxShadow(
+                    //     color: isDarkMode ? Colors.grey : Colors.black,
+                    //     blurRadius: 1,
+                    //     offset: const Offset(0.5, 0.5),
+                    //   ),
+                    // ],
                   ),
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   alignment: Alignment.center,
@@ -68,14 +74,15 @@ class MyCategoryGrid extends ConsumerWidget {
                           //if selected
                           selectedCategory == cat['name']
                           ? isDarkMode
-                                ? Colors.black
+                                ? Colors.white
                                 : Colors.white
                           //not selected
                           : isDarkMode
                           ? Colors.white
                           : Colors.black,
-                      fontWeight: FontWeight.w500,
+                      fontWeight: FontWeight.bold,
                       fontSize: 12,
+                      fontFamily: 'roboto',
                     ),
                   ),
                 ),

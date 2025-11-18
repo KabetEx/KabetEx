@@ -5,21 +5,23 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class ProductService {
   final supabase = Supabase.instance.client;
 
-  // ---------------- UPLOAD IMAGES ----------------
+  // ---------------- UPLOAD IMAGES ----------------//
   Future<List<String>> uploadImages(List<Uint8List> images) async {
-    List<String> urls = [];
+    List<String> urls = []; //empty list
 
+    //loop through each image and return its string url
     for (var i = 0; i < images.length; i++) {
       final fileName =
-          'product_${DateTime.now().millisecondsSinceEpoch}_$i.jpg';
+          'product_${DateTime.now().millisecondsSinceEpoch}_$i.jpg'; //create filename(path)
       await supabase.storage
           .from('product-images')
           .uploadBinary(fileName, images[i]);
 
+      //get image's url
       final publicUrl = supabase.storage
           .from('product-images')
           .getPublicUrl(fileName);
-      urls.add(publicUrl);
+      urls.add(publicUrl); //add it to the list
     }
 
     return urls;
@@ -30,8 +32,8 @@ class ProductService {
     final res = await supabase
         .from('products')
         .select('seller_number')
-        .eq('seller_id', sellerId)
-        .maybeSingle();
+        .eq('seller_id', sellerId) //if 'seller_id' matchs the seller's id
+        .maybeSingle(); //max 1 row (product)
     if (res == null) return null;
     return res['seller_number'];
   }
@@ -41,30 +43,37 @@ class ProductService {
     await supabase.from('products').insert(product.toMap());
   }
 
-  //fetch specific user products
+  //fetch specific user's products
   Future<List<Product>> getMyProducts(String sellerId) async {
     final res = await supabase
         .from('products')
         .select()
         .eq('seller_id', sellerId);
 
-    return res.map((p) {
-      return Product.fromMap(p);
-    }).toList();
+    return (res as List<dynamic>?)?.map((p) {
+          return Product.fromMap(p);
+        }).toList() ??
+        [];
   }
 
-  // fetch products
-  Future<List<Map<String, dynamic>>> getProducts() async {
-    final res = await supabase.from('products').select().eq('isActive', true);
-    return List<Map<String, dynamic>>.from(res);
-  }
+  // fetch active products, newer first
+  Stream<List<Product>> getProductsStream() {
+    supabase
+        .from('products')
+        .select()
+        .eq('isActive', true)
+        .order('created_at', ascending: false);
 
-  //convert getProducts() to a stream
-  Stream<List<Map<String, dynamic>>> productsStream() async* {
-    while (true) {
-      final products = await ProductService().getProducts();
-      yield products;
-      await Future.delayed(const Duration(seconds: 5)); // auto-refresh every 5s
-    }
+    //listen to changes from products tables
+   final allProducts  = supabase
+        .from('products')
+        .stream(primaryKey: ['id'])
+        .eq('isActive', true).order('created_at', ascending: false)
+        .map((maps) {
+          return maps.map((map) {
+            return Product.fromMap(map);
+          }).toList();
+        });
+        return allProducts;
   }
 }

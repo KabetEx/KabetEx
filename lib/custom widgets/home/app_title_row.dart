@@ -54,7 +54,7 @@ class _AppTitleRowState extends ConsumerState<AppTitleRow> {
               top: 2,
               right: 8,
               left: 8,
-              bottom: 4,
+              bottom: 0,
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -144,12 +144,23 @@ class _AppTitleRowState extends ConsumerState<AppTitleRow> {
                       children: [
                         TextSpan(
                           text: 'Hello ',
-                          style: Theme.of(context).textTheme.titleSmall!,
+                          style: Theme.of(context).textTheme.titleSmall!
+                              .copyWith(
+                                color: isDarkMode
+                                    ? Colors.deepOrange
+                                    : Colors.black,
+                                fontWeight: FontWeight.w400,
+                              ),
                         ),
                         TextSpan(
-                          text: firstName ?? '🤓 loading...',
+                          text: firstName!.isEmpty ? 'guest' : firstName,
                           style: Theme.of(context).textTheme.titleSmall!
-                              .copyWith(fontWeight: FontWeight.w600),
+                              .copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: isDarkMode
+                                    ? Colors.deepOrange
+                                    : Colors.black,
+                              ),
                         ),
                       ],
                     ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:kabetex/custom widgets/product_details/image_carousel.dart';
+import 'package:kabetex/pages/product_details/image_carousel.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/models/product.dart';
 import 'package:kabetex/providers/theme_provider.dart';

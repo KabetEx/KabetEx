@@ -8,7 +8,7 @@ import 'package:kabetex/utils/slide_routing.dart';
 import 'package:kabetex/models/product.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:kabetex/pages/prod_details.dart';
+import 'package:kabetex/pages/product_details/prod_details.dart';
 
 class ProductCard extends ConsumerStatefulWidget {
   const ProductCard({super.key, required this.product});
@@ -37,8 +37,6 @@ class _ProductCardState extends ConsumerState<ProductCard> {
     final isDarkMode = ref.watch(isDarkModeProvider);
     final allCartList = ref.watch(cartProductsProvider);
 
-    // ---------------- Shimmer ----------------//
-
     // ---------------- Real Card ----------------
     return GestureDetector(
       onTap: () {
@@ -50,13 +48,15 @@ class _ProductCardState extends ConsumerState<ProductCard> {
       child: Container(
         height: height,
         decoration: BoxDecoration(
-          color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-          borderRadius: BorderRadius.circular(12),
+          color: isDarkMode
+              ? Colors.black
+              : const Color.fromARGB(255, 237, 228, 225),
+          borderRadius: BorderRadius.circular(8),
           boxShadow: [
             BoxShadow(
               color: isDarkMode ? Colors.grey[700]! : const Color(0xFF141414),
               blurRadius: 1,
-              offset: const Offset(2, 2),
+              offset: const Offset(1, 1),
             ),
           ],
         ),
@@ -67,7 +67,7 @@ class _ProductCardState extends ConsumerState<ProductCard> {
                 // Product Image
                 ClipRRect(
                   borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(12),
+                    top: Radius.circular(4),
                   ),
                   child: Hero(
                     tag: ValueKey(widget.product.id),
@@ -143,30 +143,22 @@ class _ProductCardState extends ConsumerState<ProductCard> {
               ],
             ),
             // Favorite Button
-            // Positioned(
-            //   bottom: 4,
-            //   right: 4,
-            //   child: IconButton(
-            //     onPressed: addToCart,
-            //     icon: AnimatedScale(
-            //       scale: allCartList.contains(widget.product) ? 1.1 : 1.0,
-            //       duration: const Duration(milliseconds: 200),
-            //       curve: Curves.easeInOut,
-            //       child: Icon(
-            //         productInCart
-            //             ? Icons.check_circle_sharp
-            //             : Icons.add_shopping_cart_sharp,
-            //         color: !isDarkMode
-            //             ? productInCart
-            //                   ? Colors.red
-            //                   : Colors.black
-            //             : productInCart
-            //             ? Colors.red
-            //             : Colors.white,
-            //       ),
-            //     ),
-            //   ),
-            // ),
+            Positioned(
+              bottom: 4,
+              right: 4,
+              child: IconButton(
+                onPressed: () {},
+                icon: AnimatedScale(
+                  scale: allCartList.contains(widget.product) ? 1.1 : 1.0,
+                  duration: const Duration(milliseconds: 200),
+                  curve: Curves.easeInOut,
+                  child: const Icon(
+                    Icons.check_circle_sharp,
+                    color: Colors.red,
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),

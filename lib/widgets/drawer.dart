@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/pages/auth/login.dart';
-import 'package:kabetex/pages/sellers-section-pages/my_products_page.dart';
+import 'package:kabetex/pages/auth/sign_up.dart';
+import 'package:kabetex/pages/sellers-section-pages/my_products/my_products_page.dart';
 import 'package:kabetex/pages/sellers-section-pages/upload_product/post_product_page.dart';
+import 'package:kabetex/pages/settings_page.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 import 'package:kabetex/services/auth_services.dart';
 import 'package:kabetex/utils/slide_routing.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Mydrawer extends ConsumerStatefulWidget {
   const Mydrawer({super.key});
@@ -20,6 +23,7 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
   Widget build(BuildContext context) {
     final isDarkMode = ref.watch(isDarkModeProvider);
     final authService = AuthService();
+    final user = Supabase.instance.client.auth.currentUser;
 
     return Drawer(
       child: Container(
@@ -94,6 +98,10 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
               ),
               onTap: () {
                 Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const SettingsPage()),
+                );
               },
             ),
 
@@ -237,12 +245,14 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
             //sign out
             const Divider(),
             ListTile(
-              leading: Icon(
-                Icons.logout_rounded,
-                color: isDarkMode
-                    ? Colors.white
-                    : Theme.of(context).colorScheme.onPrimaryContainer,
-              ),
+              leading: user == null
+                  ? const Icon(Icons.supervised_user_circle_rounded)
+                  : Icon(
+                      Icons.logout_rounded,
+                      color: isDarkMode
+                          ? Colors.white
+                          : Theme.of(context).colorScheme.onPrimaryContainer,
+                    ),
               title: isSigningOut
                   ? const SizedBox(
                       height: 14,
@@ -252,6 +262,16 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
                           color: Colors.white,
                           strokeWidth: 1,
                         ),
+                      ),
+                    )
+                  : user == null
+                  ? Text(
+                      'Create an account',
+                      style: Theme.of(context).textTheme.labelLarge!.copyWith(
+                        fontWeight: FontWeight.w500,
+                        fontSize: 18,
+                        color: Colors.green,
+                        fontFamily: 'roboto',
                       ),
                     )
                   : Text(
@@ -264,16 +284,24 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
                       ),
                     ),
               onTap: () {
-                setState(() {
-                  isSigningOut = true;
-                });
-                authService.signOut();
-                setState(() {
-                  isSigningOut = true;
-                });
-                Navigator.push(
+                if (user != null) {
+                  setState(() {
+                    isSigningOut = true;
+                  });
+                  authService.signOut();
+                  setState(() {
+                    isSigningOut = true;
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const LoginPage(),
+                      ),
+                    );
+                  });
+                }
+                Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => const LoginPage()),
+                  MaterialPageRoute(builder: (context) => const SignupPage()),
                 );
               },
             ),

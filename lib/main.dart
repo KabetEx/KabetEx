@@ -117,13 +117,14 @@ class MyApp extends ConsumerWidget {
             ),
           ),
         ),
-        home: StreamBuilder(
+        home: StreamBuilder<AuthState>(
           stream: Supabase.instance.client.auth.onAuthStateChange,
           builder: (context, snapshot) {
+            final user = Supabase.instance.client.auth.currentUser;
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
             }
-            if (!snapshot.hasData) {
+            if (user == null) {
               return const LoginPage();
             }
             return const TabsScreen();

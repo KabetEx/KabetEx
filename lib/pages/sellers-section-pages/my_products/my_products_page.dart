@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kabetex/custom%20widgets/home/product_card.dart';
 import 'package:kabetex/pages/auth/sign_up.dart';
+import 'package:kabetex/pages/sellers-section-pages/my_products/SellerProductTile.dart';
 import 'package:kabetex/providers/seller_products/my_products.dart';
+import 'package:kabetex/providers/theme_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class MyProductsPage extends ConsumerWidget {
@@ -11,10 +12,14 @@ class MyProductsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final myProductsAsync = ref.watch(myProductsProvider);
+    final isDark = ref.watch(isDarkModeProvider);
     final user = Supabase.instance.client.auth.currentUser;
 
     if (user == null) {
       return Scaffold(
+        backgroundColor: isDark
+            ? Colors.black
+            : const Color.fromARGB(255, 237, 228, 225),
         appBar: AppBar(
           title: const Text('Upload a product'),
           centerTitle: true,
@@ -43,17 +48,14 @@ class MyProductsPage extends ConsumerWidget {
       );
     }
     return Scaffold(
+      backgroundColor: isDark
+          ? Colors.black
+          : const Color.fromARGB(255, 237, 228, 225),
       appBar: AppBar(title: const Text("My Products")),
       body: myProductsAsync.when(
-        loading: () => GridView.builder(
+        loading: () => ListView.builder(
           padding: const EdgeInsets.all(16),
           itemCount: 6,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            childAspectRatio: .75,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-          ),
           itemBuilder: (_, i) => Container(
             decoration: BoxDecoration(
               color: Colors.grey.shade300,
@@ -69,18 +71,12 @@ class MyProductsPage extends ConsumerWidget {
             );
           }
 
-          return GridView.builder(
+          return ListView.builder(
             padding: const EdgeInsets.all(16),
             itemCount: products.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              childAspectRatio: .75,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-            ),
             itemBuilder: (_, index) {
               final product = products[index];
-              return ProductCard(product: product);
+              return SellerProductTile(product: product);
             },
           );
         },

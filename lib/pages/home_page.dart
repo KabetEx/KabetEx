@@ -23,17 +23,26 @@ class HomePage extends ConsumerWidget {
         onTap: () {
           FocusScope.of(context).unfocus();
         },
-        child: const SafeArea(
+        child: SafeArea(
           child: Column(
             children: [
               //row for tile and the 2 icons
-              AppTitleRow(),
-              //hero banner
-              MyHeroBanner(),
-              //gridview for categories
-              MyCategoryGrid(),
-              //product items gridview
-              MyProductsGridview(),
+              const AppTitleRow(),
+              const SizedBox(height: 8),
+
+              Expanded(
+                child: ListView(
+                  children: [
+                    //hero banner
+                    const MyHeroBanner(),
+                    //gridview for categories
+                    const MyCategoryGrid(),
+                    //product items gridview
+                    const MyProductsGridview(),
+                    const SizedBox(height: 16),
+                  ],
+                ),
+              ),
             ],
           ),
         ),

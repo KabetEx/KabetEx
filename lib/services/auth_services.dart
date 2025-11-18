@@ -32,7 +32,7 @@ class AuthService {
         year: year,
       );
       print('User signed up and profile created!');
-    } on AuthException catch (error) {
+    } on AuthException {
       rethrow;
     } catch (e) {
       // 🔥 rethrow general errors too so UI can show them
@@ -132,5 +132,4 @@ class AuthService {
 
   // ---------------- AUTH STATE STREAM ----------------
   Stream<AuthState> get authStateChanges => supabase.auth.onAuthStateChange;
-  
 }

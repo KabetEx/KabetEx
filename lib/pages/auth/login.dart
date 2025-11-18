@@ -33,11 +33,15 @@ class _LoginPageState extends State<LoginPage> {
 
       final user = Supabase.instance.client.auth.currentUser;
 
+      //i.e if an account is logged in
       if (user != null) {
         Navigator.pushReplacement(
           context,
           SlideRouting(page: const TabsScreen()),
         );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Login successful🥂')));
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Login failed, check your credentials')),

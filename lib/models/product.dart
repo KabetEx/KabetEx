@@ -1,5 +1,3 @@
-import 'package:kabetex/services/auth_services.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Product {
   final String? id;
@@ -10,6 +8,7 @@ class Product {
   final List<String> imageUrls;
   final String sellerId;
   final String sellerNumber;
+  final bool? isActive;
 
   Product({
     this.id,
@@ -20,6 +19,7 @@ class Product {
     required this.imageUrls,
     required this.sellerId,
     required this.sellerNumber,
+    this.isActive,
   });
 
   // Convert Product to a map for inserting/updating in Supabase
@@ -43,9 +43,12 @@ class Product {
       category: map['category'] as String,
       description: map['description'] as String,
       price: (map['price'] as num).toDouble(), // supabase numeric → double
-      imageUrls: List<String>.from(map['image_urls'] ?? []),
+      imageUrls: List<String>.from(
+        map['image_urls'] ?? [],
+      ), //explicitly convert 'image_urls' to List<String> 
       sellerId: map['seller_id'] as String,
       sellerNumber: map['seller_number'] as String,
+      isActive: map['isActive'] as bool,
     );
   }
 }
