@@ -1,13 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:kabetex/pages/auth/login.dart';
-import 'package:kabetex/pages/tabs_screen.dart';
+import 'package:kabetex/features/auth/presentation/login.dart';
+import 'package:kabetex/features/home/presentations/tabs_screen.dart';
+import 'package:kabetex/features/cart/data/product_hive.dart';
+import 'package:kabetex/features/products/data/product.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await Hive.initFlutter();
+  await Hive.deleteBoxFromDisk('cartBox'); // to be removed in production
+  Hive.registerAdapter(ProductHiveAdapter()); 
+  await Hive.openBox<ProductHive>('cartBox');
 
   await Supabase.initialize(
     url: 'https://pxrucvvnywlgpcczrzse.supabase.co',

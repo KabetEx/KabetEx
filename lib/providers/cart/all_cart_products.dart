@@ -1,31 +1,72 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kabetex/models/product.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:riverpod/legacy.dart';
+import 'package:kabetex/features/cart/data/product_hive.dart';
 
-class CartProducts extends StateNotifier<List<Product>> {
-  CartProducts() : super([]);
-
-  //add cart items
-  void addToCart(Product product) {
-    state = [product, ...state];
-  }
-
-  //delete cart items
-  void deleteFromCart(Product product) {
-    state = state.where((p) {
-      return p.id != product.id;
-    }).toList();
-  }
-}
-
-final cartProductsProvider = StateNotifierProvider<CartProducts, List<Product>>(
-  (ref) {
-    return CartProducts();
-  },
+// Provider for the cart StateNotifier
+final cartProvider = StateNotifierProvider<CartNotifier, List<ProductHive>>(
+  (ref) => CartNotifier(),
 );
 
-//get total cart amount
-final cartTotalProvider = Provider<double>((ref) {
-  final cartItems = ref.watch(cartProductsProvider);
-  return cartItems.fold(0.0, (sum, item) => sum + item.price);
-});
+class CartNotifier extends StateNotifier<List<ProductHive>> {
+  late Box<ProductHive> _cartBox;
+
+  CartNotifier() : super([]) {
+    _init();
+  }
+
+  Future<void> _init() async {
+    // Open the Hive box
+    _cartBox = await Hive.openBox<ProductHive>('cartBox');
+
+    // Initialize state with current Hive values
+    state = _cartBox.values.toList();
+
+    // Listen to Hive changes and update state automatically
+    _cartBox.listenable().addListener(() {
+      state = _cartBox.values.toList();
+    });
+  }
+
+  /// Add a product to the cart
+  void add(ProductHive product) {
+    //if product already exists => return
+    final exists = _cartBox.values.any((p) => p.id == product.id);
+
+    if (exists) {
+      return;
+    }
+
+    //else add product
+    _cartBox.add(product);
+
+    state = _cartBox.values.toList();
+  }
+
+  /// Remove a product from the cart
+  void remove(String productId) {
+    final matches = _cartBox.values.where((p) => p.id == productId);
+
+    if (matches.isNotEmpty) {
+      final target = matches.first;
+      target.delete();
+    }
+
+    state = _cartBox.values.toList();
+  }
+
+  bool exist(String productid) {
+    for (final p in state) {
+      if (p.id == productid) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  double get totalAmount {
+    return state.fold<double>(
+      0, // initial value
+      (total, p) => total + p.price, // add each product price
+    );
+  }
+}
