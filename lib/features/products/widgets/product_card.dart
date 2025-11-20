@@ -59,7 +59,9 @@ class _ProductCardState extends ConsumerState<ProductCard> {
           borderRadius: BorderRadius.circular(8),
           boxShadow: [
             BoxShadow(
-              color: isDarkMode ? Colors.grey[700]! : const Color(0xFF141414),
+              color: isDarkMode
+                  ? Colors.grey[700]!
+                  : const Color.fromARGB(255, 84, 84, 84),
               blurRadius: 1,
               offset: const Offset(1, 1),
             ),
@@ -121,6 +123,7 @@ class _ProductCardState extends ConsumerState<ProductCard> {
                                     : Theme.of(
                                         context,
                                       ).colorScheme.onPrimaryContainer,
+                                fontFamily: 'robot',
                               ),
                         ),
                         const SizedBox(height: 4),
@@ -158,15 +161,15 @@ class _ProductCardState extends ConsumerState<ProductCard> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text('Item removed from cart'),
-                        duration: Duration(milliseconds: 500),
+                        duration: Duration(seconds: 1),
                       ),
                     );
                   } else {
                     ScaffoldMessenger.of(context).clearSnackBars();
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text('Item added from cart'),
-                        duration: Duration(milliseconds: 500),
+                        content: Text('Item added to cart'),
+                        duration: Duration(seconds: 1),
                       ),
                     );
                     ref

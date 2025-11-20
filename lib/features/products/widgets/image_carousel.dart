@@ -64,7 +64,8 @@ class _ProductGalleryState extends ConsumerState<ProductGallery> {
               height: 320, // Increased height
               enlargeCenterPage: true,
               autoPlay: false,
-              enableInfiniteScroll: true,
+              initialPage: 0,
+              enableInfiniteScroll: false,
               viewportFraction: 1, // makes images wider
               onPageChanged: (index, reason) {
                 setState(() => _currentIndex = index);
@@ -87,10 +88,10 @@ class _ProductGalleryState extends ConsumerState<ProductGallery> {
                 decoration: BoxDecoration(
                   color: isDarkMode
                       ? isActive
-                            ? Colors.orange
+                            ? Colors.deepOrange
                             : Colors.white
                       : isActive
-                      ? Colors.orange
+                      ? Colors.deepOrange
                       : Colors.grey,
                   borderRadius: BorderRadius.circular(12),
                 ),

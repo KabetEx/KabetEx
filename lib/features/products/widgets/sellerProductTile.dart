@@ -4,14 +4,14 @@ import 'package:kabetex/features/products/data/product.dart';
 
 class SellerProductTile extends StatelessWidget {
   final Product product;
-  final VoidCallback? onEdit;
-  final VoidCallback? onDelete;
+  final void Function(Product) onDelete;
+  final void Function(Product) onEdit;
 
   const SellerProductTile({
     super.key,
     required this.product,
-    this.onEdit,
-    this.onDelete,
+    required this.onDelete,
+    required this.onEdit,
   });
 
   @override
@@ -37,6 +37,7 @@ class SellerProductTile extends StatelessWidget {
       ),
       title: Text(
         product.title,
+        overflow: TextOverflow.ellipsis,
         style: const TextStyle(fontWeight: FontWeight.bold),
       ),
       subtitle: Text(
@@ -46,9 +47,9 @@ class SellerProductTile extends StatelessWidget {
       trailing: PopupMenuButton<String>(
         onSelected: (value) {
           if (value == 'edit') {
-            onEdit?.call();
+            onEdit.call(product);
           } else if (value == 'delete') {
-            onDelete?.call();
+            onDelete.call(product);
           }
         },
         itemBuilder: (context) => [

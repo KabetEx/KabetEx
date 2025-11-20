@@ -7,6 +7,7 @@ import 'package:kabetex/features/auth/presentation/sign_up.dart';
 import 'package:kabetex/features/products/widgets/product_image.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:kabetex/providers/categories/categories_provider.dart';
+import 'package:kabetex/providers/seller_products/my_products.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 import 'package:kabetex/features/products/data/product_services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -56,7 +57,6 @@ class PostProductPageState extends ConsumerState<PostProductPage> {
     try {
       // 1. Upload images to Supabase Storage
       final imageUrls = await productService.uploadImages(imagesBytes);
-
       final profile = await Supabase.instance.client
           .from('profiles')
           .select('phone_number')
@@ -76,12 +76,13 @@ class PostProductPageState extends ConsumerState<PostProductPage> {
           sellerNumber: profile['phone_number'],
         ),
       );
-
+      ref.refresh(myProductsProvider); //refresh my products
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Product uploaded successfully! 🎉')),
       );
 
       Navigator.pop(context); // go back after upload
+      
     } catch (e) {
       ScaffoldMessenger.of(
         context,
@@ -146,9 +147,11 @@ class PostProductPageState extends ConsumerState<PostProductPage> {
                 // PRODUCT TITLE
                 TextFormField(
                   controller: _titleController,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     hintText: 'Product Title',
-                    border: OutlineInputBorder(),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                   ),
                   validator: (val) =>
                       val == null || val.isEmpty ? 'Enter product title' : null,
@@ -162,9 +165,11 @@ class PostProductPageState extends ConsumerState<PostProductPage> {
                       height: 64,
                       child: DropdownButtonFormField<Map<String, dynamic>>(
                         initialValue: allCategories[0], //defaults to 'all'
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           hintText: 'Select Category',
-                          border: OutlineInputBorder(),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
                         ),
                         items: allCategories
                             .map(
@@ -173,7 +178,7 @@ class PostProductPageState extends ConsumerState<PostProductPage> {
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 10,
-                                    vertical: 5,
+                                    vertical: 8,
                                   ),
                                   decoration: BoxDecoration(
                                     color: Colors
@@ -218,9 +223,12 @@ class PostProductPageState extends ConsumerState<PostProductPage> {
                 // DESCRIPTION
                 TextFormField(
                   controller: _descController,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     hintText: 'Description',
-                    border: OutlineInputBorder(),
+                    hintStyle: Theme.of(context).textTheme.labelSmall!,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                   ),
                   maxLines: 3,
                   validator: (val) =>
@@ -233,10 +241,17 @@ class PostProductPageState extends ConsumerState<PostProductPage> {
                   controller: _priceController,
                   decoration: InputDecoration(
                     hintText: 'Price',
-                    border: const OutlineInputBorder(),
+                    hintStyle: Theme.of(context).textTheme.labelSmall!.copyWith(
+                      fontSize: 8,
+                      color: Colors.grey,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                     prefixText: 'KSH ',
                     prefixStyle: Theme.of(context).textTheme.labelSmall!,
                   ),
+                  //user input text style
                   style: Theme.of(
                     context,
                   ).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.bold),

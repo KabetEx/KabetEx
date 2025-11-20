@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:kabetex/features/cart/data/product_hive.dart';
 import 'package:kabetex/features/cart/widgets/cart_item.dart';
 import 'package:kabetex/providers/cart/all_cart_products.dart';
 import 'package:kabetex/providers/theme_provider.dart';
@@ -16,7 +15,6 @@ class CartPage extends ConsumerStatefulWidget {
 class _CartPageState extends ConsumerState<CartPage> {
   @override
   Widget build(BuildContext context) {
-    final messenger = ScaffoldMessenger.of(context);
     final cartProducts = ref.watch(cartProvider);
     final totalCart = ref.watch(cartProvider.notifier).totalAmount;
     final isDarkMode = ref.watch(isDarkModeProvider);

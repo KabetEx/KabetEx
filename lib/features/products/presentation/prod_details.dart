@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:kabetex/features/cart/data/product_hive.dart';
 import 'package:kabetex/features/products/widgets/image_carousel.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/features/products/data/product.dart';
+import 'package:kabetex/providers/cart/all_cart_products.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 import 'package:kabetex/features/products/data/product_services.dart';
 
@@ -26,6 +28,11 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
     print(sellerNumber);
   }
 
+  bool isExisting() {
+    final cart = ref.watch(cartProvider);
+    return cart.any((p) => p.id == widget.product.id);
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDarkMode = ref.watch(isDarkModeProvider);
@@ -34,7 +41,55 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
       backgroundColor: isDarkMode
           ? Colors.black
           : const Color.fromARGB(255, 237, 228, 225),
-      appBar: AppBar(backgroundColor: isDarkMode ? Colors.grey : Colors.white),
+      appBar: AppBar(
+        backgroundColor: isDarkMode ? Colors.grey : Colors.white,
+        actions: [
+          IconButton(
+            onPressed: () {
+              if (isExisting()) {
+                ref.read(cartProvider.notifier).remove(widget.product.id!);
+                ScaffoldMessenger.of(context).clearSnackBars();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Item removed from cart'),
+                    duration: Duration(seconds: 1),
+                  ),
+                );
+              } else {
+                ScaffoldMessenger.of(context).clearSnackBars();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Item added to cart'),
+                    duration: Duration(seconds: 1),
+                  ),
+                );
+                ref
+                    .read(cartProvider.notifier)
+                    .add(
+                      ProductHive(
+                        id: widget.product.id!,
+                        title: widget.product.title,
+                        price: widget.product.price,
+                        imageUrl: widget.product.imageUrls[0],
+                        category: widget.product.category,
+                      ),
+                    );
+              }
+            },
+            icon: AnimatedScale(
+              scale: isExisting() ? 1.1 : 1.0,
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.easeInOut,
+              child: Icon(
+                isExisting()
+                    ? Icons.check_circle_sharp
+                    : Icons.shopping_cart_outlined,
+                color: Colors.deepOrange,
+              ),
+            ),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: Stack(
           children: [
@@ -54,54 +109,23 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
                   Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 16.0,
-                      vertical: 4,
+                      vertical: 8,
                     ),
-                    child: Row(
-                      children: [
-                        //title
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            widget.product.title,
-                            style: Theme.of(context).textTheme.titleLarge!
-                                .copyWith(
-                                  color: isDarkMode
-                                      ? Colors.white
-                                      : Colors.black,
-                                  fontSize: 26,
-                                  overflow: TextOverflow.visible,
-                                ),
-                          ),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        widget.product.title,
+                        overflow: TextOverflow.visible,
+                        style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                          color: isDarkMode
+                              ? Colors.white
+                              : Theme.of(
+                                  context,
+                                ).colorScheme.onPrimaryContainer,
+                          fontSize: 24,
+                          fontFamily: 'poppins',
                         ),
-
-                        const Spacer(),
-
-                        //add to cart
-                        IconButton(
-                          onPressed: () {
-                            setState(() {
-                              isAdded = !isAdded;
-                            });
-                          },
-                          icon: AnimatedScale(
-                            scale: isAdded ? 1.3 : 1.0,
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.bounceIn,
-                            child: isAdded
-                                ? const Icon(
-                                    Icons.shopping_cart_checkout,
-                                    size: 24,
-                                    color: Colors.black,
-                                  )
-                                : const Icon(
-                                    Icons.check,
-                                    color: Colors.orange,
-                                    size: 24,
-                                  ),
-                          ),
-                          color: isDarkMode ? Colors.white : Colors.black,
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                   //price
@@ -110,23 +134,22 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 16.0,
-                        vertical: 8,
+                        vertical: 4,
                       ),
                       child: Text(
                         NumberFormat.currency(
                           locale: 'en_KE',
-                          symbol: 'KSh ',
+                          symbol: 'KSH ',
                         ).format(widget.product.price),
                         style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                          color: isDarkMode ? Colors.white : Colors.black,
+                          color: isDarkMode ? Colors.white : Colors.deepOrange,
                           fontSize: 20,
-                          fontWeight: FontWeight.w300,
+                          fontWeight: FontWeight.w400,
+                          fontFamily: 'sans',
                         ),
                       ),
                     ),
                   ),
-
-                  const SizedBox(height: 8),
 
                   //product description
                   Align(
@@ -142,8 +165,9 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
                             .copyWith(
                               color: isDarkMode ? Colors.white : Colors.black,
                               fontSize: 24,
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w400,
                               decoration: TextDecoration.underline,
+                              fontFamily: 'sans',
                             ),
                       ),
                     ),
@@ -158,9 +182,11 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
                       child: Text(
                         widget.product.description,
                         style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                          color: isDarkMode ? Colors.white : Colors.black,
+                          color: isDarkMode ? Colors.white : Colors.grey[800],
                           fontSize: 20,
-                          fontWeight: FontWeight.w200,
+                          fontWeight: FontWeight.w400,
+                          height: 1.4,
+                          fontFamily: 'inter',
                         ),
                       ),
                     ),
@@ -198,3 +224,29 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
     );
   }
 }
+
+                        //add to cart
+                        // IconButton(
+                        //   onPressed: () {
+                        //     setState(() {
+                        //       isAdded = !isAdded;
+                        //     });
+                        //   },
+                        //   icon: AnimatedScale(
+                        //     scale: isAdded ? 1.3 : 1.0,
+                        //     duration: const Duration(milliseconds: 300),
+                        //     curve: Curves.bounceIn,
+                        //     child: isAdded
+                        //         ? const Icon(
+                        //             Icons.shopping_cart_checkout,
+                        //             size: 24,
+                        //             color: Colors.black,
+                        //           )
+                        //         : const Icon(
+                        //             Icons.check,
+                        //             color: Colors.orange,
+                        //             size: 24,
+                        //           ),
+                        //   ),
+                        //   color: isDarkMode ? Colors.white : Colors.black,
+                        // ),

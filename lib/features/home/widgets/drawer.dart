@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/features/auth/presentation/login.dart';
 import 'package:kabetex/features/auth/presentation/sign_up.dart';
+import 'package:kabetex/features/products/data/post_product_page.dart';
 import 'package:kabetex/features/products/presentation/my_products_page.dart';
-import 'package:kabetex/features/products/presentation/post_product_page.dart';
 import 'package:kabetex/features/settings/presentations/settings_page.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 import 'package:kabetex/features/auth/data/auth_services.dart';
-import 'package:kabetex/common/slide_routing.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Mydrawer extends ConsumerStatefulWidget {
@@ -174,7 +173,9 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
-                  SlideRouting(page: const MyProductsPage()),
+                  MaterialPageRoute(
+                    builder: (context) => const MyProductsPage(),
+                  ),
                 );
               },
             ),
