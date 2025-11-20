@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 
 class SettingsPage extends ConsumerStatefulWidget {
@@ -60,8 +61,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             ),
             trailing: Switch(
               value: isDarkMode,
-              onChanged: (val) {
+              onChanged: (val) async {
                 ref.read(isDarkModeProvider.notifier).state = val;
+                
+                // persist to Hive
+                final box = Hive.box('settings');
+                await box.put('isDarkMode', val);
               },
             ),
           ),

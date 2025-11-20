@@ -5,23 +5,40 @@ import 'package:kabetex/features/auth/presentation/login.dart';
 import 'package:kabetex/features/home/presentations/tabs_screen.dart';
 import 'package:kabetex/features/cart/data/product_hive.dart';
 import 'package:kabetex/providers/theme_provider.dart';
+import 'package:riverpod/legacy.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Hive.initFlutter();
-  await Hive.deleteBoxFromDisk('cartBox'); // to be removed in production
-  Hive.registerAdapter(ProductHiveAdapter()); 
-  await Hive.openBox<ProductHive>('cartBox');
-
+  //----------supabase----------//
   await Supabase.initialize(
     url: 'https://pxrucvvnywlgpcczrzse.supabase.co',
     anonKey:
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB4cnVjdnZueXdsZ3BjY3pyenNlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMyMTY0ODksImV4cCI6MjA3ODc5MjQ4OX0.fqMzsjy51ASTnZR1mNBTvxNHUPDDuU5RgeuNFYGt4bs',
   );
-  runApp(const ProviderScope(child: MyApp()));
+
+  //----------------hive------------//
+  await Hive.initFlutter();
+  Hive.registerAdapter(ProductHiveAdapter());
+  // settings box for storing small app prefs like theme
+  await Hive.openBox('settings');
+  final settingsBox = Hive.box('settings');
+
+  // read saved theme (default false => light)
+  final savedIsDark =
+      settingsBox.get('isDarkMode', defaultValue: false) as bool;
+
+  await Hive.openBox<ProductHive>('cartBox');
+
+  // create a ProviderContainer seeded with the saved theme
+  final container = ProviderContainer(
+    overrides: [isDarkModeProvider.overrideWith((ref) => savedIsDark)],
+  );
+
+  // run the app with that container
+  runApp(UncontrolledProviderScope(container: container, child: const MyApp()));
 }
 
 //colorschemes
@@ -33,18 +50,18 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
-    final isLightMode = ref.watch(isDarkModeProvider);
+    final isDarkMode = ref.watch(isDarkModeProvider);
 
     return AnimatedTheme(
       duration: const Duration(milliseconds: 500),
       curve: Curves.easeInOut,
-      data: isLightMode
-          ? ThemeData(brightness: Brightness.light)
-          : ThemeData(brightness: Brightness.dark),
+      data: isDarkMode
+          ? ThemeData(brightness: Brightness.dark)
+          : ThemeData(brightness: Brightness.light),
       child: MaterialApp(
         title: 'KabetEx',
         debugShowCheckedModeBanner: false,
-        themeMode: isLightMode ? ThemeMode.light : ThemeMode.dark,
+        themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
 
         //light mode
         theme: ThemeData().copyWith(
