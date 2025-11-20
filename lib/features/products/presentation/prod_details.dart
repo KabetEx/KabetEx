@@ -9,20 +9,41 @@ import 'package:kabetex/providers/theme_provider.dart';
 import 'package:kabetex/features/products/data/product_services.dart';
 
 class ProdDetailsPage extends ConsumerStatefulWidget {
-  const ProdDetailsPage({super.key, required this.product});
+  const ProdDetailsPage({super.key, this.product, this.productId});
 
-  final Product product;
+  final Product? product;
+  final String? productId;
+
   @override
   ConsumerState<ProdDetailsPage> createState() => _ProdDetailsPageState();
 }
 
 class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
-  bool isAdded = false;
-  final productServive = ProductService();
+  late Product? product;
+  bool isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    product = widget.product;
+    if (product == null && widget.productId != null) {
+      fetchProduct(widget.productId!); //fetch product by id
+    }
+  }
+
+  Future<void> fetchProduct(String id) async {
+    setState(() => isLoading = true);
+    // fetch from Supabase
+    final fetchedProduct = await ProductService().getProductById(id);
+    setState(() {
+      product = fetchedProduct;
+      isLoading = false;
+    });
+  }
 
   void contactSeller() async {
-    final sellerNumber = await productServive.getSellerNumber(
-      widget.product.sellerId,
+    final sellerNumber = await ProductService().getSellerNumber(
+      product!.sellerId,
     );
 
     print(sellerNumber);
@@ -30,24 +51,34 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
 
   bool isExisting() {
     final cart = ref.watch(cartProvider);
-    return cart.any((p) => p.id == widget.product.id);
+    return cart.any((p) => p.id == product!.id);
   }
 
   @override
   Widget build(BuildContext context) {
     final isDarkMode = ref.watch(isDarkModeProvider);
 
+    if (isLoading) return const Center(child: CircularProgressIndicator());
+    if (product == null) return const Center(child: Text('Product not found'));
+
     return Scaffold(
       backgroundColor: isDarkMode
           ? Colors.black
           : const Color.fromARGB(255, 237, 228, 225),
       appBar: AppBar(
-        backgroundColor: isDarkMode ? Colors.grey : Colors.white,
+        backgroundColor: isDarkMode
+            ? Colors.black
+            : const Color.fromARGB(255, 237, 228, 225),
+        iconTheme: IconThemeData(
+          color: isDarkMode
+              ? Colors.white
+              : const Color.fromARGB(255, 237, 228, 225),
+        ),
         actions: [
           IconButton(
             onPressed: () {
               if (isExisting()) {
-                ref.read(cartProvider.notifier).remove(widget.product.id!);
+                ref.read(cartProvider.notifier).remove(product!.id!);
                 ScaffoldMessenger.of(context).clearSnackBars();
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
@@ -67,11 +98,11 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
                     .read(cartProvider.notifier)
                     .add(
                       ProductHive(
-                        id: widget.product.id!,
-                        title: widget.product.title,
-                        price: widget.product.price,
-                        imageUrl: widget.product.imageUrls[0],
-                        category: widget.product.category,
+                        id: product!.id!,
+                        title: product!.title,
+                        price: product!.price,
+                        imageUrl: product!.imageUrls[0],
+                        category: product!.category,
                       ),
                     );
               }
@@ -91,134 +122,145 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
         ],
       ),
       body: SafeArea(
-        child: Stack(
-          children: [
-            SingleChildScrollView(
-              padding: const EdgeInsets.only(bottom: 90),
-              child: Column(
-                children: [
-                  //product gallery
-                  ProductGallery(
-                    images: widget.product.imageUrls,
-                    product: widget.product,
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  //product title
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16.0,
-                      vertical: 8,
+        child: SizedBox.expand(
+          child: Stack(
+            children: [
+              SingleChildScrollView(
+                padding: const EdgeInsets.only(bottom: 90),
+                child: Column(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    //product gallery
+                    ProductGallery(
+                      images: product!.imageUrls,
+                      product: product!,
                     ),
-                    child: Align(
+
+                    const SizedBox(height: 16),
+
+                    //product title
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0,
+                        vertical: 8,
+                      ),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          product!.title,
+                          overflow: TextOverflow.visible,
+                          style: Theme.of(context).textTheme.titleLarge!
+                              .copyWith(
+                                color: isDarkMode
+                                    ? Colors.white
+                                    : Theme.of(
+                                        context,
+                                      ).colorScheme.onPrimaryContainer,
+                                fontSize: 24,
+                                fontFamily: 'poppins',
+                              ),
+                        ),
+                      ),
+                    ),
+                    //price
+                    Align(
                       alignment: Alignment.centerLeft,
-                      child: Text(
-                        widget.product.title,
-                        overflow: TextOverflow.visible,
-                        style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                          color: isDarkMode
-                              ? Colors.white
-                              : Theme.of(
-                                  context,
-                                ).colorScheme.onPrimaryContainer,
-                          fontSize: 24,
-                          fontFamily: 'poppins',
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16.0,
+                          vertical: 4,
+                        ),
+                        child: Text(
+                          NumberFormat.currency(
+                            locale: 'en_KE',
+                            symbol: 'KSH ',
+                          ).format(product!.price),
+                          style: Theme.of(context).textTheme.bodyLarge!
+                              .copyWith(
+                                color: isDarkMode
+                                    ? Colors.white
+                                    : Colors.deepOrange,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w400,
+                                fontFamily: 'sans',
+                              ),
                         ),
                       ),
                     ),
-                  ),
-                  //price
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16.0,
-                        vertical: 4,
-                      ),
-                      child: Text(
-                        NumberFormat.currency(
-                          locale: 'en_KE',
-                          symbol: 'KSH ',
-                        ).format(widget.product.price),
-                        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                          color: isDarkMode ? Colors.white : Colors.deepOrange,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w400,
-                          fontFamily: 'sans',
-                        ),
-                      ),
-                    ),
-                  ),
 
-                  //product description
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16.0,
-                        vertical: 8,
-                      ),
-                      child: Text(
-                        'Description',
-                        style: Theme.of(context).textTheme.titleMedium!
-                            .copyWith(
-                              color: isDarkMode ? Colors.white : Colors.black,
-                              fontSize: 24,
-                              fontWeight: FontWeight.w400,
-                              decoration: TextDecoration.underline,
-                              fontFamily: 'sans',
-                            ),
-                      ),
-                    ),
-                  ),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16.0,
-                        vertical: 8,
-                      ),
-                      child: Text(
-                        widget.product.description,
-                        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                          color: isDarkMode ? Colors.white : Colors.grey[800],
-                          fontSize: 20,
-                          fontWeight: FontWeight.w400,
-                          height: 1.4,
-                          fontFamily: 'inter',
+                    //product description
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16.0,
+                          vertical: 8,
+                        ),
+                        child: Text(
+                          'Description',
+                          style: Theme.of(context).textTheme.titleMedium!
+                              .copyWith(
+                                color: isDarkMode ? Colors.white : Colors.black,
+                                fontSize: 24,
+                                fontWeight: FontWeight.w400,
+                                decoration: TextDecoration.underline,
+                                fontFamily: 'sans',
+                              ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                ],
-              ),
-            ),
-            Positioned(
-              bottom: 16, // distance from bottom
-              left: 16,
-              right: 16,
-              child: ElevatedButton.icon(
-                onPressed: contactSeller,
-                icon: const Icon(Icons.chat, color: Colors.white, size: 30),
-                label: Text(
-                  'Contact seller',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleSmall!.copyWith(color: Colors.white),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16.0,
+                          vertical: 8,
+                        ),
+                        child: Text(
+                          product!.description,
+                          style: Theme.of(context).textTheme.bodyLarge!
+                              .copyWith(
+                                color: isDarkMode
+                                    ? Colors.white
+                                    : Colors.grey[800],
+                                fontSize: 20,
+                                fontWeight: FontWeight.w400,
+                                height: 1.4,
+                                fontFamily: 'inter',
+                              ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
                 ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
-                  elevation: 6, // shadow for floating effect
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+              ),
+              Positioned(
+                bottom: 16, // distance from bottom
+                left: 16,
+                right: 16,
+                child: ElevatedButton.icon(
+                  onPressed: contactSeller,
+                  icon: const Icon(Icons.chat, color: Colors.white, size: 30),
+                  label: Text(
+                    'Contact seller',
+                    style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                      color: Colors.white,
+                      fontSize: 20,
+                    ),
                   ),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                    elevation: 6, // shadow for floating effect
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

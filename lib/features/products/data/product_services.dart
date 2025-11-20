@@ -115,6 +115,22 @@ class ProductService {
     }
   }
 
+  Future<Product?> getProductById(String id) async {
+    try {
+      final response = await supabase
+          .from('products')
+          .select()
+          .eq('id', id)
+          .single(); // ensures we get just one
+
+      // convert map to Product object
+      return Product.fromMap(response);
+    } catch (e) {
+      print('Exception fetching product: $e');
+      return null;
+    }
+  }
+
   //---------- fetch active products, newer first---//
   Stream<List<Product>> getProductsStream() {
     supabase

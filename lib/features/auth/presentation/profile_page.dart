@@ -13,8 +13,7 @@ class ProfilePage extends ConsumerWidget {
       backgroundColor: isDarkMode
           ? Colors.black
           : const Color.fromARGB(255, 237, 228, 225),
-      appBar: AppBar(title: const Text('Profile Page')),
-      body: const Text('profile  page'),
+      body: const SafeArea(child: Text('profile  page')),
     );
   }
 }

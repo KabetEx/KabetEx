@@ -82,7 +82,6 @@ class PostProductPageState extends ConsumerState<PostProductPage> {
       );
 
       Navigator.pop(context); // go back after upload
-      
     } catch (e) {
       ScaffoldMessenger.of(
         context,
@@ -131,7 +130,13 @@ class PostProductPageState extends ConsumerState<PostProductPage> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Upload a product'), centerTitle: true),
+      appBar: AppBar(
+        title: Text(
+          'Upload a product',
+          style: Theme.of(context).textTheme.titleLarge!.copyWith(fontSize: 24),
+        ),
+        centerTitle: true,
+      ),
       backgroundColor: Colors.white,
       body: Form(
         key: _formKey,
@@ -148,10 +153,18 @@ class PostProductPageState extends ConsumerState<PostProductPage> {
                 TextFormField(
                   controller: _titleController,
                   decoration: InputDecoration(
-                    hintText: 'Product Title',
+                    hintText: 'Title',
+                    hintStyle: Theme.of(context).textTheme.bodyLarge,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
+                  ),
+                  style: Theme.of(context).textTheme.labelSmall!.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey[900],
+                    fontSize: 18,
+                    height: 1.5,
+                    fontFamily: 'inter',
                   ),
                   validator: (val) =>
                       val == null || val.isEmpty ? 'Enter product title' : null,
@@ -225,12 +238,20 @@ class PostProductPageState extends ConsumerState<PostProductPage> {
                   controller: _descController,
                   decoration: InputDecoration(
                     hintText: 'Description',
-                    hintStyle: Theme.of(context).textTheme.labelSmall!,
+                    hintStyle: Theme.of(context).textTheme.bodyLarge!,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
                   ),
                   maxLines: 3,
+                  //user input text style
+                  style: Theme.of(context).textTheme.labelSmall!.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey[900],
+                    fontSize: 18,
+                    height: 1.5,
+                    fontFamily: 'inter',
+                  ),
                   validator: (val) =>
                       val == null || val.isEmpty ? 'Enter description' : null,
                 ),
@@ -241,20 +262,23 @@ class PostProductPageState extends ConsumerState<PostProductPage> {
                   controller: _priceController,
                   decoration: InputDecoration(
                     hintText: 'Price',
-                    hintStyle: Theme.of(context).textTheme.labelSmall!.copyWith(
-                      fontSize: 8,
-                      color: Colors.grey,
+                    hintStyle: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                      fontSize: 18,
+                      color: Colors.grey[700],
                     ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
                     prefixText: 'KSH ',
-                    prefixStyle: Theme.of(context).textTheme.labelSmall!,
+                    prefixStyle: Theme.of(context).textTheme.labelSmall!
+                        .copyWith(color: Colors.black, fontSize: 18),
                   ),
                   //user input text style
-                  style: Theme.of(
-                    context,
-                  ).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.bold),
+                  style: Theme.of(context).textTheme.labelSmall!.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey[900],
+                    fontSize: 18,
+                  ),
                   keyboardType: TextInputType.number,
                   validator: (val) =>
                       val == null || val.isEmpty ? 'Enter price' : null,
@@ -298,6 +322,8 @@ class PostProductPageState extends ConsumerState<PostProductPage> {
                     ),
                   ),
                 ),
+
+                const SizedBox(height: 24),
               ],
             ),
           ),

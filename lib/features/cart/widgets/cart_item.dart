@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:kabetex/features/cart/data/product_hive.dart';
+import 'package:kabetex/features/products/presentation/prod_details.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -44,7 +45,11 @@ class _CartItemState extends ConsumerState<CartItem> {
                   return Shimmer.fromColors(
                     baseColor: Colors.grey[300]!,
                     highlightColor: Colors.grey[100]!,
-                    child: Container(height: 80, width: 80, color: Colors.grey),
+                    child: Container(
+                      height: 80,
+                      width: 80,
+                      color: Colors.grey,
+                    ),
                   );
                 },
                 // error
@@ -52,9 +57,9 @@ class _CartItemState extends ConsumerState<CartItem> {
                 fit: BoxFit.cover,
               ),
             ),
-
+    
             const SizedBox(width: 8),
-
+    
             //collumn
             Expanded(
               child: Column(
@@ -71,9 +76,9 @@ class _CartItemState extends ConsumerState<CartItem> {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-
+    
                   const SizedBox(height: 10),
-
+    
                   //category & price
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -102,7 +107,7 @@ class _CartItemState extends ConsumerState<CartItem> {
                           ),
                         ),
                       ),
-
+    
                       //price
                       Align(
                         alignment: Alignment.centerRight,
@@ -125,7 +130,7 @@ class _CartItemState extends ConsumerState<CartItem> {
                 ],
               ),
             ),
-
+    
             //price
           ],
         ),
