@@ -125,6 +125,10 @@ class _LoginPageState extends State<LoginPage> {
                                 child: TextFormField(
                                   autocorrect: false,
                                   autofocus: false,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .labelMedium!
+                                      .copyWith(color: Colors.black),
                                   keyboardType: TextInputType.emailAddress,
                                   decoration: InputDecoration(
                                     prefixIcon: const Icon(Icons.email),
@@ -181,6 +185,10 @@ class _LoginPageState extends State<LoginPage> {
                                   autocorrect: false,
                                   autofocus: false,
                                   obscureText: hidePass,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .labelMedium!
+                                      .copyWith(color: Colors.black),
                                   keyboardType: TextInputType.visiblePassword,
                                   decoration: InputDecoration(
                                     prefixIcon: const Icon(Icons.lock),
@@ -315,6 +323,22 @@ class _LoginPageState extends State<LoginPage> {
                                       color: Colors.black,
                                       fontWeight: FontWeight.bold,
                                     ),
+                              ),
+                            ),
+                            // Continue as Guest
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pushReplacement(
+                                  context,
+                                  SlideRouting(page: const TabsScreen()),
+                                );
+                              },
+                              child: const Text(
+                                'Continue as Guest',
+                                style: TextStyle(
+                                  color: Colors.deepOrange,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           ],

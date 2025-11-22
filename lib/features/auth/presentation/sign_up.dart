@@ -31,7 +31,7 @@ class _SignupPageState extends State<SignupPage> {
 
     try {
       await authService.signUp(
-        email: _emailController.text.trim(),
+        email: _emailController.text.trim().toLowerCase(),
         password: _passwordController.text.trim(),
         name: _nameController.text.trim(),
         phone: _phoneController.text.trim(),
@@ -154,6 +154,7 @@ class _SignupPageState extends State<SignupPage> {
                           ),
                           child: TextFormField(
                             keyboardType: TextInputType.name,
+                            textCapitalization: TextCapitalization.words,
                             decoration: inputDecoration.copyWith(
                               prefixIcon: const Icon(Icons.person),
                               hintText: 'Full Name',
@@ -162,6 +163,8 @@ class _SignupPageState extends State<SignupPage> {
                             validator: (val) => val == null || val.isEmpty
                                 ? 'Enter your name'
                                 : null,
+                            style: Theme.of(context).textTheme.labelMedium!
+                                .copyWith(color: Colors.black),
                           ),
                         ),
 
@@ -186,6 +189,8 @@ class _SignupPageState extends State<SignupPage> {
                               }
                               return null;
                             },
+                            style: Theme.of(context).textTheme.labelMedium!
+                                .copyWith(color: Colors.black),
                           ),
                         ),
 
@@ -215,6 +220,8 @@ class _SignupPageState extends State<SignupPage> {
                               }
                               return null;
                             },
+                            style: Theme.of(context).textTheme.labelMedium!
+                                .copyWith(color: Colors.black),
                           ),
                         ),
 
@@ -305,6 +312,8 @@ class _SignupPageState extends State<SignupPage> {
                           child: TextFormField(
                             controller: _passwordController,
                             obscureText: hidePassword,
+                            style: Theme.of(context).textTheme.labelMedium!
+                                .copyWith(color: Colors.black),
                             decoration: inputDecoration.copyWith(
                               prefixIcon: const Icon(Icons.lock),
                               hintText: 'Password',
@@ -375,7 +384,7 @@ class _SignupPageState extends State<SignupPage> {
                         // Continue as Guest
                         TextButton(
                           onPressed: () {
-                            Navigator.push(
+                            Navigator.pushReplacement(
                               context,
                               SlideRouting(page: const TabsScreen()),
                             );

@@ -3,7 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class ProfileServices {
   final _supabase = Supabase.instance.client;
 
-   // ---------------- FETCH PROFILE ----------------
+  // ---------------- FETCH PROFILE ----------------
   Future<Map<String, dynamic>?> getProfile() async {
     final user = _supabase.auth.currentUser;
     if (user == null) return null;
@@ -23,6 +23,19 @@ class ProfileServices {
     return null;
   }
 
+  //get user Full name
+  Future<String> getUserFname() async {
+    final profile = await ProfileServices().getProfile();
+
+    return profile!['full_name'] as String;
+  }
+
+  Future<bool> isVerified() async {
+    final profile = await ProfileServices().getProfile();
+
+    return profile!['isVerified'] as bool;
+  }
+
   // ---------------- UPDATE PROFILE ----------------
   Future<void> updateProfile(Map<String, dynamic> updates) async {
     final user = _supabase.auth.currentUser;
@@ -35,5 +48,4 @@ class ProfileServices {
       print('Update Profile Error: $e');
     }
   }
-
 }

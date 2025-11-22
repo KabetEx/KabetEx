@@ -4,6 +4,7 @@ import 'package:kabetex/common/slide_routing.dart';
 import 'package:kabetex/features/profile_page/data/profile_services.dart';
 import 'package:kabetex/features/profile_page/presentantion/edit_profile.dart';
 import 'package:kabetex/features/profile_page/widgets/not_logged_In.dart';
+import 'package:kabetex/providers/theme_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProfilePage extends ConsumerStatefulWidget {
@@ -16,16 +17,54 @@ class ProfilePage extends ConsumerStatefulWidget {
 class _ProfilePageState extends ConsumerState<ProfilePage> {
   final _user = Supabase.instance.client.auth.currentUser;
   final _profileService = ProfileServices();
+  String? fName;
+  bool? isVerified;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFname();
+    _loadVerification();
+  }
 
   bool get isLoggedIn => _user != null;
 
+  Future<void> _loadFname() async {
+    final name = await _profileService.getUserFname();
+    if (mounted) {
+      setState(() {
+        fName = name;
+      });
+    }
+  }
+
+  String getVerText() {
+    if (isVerified == null) return 'Loading...';
+    return isVerified! ? 'Verified' : 'Not Verified';
+  }
+
+  Future<void> _loadVerification() async {
+    final isVer = await _profileService.isVerified();
+    if (mounted) {
+      setState(() {
+        isVerified = isVer;
+      });
+      print(isVer);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isDark = ref.watch(isDarkModeProvider);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My profile'),
+        title: Text(
+          'My profile',
+          style: TextStyle(color: isDark ? null : Colors.black),
+        ),
         centerTitle: true,
-        backgroundColor: const Color.fromARGB(255, 165, 55, 21),
+        backgroundColor: isDark ? const Color.fromARGB(255, 165, 55, 21) : null,
       ),
       bottomNavigationBar: isLoggedIn
           ? Padding(
@@ -55,8 +94,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 Container(
                   height: 250,
                   width: double.infinity,
-                  decoration: const BoxDecoration(
-                    color: Color.fromARGB(255, 165, 55, 21),
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? const Color.fromARGB(255, 165, 55, 21)
+                        : null,
                   ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -72,10 +113,21 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                       const SizedBox(height: 16),
 
                       Text(
-                        'Email...',
+                        fName ?? 'loading...',
                         style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                          color: Colors.white,
+                          color: isDark ? Colors.white : Colors.black,
                           fontWeight: FontWeight.bold,
+                          fontSize: 24,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+
+                      Text(
+                        getVerText(),
+                        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.green,
+                          fontSize: 16,
                         ),
                       ),
                     ],
@@ -91,18 +143,19 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     child: ListTile(
                       title: Text(
                         'Edit profile',
-                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                          color: Colors.white,
+                        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                          color: isDark ? Colors.white : Colors.black,
                           fontSize: 16,
                         ),
                       ),
-                      leading: const Icon(
+                      leading: Icon(
                         Icons.supervised_user_circle,
-                        color: Colors.white,
+                        color: isDark ? Colors.white : Colors.black,
+                        size: 32,
                       ),
-                      trailing: const Icon(
+                      trailing: Icon(
                         Icons.arrow_forward_ios_outlined,
-                        color: Colors.white,
+                        color: isDark ? Colors.white : Colors.black,
                       ),
                       onTap: () {
                         Navigator.push(
@@ -122,15 +175,19 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     child: ListTile(
                       title: Text(
                         'Delete account',
-                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                          color: Colors.white,
+                        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                          color: isDark ? Colors.white : Colors.black,
                           fontSize: 16,
                         ),
                       ),
-                      leading: const Icon(Icons.delete, color: Colors.white),
-                      trailing: const Icon(
+                      leading: Icon(
+                        Icons.delete,
+                        color: isDark ? Colors.white : Colors.black,
+                        size: 32,
+                      ),
+                      trailing: Icon(
                         Icons.arrow_forward_ios_outlined,
-                        color: Colors.white,
+                        color: isDark ? Colors.white : Colors.black,
                       ),
                       onTap: () {
                         //show dialog to confirm account deletion

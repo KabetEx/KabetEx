@@ -10,6 +10,8 @@ class EditProfilePage extends StatefulWidget {
 class _EditProfileState extends State<EditProfilePage> {
   @override
   Widget build(BuildContext context) {
-    return const Scaffold();
+    return Scaffold(
+      appBar: AppBar(title: const Text('Edit profile'), centerTitle: true),
+    );
   }
 }
