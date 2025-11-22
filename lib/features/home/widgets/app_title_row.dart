@@ -149,12 +149,13 @@ class _AppTitleRowState extends ConsumerState<AppTitleRow> {
                       children: [
                         TextSpan(
                           text: 'Hello ',
-                          style: Theme.of(context).textTheme.titleSmall!
+                          style: Theme.of(context).textTheme.bodyLarge!
                               .copyWith(
                                 color: isDarkMode
                                     ? Colors.deepOrange
                                     : Colors.black,
-                                fontWeight: FontWeight.w400,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 20,
                               ),
                         ),
                         TextSpan(
@@ -172,10 +173,11 @@ class _AppTitleRowState extends ConsumerState<AppTitleRow> {
                   ),
                   Text(
                     'Lets shop!',
-                    style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                       fontSize: 16,
-                      fontWeight: FontWeight.w500,
+                      fontWeight: FontWeight.w400,
                       color: isDarkMode ? Colors.grey : Colors.black,
+                      fontFamily: 'lato',
                     ),
                   ),
                 ],

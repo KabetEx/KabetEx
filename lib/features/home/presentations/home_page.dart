@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/features/home/widgets/app_title_row.dart';
 import 'package:kabetex/features/categories/widgets/category_gridview.dart';
 import 'package:kabetex/features/home/widgets/hero_banner.dart';
-import 'package:kabetex/providers/theme_provider.dart';
 import 'package:kabetex/features/home/widgets/drawer.dart';
 import 'package:kabetex/features/products/widgets/products_listview.dart';
 
@@ -22,7 +21,6 @@ class _HomePageState extends ConsumerState<HomePage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    final isDarkMode = ref.watch(isDarkModeProvider);
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,

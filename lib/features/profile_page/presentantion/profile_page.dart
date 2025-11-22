@@ -14,7 +14,8 @@ class ProfilePage extends ConsumerStatefulWidget {
   ConsumerState<ProfilePage> createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends ConsumerState<ProfilePage> {
+class _ProfilePageState extends ConsumerState<ProfilePage>
+    with AutomaticKeepAliveClientMixin {
   final _user = Supabase.instance.client.auth.currentUser;
   final _profileService = ProfileServices();
   String? fName;
@@ -27,6 +28,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     _loadVerification();
   }
 
+  @override
+  bool get wantKeepAlive => true;
   bool get isLoggedIn => _user != null;
 
   Future<void> _loadFname() async {
@@ -56,6 +59,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     final isDark = ref.watch(isDarkModeProvider);
+    super.build(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -76,7 +80,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                onPressed: () {},
+                onPressed: () {
+                  Supabase.instance.client.auth.signOut();
+                },
                 child: const Text(
                   'Log Out',
                   style: TextStyle(
@@ -126,7 +132,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                         getVerText(),
                         style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: Colors.green,
+                          color: isVerified == true
+                              ? Colors.green
+                              : isVerified == false
+                              ? Colors.red
+                              : Colors.grey, // if null
                           fontSize: 16,
                         ),
                       ),

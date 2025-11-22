@@ -8,7 +8,6 @@ class SearchPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
-    final isDark = ref.watch(isDarkModeProvider);
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(title: const Text('Search')),
