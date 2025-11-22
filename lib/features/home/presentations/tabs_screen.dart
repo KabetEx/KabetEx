@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:kabetex/features/cart/presentations/cart_page.dart';
 import 'package:kabetex/features/categories/presentations/categories_page.dart';
 import 'package:kabetex/features/home/presentations/home_page.dart';
-import 'package:kabetex/features/auth/presentation/profile_page.dart';
+import 'package:kabetex/features/profile_page/presentantion/profile_page.dart';
 import 'package:kabetex/providers/nav_bar.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 import 'package:kabetex/features/home/widgets/bottom_nav_bar.dart';

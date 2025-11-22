@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_switch/flutter_switch.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:kabetex/features/profile_page/data/profile_services.dart';
 import 'package:kabetex/features/search/search_page.dart';
 import 'package:kabetex/providers/theme_provider.dart';
-import 'package:kabetex/features/auth/data/auth_services.dart';
 
 class AppTitleRow extends ConsumerStatefulWidget {
   const AppTitleRow({super.key});
@@ -29,7 +29,7 @@ class _AppTitleRowState extends ConsumerState<AppTitleRow> {
   }
 
   void loadUserName() async {
-    final profile = await AuthService().getProfile();
+    final profile = await ProfileServices().getProfile();
 
     if (profile != null) {
       final fullName = profile['full_name'] ?? '';

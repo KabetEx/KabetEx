@@ -84,35 +84,29 @@ class MyApp extends ConsumerWidget {
           headlineLarge: GoogleFonts.baloo2(
             fontSize: 40,
             fontWeight: FontWeight.bold,
+            color: Colors.black,
           ),
           titleLarge: GoogleFonts.poppins(
             fontSize: 32,
             fontWeight: FontWeight.bold,
-            color: kLightColorScheme.onPrimaryContainer,
+            color: Colors.black,
           ),
           titleMedium: GoogleFonts.poppins(
+            fontWeight: FontWeight.bold,
             fontSize: 28,
-            color: kLightColorScheme.onPrimaryContainer,
+            color: Colors.black,
           ),
           titleSmall: GoogleFonts.poppins(
+            fontWeight: FontWeight.bold,
             fontSize: 24,
-            color: kLightColorScheme.onPrimaryContainer,
+            color: Colors.black,
           ),
-          labelLarge: GoogleFonts.lato(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: kLightColorScheme.onPrimaryContainer,
-          ),
-          labelMedium: GoogleFonts.lato(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            color: kLightColorScheme.onPrimaryContainer,
-          ),
-          labelSmall: GoogleFonts.lato(
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-            color: kLightColorScheme.onPrimaryContainer,
-          ),
+          labelLarge: GoogleFonts.lato(fontSize: 16, color: Colors.black),
+          labelMedium: GoogleFonts.lato(fontSize: 14, color: Colors.black),
+          labelSmall: GoogleFonts.lato(fontSize: 12, color: Colors.black),
+          bodyLarge: GoogleFonts.lato(fontSize: 12, color: Colors.black),
+          bodyMedium: GoogleFonts.lato(fontSize: 12, color: Colors.black),
+          bodySmall: GoogleFonts.lato(fontSize: 12, color: Colors.black),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
@@ -141,28 +135,22 @@ class MyApp extends ConsumerWidget {
           titleLarge: GoogleFonts.poppins(
             fontSize: 32,
             fontWeight: FontWeight.bold,
-            color: kLightColorScheme.primary,
+            color: Colors.white,
           ),
           titleMedium: GoogleFonts.poppins(
             fontSize: 28,
-            color: kLightColorScheme.onPrimaryContainer,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
           ),
           titleSmall: GoogleFonts.poppins(
             fontSize: 24,
-            color: kLightColorScheme.onPrimaryContainer,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
           ),
-          labelLarge: GoogleFonts.poppins(
-            fontSize: 20,
-            color: kLightColorScheme.onPrimaryContainer,
-          ),
-          labelMedium: GoogleFonts.poppins(
-            fontSize: 18,
-            color: kLightColorScheme.onPrimaryContainer,
-          ),
-          labelSmall: GoogleFonts.poppins(
-            fontSize: 16,
-            color: kLightColorScheme.onPrimaryContainer,
-          ),
+          labelLarge: GoogleFonts.lato(fontSize: 20, color: Colors.white),
+          labelMedium: GoogleFonts.lato(fontSize: 18, color: Colors.white),
+          labelSmall: GoogleFonts.lato(fontSize: 16, color: Colors.white),
+          bodyLarge: GoogleFonts.lato(fontSize: 16, color: Colors.white),
         ),
       ),
       home: StreamBuilder<AuthState>(

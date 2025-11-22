@@ -34,21 +34,25 @@ class _HomePageState extends ConsumerState<HomePage>
         child: SafeArea(
           child: Column(
             children: [
-              //row for tile and the 2 icons
               const AppTitleRow(),
               const SizedBox(height: 8),
 
               Expanded(
-                child: ListView(
-                  children: [
-                    //hero banner
-                    const MyHeroBanner(),
-                    //gridview for categories
-                    const MyCategoryGrid(),
-                    //product items gridview
-                    const MyProductsGridview(),
-                    const SizedBox(height: 16),
-                  ],
+                child: ScrollConfiguration(
+                  behavior: ScrollConfiguration.of(context).copyWith(
+                    overscroll: false, // removes glowing effect
+                  ),
+                  child: ListView(
+                    physics: const BouncingScrollPhysics(),
+                    children: [
+                      const MyHeroBanner(),
+                      //gridview for categories
+                      const MyCategoryGrid(),
+                      //product items gridview
+                      const MyProductsGridview(),
+                      const SizedBox(height: 16),
+                    ],
+                  ),
                 ),
               ),
             ],

@@ -72,6 +72,7 @@ flutter:
     - assets/images/hero1.jpeg
     - assets/images/hero2.jpeg
     - assets/images/placeholder.png
+    - assets/images/avatar1.png
 
   # fonts:
   #   - family: Schyler

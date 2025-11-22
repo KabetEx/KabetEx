@@ -60,7 +60,7 @@ class _ProductCardState extends ConsumerState<ProductCard> {
           boxShadow: [
             BoxShadow(
               color: isDarkMode
-                  ? Colors.grey[700]!
+                  ? const Color.fromARGB(255, 65, 64, 64)
                   : const Color.fromARGB(255, 84, 84, 84),
               blurRadius: 1,
               offset: const Offset(1, 1),
