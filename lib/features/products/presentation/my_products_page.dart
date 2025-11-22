@@ -121,9 +121,6 @@ class MyProductsPage extends ConsumerWidget {
     // }
 
     return Scaffold(
-      backgroundColor: isDark
-          ? Colors.black
-          : const Color.fromARGB(255, 237, 228, 225),
       appBar: AppBar(title: const Text("My Products")),
       body: authSync.when(
         data: (user) {
@@ -135,8 +132,13 @@ class MyProductsPage extends ConsumerWidget {
             error: (e, st) => Center(child: Text("Error: $e")),
             data: (products) {
               if (products.isEmpty) {
-                return const Center(
-                  child: Text("You haven't posted anything yet 👀"),
+                return Center(
+                  child: Text(
+                    "You haven't posted anything yet 👀",
+                    style: TextStyle(
+                      color: isDark ? Colors.white : Colors.black,
+                    ),
+                  ),
                 );
               }
 

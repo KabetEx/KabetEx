@@ -7,6 +7,7 @@ import 'package:kabetex/features/products/data/product.dart';
 import 'package:kabetex/providers/cart/all_cart_products.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 import 'package:kabetex/features/products/data/product_services.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ProdDetailsPage extends ConsumerStatefulWidget {
   const ProdDetailsPage({super.key, this.product, this.productId});
@@ -21,6 +22,7 @@ class ProdDetailsPage extends ConsumerStatefulWidget {
 class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
   late Product? product;
   bool isLoading = false;
+  bool isContacting = false;
 
   @override
   void initState() {
@@ -41,17 +43,76 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
     });
   }
 
-  void contactSeller() async {
-    final sellerNumber = await ProductService().getSellerNumber(
-      product!.sellerId,
-    );
-
-    print(sellerNumber);
-  }
-
   bool isExisting() {
     final cart = ref.watch(cartProvider);
     return cart.any((p) => p.id == product!.id);
+  }
+
+  String formatForWhatsApp(String input) {
+    // Remove spaces, dashes, plus signs
+    input = input.replaceAll(RegExp(r'[^\d]'), '');
+
+    // If starts with 0 → remove it
+    if (input.startsWith('0')) {
+      input = input.substring(1);
+    }
+
+    // If starts with country code already, return
+    if (input.startsWith('254')) {
+      return input;
+    }
+
+    // Otherwise add country code
+    return '254$input';
+  }
+
+  void contactSeller() async {
+    try {
+      setState(() => isContacting = true);
+      //get seller's number
+      final sellerNumber = await ProductService().getSellerNumber(
+        product!.sellerId,
+      );
+      //format number
+      final formattedNum = formatForWhatsApp(sellerNumber!);
+
+      if (formattedNum.isEmpty) {
+        print("Seller number not available");
+        return;
+      }
+      await openWhatsApp(
+        formattedNum,
+        "Hey! I found your product '${product!.title}' on Kabetex and I'm interested.",
+      );
+      setState(() => isContacting = false);
+    } catch (e) {
+      print('error launching whatsapp');
+    } finally {
+      setState(() => isContacting = true);
+    }
+  }
+
+  Future<void> openWhatsApp(String phoneNumber, String message) async {
+    final encoded = Uri.encodeComponent(message);
+
+    final deepLink = Uri.parse(
+      "whatsapp://send?phone=$phoneNumber&text=$encoded",
+    );
+    final webLink = Uri.parse("https://wa.me/$phoneNumber?text=$encoded");
+
+    // Try deep link first (most reliable)
+    if (await canLaunchUrl(deepLink)) {
+      await launchUrl(deepLink, mode: LaunchMode.externalApplication);
+      return;
+    }
+
+    // Fallback to web link
+    if (await canLaunchUrl(webLink)) {
+      await launchUrl(webLink, mode: LaunchMode.externalApplication);
+      return;
+    }
+
+    print("Could not open WhatsApp");
   }
 
   @override
@@ -62,17 +123,13 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
     if (product == null) return const Center(child: Text('Product not found'));
 
     return Scaffold(
-      backgroundColor: isDarkMode
-          ? Colors.black
-          : const Color.fromARGB(255, 237, 228, 225),
+     backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: isDarkMode
             ? Colors.black
             : const Color.fromARGB(255, 237, 228, 225),
         iconTheme: IconThemeData(
-          color: isDarkMode
-              ? Colors.white
-              : const Color.fromARGB(255, 237, 228, 225),
+          color: isDarkMode ? Colors.white : Colors.black,
         ),
         actions: [
           IconButton(
@@ -241,14 +298,16 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
                 right: 16,
                 child: ElevatedButton.icon(
                   onPressed: contactSeller,
-                  icon: const Icon(Icons.chat, color: Colors.white, size: 30),
-                  label: Text(
-                    'Contact seller',
-                    style: Theme.of(context).textTheme.titleSmall!.copyWith(
-                      color: Colors.white,
-                      fontSize: 20,
-                    ),
-                  ),
+                  icon: isContacting
+                      ? null
+                      : const Icon(Icons.chat, color: Colors.white, size: 30),
+                  label: isLoading
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : Text(
+                          'Contact seller',
+                          style: Theme.of(context).textTheme.titleSmall!
+                              .copyWith(color: Colors.white, fontSize: 20),
+                        ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.orange,
                     elevation: 6, // shadow for floating effect
@@ -266,29 +325,3 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
     );
   }
 }
-
-                        //add to cart
-                        // IconButton(
-                        //   onPressed: () {
-                        //     setState(() {
-                        //       isAdded = !isAdded;
-                        //     });
-                        //   },
-                        //   icon: AnimatedScale(
-                        //     scale: isAdded ? 1.3 : 1.0,
-                        //     duration: const Duration(milliseconds: 300),
-                        //     curve: Curves.bounceIn,
-                        //     child: isAdded
-                        //         ? const Icon(
-                        //             Icons.shopping_cart_checkout,
-                        //             size: 24,
-                        //             color: Colors.black,
-                        //           )
-                        //         : const Icon(
-                        //             Icons.check,
-                        //             color: Colors.orange,
-                        //             size: 24,
-                        //           ),
-                        //   ),
-                        //   color: isDarkMode ? Colors.white : Colors.black,
-                        // ),

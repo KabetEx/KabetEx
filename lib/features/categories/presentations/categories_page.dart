@@ -13,9 +13,7 @@ class CategoriesPage extends ConsumerWidget {
     final isDark = ref.watch(isDarkModeProvider);
 
     return Scaffold(
-      backgroundColor: isDark
-          ? Colors.black
-          : const Color.fromARGB(255, 237, 228, 225),
+     backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [

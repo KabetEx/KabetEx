@@ -25,9 +25,7 @@ class _HomePageState extends ConsumerState<HomePage>
     final isDarkMode = ref.watch(isDarkModeProvider);
 
     return Scaffold(
-      backgroundColor: isDarkMode
-          ? Colors.black
-          : const Color.fromARGB(255, 237, 228, 225),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       drawer: const Mydrawer(),
       body: GestureDetector(
         onTap: () {

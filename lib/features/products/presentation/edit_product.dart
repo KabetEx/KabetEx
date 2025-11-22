@@ -80,7 +80,7 @@ class _EditProductPageState extends ConsumerState<EditProductPage> {
     final isDark = ref.watch(isDarkModeProvider);
 
     return Scaffold(
-      backgroundColor: isDark ? Colors.black : Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text('Update Product'),
         backgroundColor: isDark ? Colors.black : Colors.white,

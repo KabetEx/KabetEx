@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/features/products/data/product.dart';
+import 'package:kabetex/providers/theme_provider.dart';
 
-class SellerProductTile extends StatelessWidget {
+class SellerProductTile extends ConsumerWidget {
   final Product product;
   final void Function(Product) onDelete;
   final void Function(Product) onEdit;
@@ -15,7 +17,9 @@ class SellerProductTile extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, ref) {
+    final isDark = ref.watch(isDarkModeProvider);
+
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       leading: ClipRRect(
@@ -38,13 +42,16 @@ class SellerProductTile extends StatelessWidget {
       title: Text(
         product.title,
         overflow: TextOverflow.ellipsis,
-        style: const TextStyle(fontWeight: FontWeight.bold),
+        style: Theme.of(context).textTheme.titleSmall!.copyWith(
+          color: isDark ? Colors.white : Colors.black,
+        ),
       ),
       subtitle: Text(
         product.isActive! ? "Active" : "Inactive",
         style: TextStyle(color: product.isActive! ? Colors.green : Colors.red),
       ),
       trailing: PopupMenuButton<String>(
+        iconColor: isDark ? Colors.white : Colors.black,
         onSelected: (value) {
           if (value == 'edit') {
             onEdit.call(product);

@@ -141,16 +141,18 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
                   fontFamily: 'Quicksand',
                 ),
               ),
-              onTap: () {
+              onTap: () async {
                 Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) {
-                      return const PostProductPage();
-                    },
-                  ),
-                );
+                Future.delayed(const Duration(microseconds: 500), () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return const PostProductPage();
+                      },
+                    ),
+                  );
+                });
               },
             ),
             ListTile(
@@ -171,12 +173,16 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
               ),
               onTap: () {
                 Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const MyProductsPage(),
-                  ),
-                );
+                Future.delayed(const Duration(microseconds: 500), () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return const MyProductsPage();
+                      },
+                    ),
+                  );
+                });
               },
             ),
 

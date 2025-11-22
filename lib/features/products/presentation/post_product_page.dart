@@ -131,13 +131,10 @@ class PostProductPageState extends ConsumerState<PostProductPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Upload a product',
-          style: Theme.of(context).textTheme.titleLarge!.copyWith(fontSize: 24),
-        ),
-        centerTitle: true,
+        title: const Text('Upload a product'),
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Form(
         key: _formKey,
         child: Padding(
@@ -154,7 +151,9 @@ class PostProductPageState extends ConsumerState<PostProductPage> {
                   controller: _titleController,
                   decoration: InputDecoration(
                     hintText: 'Title',
-                    hintStyle: Theme.of(context).textTheme.bodyLarge,
+                    hintStyle: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                      color: isDark ? Colors.grey : Colors.black,
+                    ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
@@ -238,7 +237,9 @@ class PostProductPageState extends ConsumerState<PostProductPage> {
                   controller: _descController,
                   decoration: InputDecoration(
                     hintText: 'Description',
-                    hintStyle: Theme.of(context).textTheme.bodyLarge!,
+                    hintStyle: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                      color: isDark ? Colors.grey : Colors.black,
+                    ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
@@ -263,8 +264,7 @@ class PostProductPageState extends ConsumerState<PostProductPage> {
                   decoration: InputDecoration(
                     hintText: 'Price',
                     hintStyle: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                      fontSize: 18,
-                      color: Colors.grey[700],
+                      color: isDark ? Colors.grey : Colors.black,
                     ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:kabetex/features/cart/data/product_hive.dart';
-import 'package:kabetex/features/products/presentation/prod_details.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 import 'package:shimmer/shimmer.dart';
 

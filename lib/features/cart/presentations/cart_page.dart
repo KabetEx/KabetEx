@@ -27,9 +27,7 @@ class _CartPageState extends ConsumerState<CartPage> {
     ).format(totalCart);
 
     return Scaffold(
-      backgroundColor: isDarkMode
-          ? Colors.black
-          : const Color.fromARGB(255, 237, 228, 225),
+    backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [

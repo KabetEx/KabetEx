@@ -1,18 +1,20 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:kabetex/providers/theme_provider.dart';
 
-class ProductImage extends StatefulWidget {
+class ProductImage extends ConsumerStatefulWidget {
   final void Function(List<XFile>) onImagesPicked;
 
   const ProductImage({super.key, required this.onImagesPicked});
 
   @override
-  State<ProductImage> createState() => _ProductImageState();
+  ConsumerState<ProductImage> createState() => _ProductImageState();
 }
 
-class _ProductImageState extends State<ProductImage> {
+class _ProductImageState extends ConsumerState<ProductImage> {
   final ImagePicker _picker = ImagePicker();
   List<XFile> images = [];
 
@@ -34,6 +36,8 @@ class _ProductImageState extends State<ProductImage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = ref.watch(isDarkModeProvider);
+
     return Container(
       height: 200,
       decoration: BoxDecoration(
@@ -66,12 +70,17 @@ class _ProductImageState extends State<ProductImage> {
           : Center(
               child: TextButton.icon(
                 onPressed: pickImages,
-                icon: const Icon(Icons.upload, color: Colors.black, size: 24),
+                icon: Icon(
+                  Icons.upload,
+                  color: isDark ? Colors.white : Colors.black,
+                  size: 24,
+                ),
                 label: Text(
                   'Upload upto 3 images',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyLarge!.copyWith(fontWeight: FontWeight.bold),
+                  style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : Colors.black,
+                  ),
                 ),
               ),
             ),

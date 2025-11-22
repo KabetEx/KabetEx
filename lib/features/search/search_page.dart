@@ -10,9 +10,7 @@ class SearchPage extends ConsumerWidget {
   Widget build(BuildContext context, ref) {
     final isDark = ref.watch(isDarkModeProvider);
     return Scaffold(
-      backgroundColor: isDark
-          ? Colors.black
-          : const Color.fromARGB(255, 237, 228, 225),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(title: const Text('Search')),
       body: const Column(children: [MySearchBar(hint: 'Search products...')]),
     );

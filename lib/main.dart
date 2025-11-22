@@ -5,7 +5,6 @@ import 'package:kabetex/features/auth/presentation/login.dart';
 import 'package:kabetex/features/home/presentations/tabs_screen.dart';
 import 'package:kabetex/features/cart/data/product_hive.dart';
 import 'package:kabetex/providers/theme_provider.dart';
-import 'package:riverpod/legacy.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -42,8 +41,14 @@ void main() async {
 }
 
 //colorschemes
-final kLightColorScheme = ColorScheme.fromSeed(seedColor: Colors.deepOrange);
-final kDarkColorScheme = ColorScheme.fromSeed(seedColor: Colors.deepOrange);
+final kLightColorScheme = ColorScheme.fromSeed(
+  seedColor: Colors.deepOrange,
+  brightness: Brightness.light,
+);
+final kDarkColorScheme = ColorScheme.fromSeed(
+  seedColor: const Color.fromARGB(255, 91, 31, 12),
+  brightness: Brightness.dark,
+);
 
 class MyApp extends ConsumerWidget {
   const MyApp({super.key});
@@ -52,108 +57,126 @@ class MyApp extends ConsumerWidget {
   Widget build(BuildContext context, ref) {
     final isDarkMode = ref.watch(isDarkModeProvider);
 
-    return AnimatedTheme(
-      duration: const Duration(milliseconds: 500),
-      curve: Curves.easeInOut,
-      data: isDarkMode
-          ? ThemeData(brightness: Brightness.dark)
-          : ThemeData(brightness: Brightness.light),
-      child: MaterialApp(
-        title: 'KabetEx',
-        debugShowCheckedModeBanner: false,
-        themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
+    return MaterialApp(
+      title: 'KabetEx',
+      debugShowCheckedModeBanner: false,
+      themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
 
-        //light mode
-        theme: ThemeData().copyWith(
-          brightness: Brightness.light,
-          colorScheme: kLightColorScheme,
-          textTheme: GoogleFonts.poppinsTextTheme().copyWith(
-            headlineLarge: GoogleFonts.baloo2(
-              fontSize: 40,
-              fontWeight: FontWeight.bold,
-            ),
-            titleLarge: GoogleFonts.poppins(
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-              color: kLightColorScheme.onPrimaryContainer,
-            ),
-            titleMedium: GoogleFonts.poppins(
-              fontSize: 28,
-              color: kLightColorScheme.onPrimaryContainer,
-            ),
-            titleSmall: GoogleFonts.poppins(
-              fontSize: 24,
-              color: kLightColorScheme.onPrimaryContainer,
-            ),
-            labelLarge: GoogleFonts.lato(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: kLightColorScheme.onPrimaryContainer,
-            ),
-            labelMedium: GoogleFonts.lato(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: kLightColorScheme.onPrimaryContainer,
-            ),
-            labelSmall: GoogleFonts.lato(
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-              color: kLightColorScheme.onPrimaryContainer,
-            ),
-          ),
-          elevatedButtonTheme: ElevatedButtonThemeData(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: kLightColorScheme.primary,
-              foregroundColor: Colors.white,
-            ),
+      //light mode
+      theme: ThemeData().copyWith(
+        scaffoldBackgroundColor: const Color.fromARGB(255, 222, 216, 216),
+        canvasColor: const Color.fromARGB(255, 237, 228, 225),
+        brightness: Brightness.light,
+        colorScheme: kLightColorScheme,
+        appBarTheme: const AppBarThemeData().copyWith(
+          backgroundColor: const Color.fromARGB(255, 222, 216, 216),
+          centerTitle: true,
+          titleTextStyle: Theme.of(
+            context,
+          ).textTheme.titleLarge!.copyWith(color: Colors.white),
+          iconTheme: IconThemeData(
+            color: isDarkMode
+                ? const Color.fromARGB(255, 237, 228, 225)
+                : Colors.black,
           ),
         ),
+        textTheme: GoogleFonts.poppinsTextTheme().copyWith(
+          headlineLarge: GoogleFonts.baloo2(
+            fontSize: 40,
+            fontWeight: FontWeight.bold,
+          ),
+          titleLarge: GoogleFonts.poppins(
+            fontSize: 32,
+            fontWeight: FontWeight.bold,
+            color: kLightColorScheme.onPrimaryContainer,
+          ),
+          titleMedium: GoogleFonts.poppins(
+            fontSize: 28,
+            color: kLightColorScheme.onPrimaryContainer,
+          ),
+          titleSmall: GoogleFonts.poppins(
+            fontSize: 24,
+            color: kLightColorScheme.onPrimaryContainer,
+          ),
+          labelLarge: GoogleFonts.lato(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: kLightColorScheme.onPrimaryContainer,
+          ),
+          labelMedium: GoogleFonts.lato(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: kLightColorScheme.onPrimaryContainer,
+          ),
+          labelSmall: GoogleFonts.lato(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: kLightColorScheme.onPrimaryContainer,
+          ),
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: kLightColorScheme.primary,
+            foregroundColor: Colors.white,
+          ),
+        ),
+      ),
 
-        //darktheme
-        darkTheme: ThemeData.dark().copyWith(
-          brightness: Brightness.dark,
-          colorScheme: kDarkColorScheme,
-          textTheme: GoogleFonts.poppinsTextTheme().copyWith(
-            titleLarge: GoogleFonts.poppins(
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-              color: kLightColorScheme.primary,
-            ),
-            titleMedium: GoogleFonts.poppins(
-              fontSize: 28,
-              color: kLightColorScheme.onPrimaryContainer,
-            ),
-            titleSmall: GoogleFonts.poppins(
-              fontSize: 24,
-              color: kLightColorScheme.onPrimaryContainer,
-            ),
-            labelLarge: GoogleFonts.poppins(
-              fontSize: 20,
-              color: kLightColorScheme.onPrimaryContainer,
-            ),
-            labelMedium: GoogleFonts.poppins(
-              fontSize: 18,
-              color: kLightColorScheme.onPrimaryContainer,
-            ),
-            labelSmall: GoogleFonts.poppins(
-              fontSize: 16,
-              color: kLightColorScheme.onPrimaryContainer,
-            ),
+      //darktheme
+      darkTheme: ThemeData.dark().copyWith(
+        scaffoldBackgroundColor: Colors.black,
+        canvasColor: Colors.black,
+        appBarTheme: AppBarThemeData(
+          backgroundColor: Colors.black,
+          foregroundColor: Colors.white,
+          iconTheme: IconThemeData(
+            color: isDarkMode
+                ? const Color.fromARGB(255, 237, 228, 225)
+                : Colors.black,
           ),
         ),
-        home: StreamBuilder<AuthState>(
-          stream: Supabase.instance.client.auth.onAuthStateChange,
-          builder: (context, snapshot) {
-            final user = Supabase.instance.client.auth.currentUser;
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            if (user == null) {
-              return const LoginPage();
-            }
-            return const TabsScreen();
-          },
+        brightness: Brightness.dark,
+        colorScheme: kDarkColorScheme,
+        textTheme: GoogleFonts.poppinsTextTheme().copyWith(
+          titleLarge: GoogleFonts.poppins(
+            fontSize: 32,
+            fontWeight: FontWeight.bold,
+            color: kLightColorScheme.primary,
+          ),
+          titleMedium: GoogleFonts.poppins(
+            fontSize: 28,
+            color: kLightColorScheme.onPrimaryContainer,
+          ),
+          titleSmall: GoogleFonts.poppins(
+            fontSize: 24,
+            color: kLightColorScheme.onPrimaryContainer,
+          ),
+          labelLarge: GoogleFonts.poppins(
+            fontSize: 20,
+            color: kLightColorScheme.onPrimaryContainer,
+          ),
+          labelMedium: GoogleFonts.poppins(
+            fontSize: 18,
+            color: kLightColorScheme.onPrimaryContainer,
+          ),
+          labelSmall: GoogleFonts.poppins(
+            fontSize: 16,
+            color: kLightColorScheme.onPrimaryContainer,
+          ),
         ),
+      ),
+      home: StreamBuilder<AuthState>(
+        stream: Supabase.instance.client.auth.onAuthStateChange,
+        builder: (context, snapshot) {
+          final user = Supabase.instance.client.auth.currentUser;
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (user == null) {
+            return const LoginPage();
+          }
+          return const TabsScreen();
+        },
       ),
     );
   }

@@ -15,9 +15,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   Widget build(BuildContext context) {
     final isDarkMode = ref.watch(isDarkModeProvider);
     return Scaffold(
-      backgroundColor: isDarkMode
-          ? Colors.black
-          : const Color.fromARGB(255, 237, 228, 225),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(
           'Settings page',
@@ -25,9 +23,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             color: isDarkMode ? Colors.white : Colors.black,
           ),
         ),
-        backgroundColor: isDarkMode
-            ? Colors.black
-            : const Color.fromARGB(255, 237, 228, 225),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         iconTheme: const IconThemeData(
           color: Colors.deepOrange, // changes back arrow color
           size: 28, // optional: change size
@@ -63,7 +59,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               value: isDarkMode,
               onChanged: (val) async {
                 ref.read(isDarkModeProvider.notifier).state = val;
-                
+
                 // persist to Hive
                 final box = Hive.box('settings');
                 await box.put('isDarkMode', val);
