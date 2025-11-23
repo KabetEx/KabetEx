@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kabetex/features/categories/data/dummy_categories.dart';
 import 'package:kabetex/providers/categories/categories_provider.dart';
 import 'package:kabetex/providers/categories/selected_category.dart';
 import 'package:kabetex/providers/theme_provider.dart';
