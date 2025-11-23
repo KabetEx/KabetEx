@@ -156,6 +156,7 @@ class PostProductPageState extends ConsumerState<PostProductPage> {
                   // PRODUCT TITLE
                   TextFormField(
                     controller: _titleController,
+                    textCapitalization: TextCapitalization.sentences,
                     decoration: InputDecoration(
                       hintText: 'Title',
                       hintStyle: Theme.of(context).textTheme.labelLarge!

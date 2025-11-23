@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kabetex/features/categories/data/dummy_categories.dart';
 import 'package:kabetex/providers/categories/categories_provider.dart';
 import 'package:kabetex/providers/categories/selected_category.dart';
 import 'package:kabetex/providers/theme_provider.dart';
@@ -36,54 +37,62 @@ class MyCategoryGrid extends ConsumerWidget {
                 ),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
-                  height: 32,
+                  height: 74,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
+
                     color:
                         //if selected
                         selectedCategory == cat['name']
                         ? isDarkMode
                               ? Colors.deepOrange
-                              : Colors.deepOrange
+                              : Colors.transparent
                         :
                           //if is not selected
                           isDarkMode
                         ? Colors.black
-                        : Colors.white,
+                        : Colors.transparent,
 
                     border: Border.all(
                       color: selectedCategory == cat['name']
                           ? Colors.deepOrange
                           : Colors.grey,
-                      width: 0.8,
+                      width: selectedCategory == cat['name'] ? 1.4 : 0.8,
                     ),
-                    // boxShadow: [
-                    //   BoxShadow(
-                    //     color: isDarkMode ? Colors.grey : Colors.black,
-                    //     blurRadius: 1,
-                    //     offset: const Offset(0.5, 0.5),
-                    //   ),
-                    // ],
                   ),
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   alignment: Alignment.center,
-                  child: Text(
-                    cat['name'].toUpperCase(),
-                    style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                      color:
-                          //if selected
-                          selectedCategory == cat['name']
-                          ? isDarkMode
-                                ? Colors.white
-                                : Colors.white
-                          //not selected
-                          : isDarkMode
-                          ? Colors.white
-                          : Colors.black,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                      fontFamily: 'roboto',
-                    ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        cat['name'].toUpperCase() as String,
+                        style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                          color:
+                              //if selected
+                              selectedCategory == cat['name']
+                              ? isDarkMode
+                                    ? Colors.white
+                                    : Colors.deepOrange
+                              //not selected
+                              : isDarkMode
+                              ? Colors.white
+                              : Colors.black,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                          fontFamily: 'roboto',
+                        ),
+                      ),
+                      Icon(
+                        cat['icon'],
+                        color: isDarkMode
+                            ? Colors.white
+                            : selectedCategory == cat['name']
+                            ? Colors.deepOrange
+                            : Colors.black,
+                      ),
+                    ],
                   ),
                 ),
               ),

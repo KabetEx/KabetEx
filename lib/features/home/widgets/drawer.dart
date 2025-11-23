@@ -44,14 +44,25 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      'From books to snacks \n — all here 🎒🍹', //to be  changed
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                        fontFamily: 'Quicksand',
+                    RichText(
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: 'KabetEx \n',
+                            style: Theme.of(context).textTheme.titleMedium!
+                                .copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 32,
+                                  fontFamily: 'poppins',
+                                ),
+                          ),
+                          TextSpan(
+                            text: '-Where deals are made',
+                            style: Theme.of(context).textTheme.bodyLarge!
+                                .copyWith(color: Colors.white, fontSize: 18),
+                          ),
+                        ],
                       ),
                     ),
                   ],
@@ -133,7 +144,7 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
                     : Theme.of(context).colorScheme.onPrimaryContainer,
               ),
               title: Text(
-                'Upload a product',
+                'Upload ',
                 style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                   fontWeight: FontWeight.w500,
                   fontSize: 18,
@@ -163,7 +174,7 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
                     : Theme.of(context).colorScheme.onPrimaryContainer,
               ),
               title: Text(
-                'My products',
+                'My listings',
                 style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                   fontWeight: FontWeight.w500,
                   fontSize: 18,

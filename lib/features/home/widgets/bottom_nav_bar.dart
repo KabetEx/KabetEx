@@ -27,7 +27,7 @@ class MyBottomNav extends ConsumerWidget {
 
       items: [
         SalomonBottomBarItem(
-          icon: const Icon(Icons.home_outlined),
+          icon: const Icon(Icons.home_outlined, size: 24),
           title: const Text('Home'),
           selectedColor: selectedColor,
           unselectedColor: unselectedColor,
