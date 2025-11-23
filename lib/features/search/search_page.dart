@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kabetex/providers/theme_provider.dart';
 import 'package:kabetex/features/search/search_bar.dart';
 
 class SearchPage extends ConsumerWidget {

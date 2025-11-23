@@ -1,4 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class AuthService {
   final supabase = Supabase.instance.client;
@@ -94,6 +96,33 @@ class AuthService {
       print('Profile Insert Response: $res');
     } catch (e) {
       print('Create Profile Error: $e');
+    }
+  }
+
+  //-----------------delete account-------------
+
+  Future<bool> deleteUserFromSupabase() async {
+    try {
+      final userId = user!.id;
+
+      final response = await http.post(
+        Uri.parse(
+          'https://pxrucvvnywlgpcczrzse.supabase.co/functions/v1/deleteUser',
+        ),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({"userId": userId}),
+      );
+
+      if (response.statusCode == 200) {
+        print('success');
+        return true;
+      } else {
+        print('Error deleting user: ${response.body}');
+        return false;
+      }
+    } catch (e) {
+      print('Error: $e');
+      return false;
     }
   }
 

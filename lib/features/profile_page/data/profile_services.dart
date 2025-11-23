@@ -23,6 +23,18 @@ class ProfileServices {
     return null;
   }
 
+  // ---------------- UPDATE PROFILE ----------------
+  Future<void> updateProfile(Map<String, dynamic> updates) async {
+    final user = _supabase.auth.currentUser;
+    if (user == null) return;
+
+    try {
+      await _supabase.from('profiles').update(updates).eq('id', user.id);
+      print('Profile updated');
+    } catch (e) {
+      print('Update Profile Error: $e');
+    }
+  }
   //get user Full name
   Future<String> getUserFname() async {
     final profile = await ProfileServices().getProfile();
@@ -36,16 +48,4 @@ class ProfileServices {
     return profile!['isVerified'] as bool;
   }
 
-  // ---------------- UPDATE PROFILE ----------------
-  Future<void> updateProfile(Map<String, dynamic> updates) async {
-    final user = _supabase.auth.currentUser;
-    if (user == null) return;
-
-    try {
-      await _supabase.from('profiles').update(updates).eq('id', user.id);
-      print('Profile updated');
-    } catch (e) {
-      print('Update Profile Error: $e');
-    }
-  }
 }

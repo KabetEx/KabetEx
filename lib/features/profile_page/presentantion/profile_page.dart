@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/common/slide_routing.dart';
+import 'package:kabetex/features/auth/data/auth_services.dart';
+import 'package:kabetex/features/auth/presentation/login.dart';
 import 'package:kabetex/features/profile_page/data/profile_services.dart';
 import 'package:kabetex/features/profile_page/presentantion/edit_profile.dart';
 import 'package:kabetex/features/profile_page/widgets/not_logged_In.dart';
@@ -18,6 +20,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
     with AutomaticKeepAliveClientMixin {
   final _user = Supabase.instance.client.auth.currentUser;
   final _profileService = ProfileServices();
+  final _authService = AuthService();
+
   String? fName;
   bool? isVerified;
 
@@ -56,6 +60,28 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
     }
   }
 
+  Future<bool?> showDeleteConfirmation(BuildContext context) async {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Account'),
+        content: const Text(
+          'Are you sure you want to delete your account? This cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = ref.watch(isDarkModeProvider);
@@ -75,7 +101,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
               padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8),
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(255, 165, 55, 21),
+                  backgroundColor: Colors.deepOrange,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -199,8 +225,29 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                         Icons.arrow_forward_ios_outlined,
                         color: isDark ? Colors.white : Colors.black,
                       ),
-                      onTap: () {
-                        //show dialog to confirm account deletion
+                      onTap: () async {
+                        final confirmed = await showDeleteConfirmation(context);
+                        if (confirmed == true) {
+                          final success = await _authService
+                              .deleteUserFromSupabase();
+                          if (success) {
+                            // Sign out locally
+                            await Supabase.instance.client.auth.signOut();
+                            // Navigate to login page
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const LoginPage(),
+                              ),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Failed to delete account.'),
+                              ),
+                            );
+                          }
+                        }
                       },
                     ),
                   ),
