@@ -39,6 +39,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               'Theme Prefrences',
               style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                 color: isDarkMode ? Colors.grey : Colors.black,
+                fontSize: 18,
               ),
             ),
           ),
@@ -53,6 +54,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                 fontWeight: FontWeight.bold,
                 color: isDarkMode ? Colors.white : Colors.black,
+                fontSize: 18,
               ),
             ),
             trailing: Switch(

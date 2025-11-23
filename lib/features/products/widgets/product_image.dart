@@ -42,7 +42,10 @@ class _ProductImageState extends ConsumerState<ProductImage> {
       height: 200,
       decoration: BoxDecoration(
         color: Colors.transparent,
-        border: Border.all(color: Colors.deepOrange, width: 0.75),
+        border: Border.all(
+          color: isDark ? Colors.grey : Colors.black,
+          width: 0.75,
+        ),
         borderRadius: BorderRadius.circular(8),
       ),
       child: images.isNotEmpty
@@ -79,6 +82,7 @@ class _ProductImageState extends ConsumerState<ProductImage> {
                   'Upload upto 3 images',
                   style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                     fontWeight: FontWeight.bold,
+                    fontSize: 16,
                     color: isDark ? Colors.white : Colors.black,
                   ),
                 ),

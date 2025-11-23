@@ -131,200 +131,223 @@ class PostProductPageState extends ConsumerState<PostProductPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Upload a product'),
+        title: Text(
+          'Upload a product',
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
         backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
       ),
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: Form(
-        key: _formKey,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 8),
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                // IMAGE PICKER
-                ProductImage(onImagesPicked: _onImagesPicked),
-                const SizedBox(height: 16),
+      body: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).unfocus();
+        },
+        child: Form(
+          key: _formKey,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 8),
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  // IMAGE PICKER
+                  ProductImage(onImagesPicked: _onImagesPicked),
+                  const SizedBox(height: 16),
 
-                // PRODUCT TITLE
-                TextFormField(
-                  controller: _titleController,
-                  decoration: InputDecoration(
-                    hintText: 'Title',
-                    hintStyle: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                      color: isDark ? Colors.grey : Colors.black,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  ),
-                  style: Theme.of(context).textTheme.labelSmall!.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey[900],
-                    fontSize: 18,
-                    height: 1.5,
-                    fontFamily: 'inter',
-                  ),
-                  validator: (val) =>
-                      val == null || val.isEmpty ? 'Enter product title' : null,
-                ),
-                const SizedBox(height: 16),
-
-                // CATEGORY DROPDOWN
-                Stack(
-                  children: [
-                    SizedBox(
-                      height: 64,
-                      child: DropdownButtonFormField<Map<String, dynamic>>(
-                        initialValue: allCategories[0], //defaults to 'all'
-                        decoration: InputDecoration(
-                          hintText: 'Select Category',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16),
+                  // PRODUCT TITLE
+                  TextFormField(
+                    controller: _titleController,
+                    decoration: InputDecoration(
+                      hintText: 'Title',
+                      hintStyle: Theme.of(context).textTheme.labelLarge!
+                          .copyWith(
+                            color: isDark ? Colors.grey : Colors.black,
+                            fontSize: 16,
                           ),
-                        ),
-                        items: allCategories
-                            .map(
-                              (cat) => DropdownMenuItem<Map<String, dynamic>>(
-                                value: cat,
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 10,
-                                    vertical: 8,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors
-                                        .deepOrange, // background for individual item
-                                    borderRadius: BorderRadius.circular(5),
-                                  ),
-                                  child: Text(
-                                    textAlign: TextAlign.center,
-                                    cat['name'],
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyLarge!
-                                        .copyWith(
-                                          fontSize: 14,
-                                          color: Colors.white,
-                                        ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    style: Theme.of(context).textTheme.labelSmall!.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: isDark ? Colors.white : Colors.grey[900],
+                      fontSize: 18,
+                      height: 1.5,
+                      fontFamily: 'inter',
+                    ),
+                    validator: (val) => val == null || val.isEmpty
+                        ? 'Enter product title'
+                        : null,
+                  ),
+                  const SizedBox(height: 16),
+
+                  // CATEGORY DROPDOWN
+                  Stack(
+                    children: [
+                      SizedBox(
+                        height: 64,
+                        child: DropdownButtonFormField<Map<String, dynamic>>(
+                          initialValue: allCategories[0], //defaults to 'all'
+                          decoration: InputDecoration(
+                            hintText: 'Select Category',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                          items: allCategories
+                              .map(
+                                (cat) => DropdownMenuItem<Map<String, dynamic>>(
+                                  value: cat,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 2,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors
+                                          .deepOrange, // background for individual item
+                                      borderRadius: BorderRadius.circular(5),
+                                    ),
+                                    child: Text(
+                                      textAlign: TextAlign.center,
+                                      cat['name'],
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyLarge!
+                                          .copyWith(
+                                            fontSize: 14,
+                                            color: Colors.white,
+                                          ),
+                                    ),
                                   ),
                                 ),
-                              ),
-                            )
-                            .toList(),
-                        onChanged: (val) =>
-                            setState(() => _selectedCategory = val!['name']),
-                        validator: (val) =>
-                            val == null ? _selectedCategory : null,
-                      ),
-                    ), // sizedBox
-                    const Positioned(
-                      right: 4,
-                      bottom: 4,
-                      top: 0,
-                      child: Icon(
-                        Icons.arrow_drop_down,
-                        color: Colors.deepOrangeAccent,
-                        size: 54,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-
-                // DESCRIPTION
-                TextFormField(
-                  controller: _descController,
-                  decoration: InputDecoration(
-                    hintText: 'Description',
-                    hintStyle: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                      color: isDark ? Colors.grey : Colors.black,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  ),
-                  maxLines: 3,
-                  //user input text style
-                  style: Theme.of(context).textTheme.labelSmall!.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey[900],
-                    fontSize: 18,
-                    height: 1.5,
-                    fontFamily: 'inter',
-                  ),
-                  validator: (val) =>
-                      val == null || val.isEmpty ? 'Enter description' : null,
-                ),
-                const SizedBox(height: 16),
-
-                // PRICE
-                TextFormField(
-                  controller: _priceController,
-                  decoration: InputDecoration(
-                    hintText: 'Price',
-                    hintStyle: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                      color: isDark ? Colors.grey : Colors.black,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    prefixText: 'KSH ',
-                    prefixStyle: Theme.of(context).textTheme.labelSmall!
-                        .copyWith(color: Colors.black, fontSize: 18),
-                  ),
-                  //user input text style
-                  style: Theme.of(context).textTheme.labelSmall!.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey[900],
-                    fontSize: 18,
-                  ),
-                  keyboardType: TextInputType.number,
-                  validator: (val) =>
-                      val == null || val.isEmpty ? 'Enter price' : null,
-                ),
-                const SizedBox(height: 24),
-
-                // UPLOAD BUTTON
-                GestureDetector(
-                  onTap: uploadProduct,
-                  child: Container(
-                    height: 50,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: Colors.deepOrange,
-                      borderRadius: BorderRadius.circular(10),
-                      boxShadow: [
-                        BoxShadow(
-                          blurRadius: 5,
-                          color: Colors.grey[700]!,
-                          offset: const Offset(1, 3),
+                              )
+                              .toList(),
+                          onChanged: (val) =>
+                              setState(() => _selectedCategory = val!['name']),
+                          validator: (val) =>
+                              val == null ? _selectedCategory : null,
                         ),
-                      ],
+                      ), // sizedBox
+                      const Positioned(
+                        right: 4,
+                        bottom: 4,
+                        top: 0,
+                        child: Icon(
+                          Icons.arrow_drop_down,
+                          color: Colors.deepOrangeAccent,
+                          size: 42,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+
+                  // DESCRIPTION
+                  TextFormField(
+                    controller: _descController,
+                    textCapitalization: TextCapitalization.sentences,
+                    decoration: InputDecoration(
+                      hintText: 'Description',
+                      hintStyle: Theme.of(context).textTheme.labelLarge!
+                          .copyWith(
+                            color: isDark ? Colors.grey : Colors.black,
+                            fontSize: 16,
+                          ),
+
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
                     ),
-                    child: Center(
-                      child: isUploading
-                          ? const SizedBox(
-                              height: 24,
-                              width: 24,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
+                    maxLines: 3,
+                    //user input text style
+                    style: Theme.of(context).textTheme.labelSmall!.copyWith(
+                      color: isDark
+                          ? const Color.fromARGB(255, 216, 216, 216)
+                          : Colors.grey[900],
+                      fontSize: 18,
+                      height: 1.5,
+                      fontFamily: 'roboto',
+                    ),
+                    validator: (val) =>
+                        val == null || val.isEmpty ? 'Enter description' : null,
+                  ),
+                  const SizedBox(height: 16),
+
+                  // PRICE
+                  TextFormField(
+                    controller: _priceController,
+                    decoration: InputDecoration(
+                      hintText: 'Price',
+                      hintStyle: Theme.of(context).textTheme.labelLarge!
+                          .copyWith(
+                            color: isDark ? Colors.grey : Colors.black,
+                            fontSize: 16,
+                          ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      prefixText: 'KSH ',
+                      prefixStyle: Theme.of(context).textTheme.labelSmall!
+                          .copyWith(
+                            color: isDark ? Colors.grey : Colors.black,
+                            fontSize: 18,
+                          ),
+                    ),
+                    //user input text style
+                    style: Theme.of(context).textTheme.labelSmall!.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: isDark ? Colors.white : Colors.grey[900],
+                      fontSize: 18,
+                      height: 1.5,
+                      fontFamily: 'inter',
+                    ),
+                    keyboardType: TextInputType.number,
+                    validator: (val) =>
+                        val == null || val.isEmpty ? 'Enter price' : null,
+                  ),
+                  const SizedBox(height: 24),
+
+                  // UPLOAD BUTTON
+                  GestureDetector(
+                    onTap: uploadProduct,
+                    child: Container(
+                      height: 50,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Colors.deepOrange,
+                        borderRadius: BorderRadius.circular(10),
+                        boxShadow: [
+                          BoxShadow(
+                            blurRadius: 5,
+                            color: Colors.grey[700]!,
+                            offset: const Offset(1, 3),
+                          ),
+                        ],
+                      ),
+                      child: Center(
+                        child: isUploading
+                            ? const SizedBox(
+                                height: 24,
+                                width: 24,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                ),
+                              )
+                            : Text(
+                                'upload',
+                                style: Theme.of(context).textTheme.bodyLarge!
+                                    .copyWith(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                               ),
-                            )
-                          : Text(
-                              'upload',
-                              style: Theme.of(context).textTheme.bodyLarge!
-                                  .copyWith(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                            ),
+                      ),
                     ),
                   ),
-                ),
 
-                const SizedBox(height: 24),
-              ],
+                  const SizedBox(height: 24),
+                ],
+              ),
             ),
           ),
         ),

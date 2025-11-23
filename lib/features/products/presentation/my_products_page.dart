@@ -121,7 +121,12 @@ class MyProductsPage extends ConsumerWidget {
     // }
 
     return Scaffold(
-      appBar: AppBar(title: const Text("My Products")),
+      appBar: AppBar(
+        title: Text(
+          "My Products",
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
+      ),
       body: authSync.when(
         data: (user) {
           if (user == null) {

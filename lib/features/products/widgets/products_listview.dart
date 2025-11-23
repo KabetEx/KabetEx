@@ -7,6 +7,7 @@ import 'package:kabetex/features/products/widgets/product_card.dart';
 import 'package:kabetex/features/products/data/product.dart';
 import 'package:kabetex/providers/categories/selected_category.dart';
 import 'package:kabetex/features/products/data/product_services.dart';
+import 'package:kabetex/providers/theme_provider.dart';
 import 'package:shimmer/shimmer.dart';
 
 class MyProductsGridview extends ConsumerStatefulWidget {
@@ -24,6 +25,7 @@ class _MyProductsGridviewState extends ConsumerState<MyProductsGridview> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = ref.watch(isDarkModeProvider);
     final selectedCategory = ref.watch(selectedCategoryProvider);
 
     return Expanded(
@@ -44,6 +46,7 @@ class _MyProductsGridviewState extends ConsumerState<MyProductsGridview> {
               crossAxisSpacing: 12,
               itemCount: 4,
               itemBuilder: (context, index) {
+                //shimmer
                 return Column(
                   children: [
                     // Image shimmer
@@ -117,9 +120,17 @@ class _MyProductsGridviewState extends ConsumerState<MyProductsGridview> {
                 }).toList();
 
           if (filteredProducts!.isEmpty) {
-            return const Center(child: Text('No products yet 😔'));
+            return Center(
+              child: Text(
+                'No products yet 😔',
+                style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                  color: isDark ? Colors.white : Colors.black,
+                ),
+              ),
+            );
           }
 
+          //actual data
           return MasonryGridView.builder(
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
             shrinkWrap: true,
