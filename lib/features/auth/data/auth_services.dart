@@ -1,3 +1,4 @@
+import 'package:kabetex/features/products/data/product_services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -100,26 +101,58 @@ class AuthService {
   }
 
   //-----------------delete account-------------
-
   Future<bool> deleteUserFromSupabase() async {
     try {
       final userId = user!.id;
 
+      // 1️⃣ Delete auth user via Supabase Function
       final response = await http.post(
         Uri.parse(
-          'https://pxrucvvnywlgpcczrzse.supabase.co/functions/v1/deleteUser',
+          'https://pxrucvvnywlgpcczrzse.functions.supabase.co/deleteUser',
         ),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({"userId": userId}),
+        body: jsonEncode({'userId': userId}),
       );
 
-      if (response.statusCode == 200) {
-        print('success');
-        return true;
-      } else {
-        print('Error deleting user: ${response.body}');
-        return false;
+      print("Response: ${response.statusCode}   ${response.body}");
+
+      if (response.statusCode != 200) return false;
+
+      // 2️⃣ Delete profile locally
+      await supabase.from('profiles').delete().eq('id', userId);
+
+      // 3️⃣ Fetch all user products
+      final productsRes = await supabase
+          .from('products')
+          .select('id, image_urls')
+          .eq('seller_id', userId);
+      final products = productsRes as List<dynamic>?;
+
+      if (products != null && products.isNotEmpty) {
+        for (final product in products) {
+          final productId = product['id'] as String;
+          final imageUrls = (product['image_urls'] as List<dynamic>)
+              .cast<String>();
+
+          // Extract storage paths
+          final paths = imageUrls
+              .map((url) => url.split('/product-images/').last)
+              .toList();
+
+          // Delete images
+          if (paths.isNotEmpty) {
+            await supabase.storage.from('product-images').remove(paths);
+          }
+
+          // Delete product
+          await supabase.from('products').delete().eq('id', productId);
+        }
       }
+
+      // 4️⃣ Finally, logout
+      await supabase.auth.signOut();
+
+      return true;
     } catch (e) {
       print('Error: $e');
       return false;

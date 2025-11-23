@@ -6,6 +6,7 @@ import 'package:kabetex/features/auth/presentation/login.dart';
 import 'package:kabetex/features/profile_page/data/profile_services.dart';
 import 'package:kabetex/features/profile_page/presentantion/edit_profile.dart';
 import 'package:kabetex/features/profile_page/widgets/not_logged_In.dart';
+import 'package:kabetex/providers/nav_bar.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -24,6 +25,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
 
   String? fName;
   bool? isVerified;
+  bool isDeleting = false;
 
   @override
   void initState() {
@@ -65,8 +67,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Account'),
-        content: const Text(
+        content: Text(
           'Are you sure you want to delete your account? This cannot be undone.',
+          style: Theme.of(
+            context,
+          ).textTheme.bodyLarge!.copyWith(color: Colors.black),
         ),
         actions: [
           TextButton(
@@ -75,7 +80,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete'),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: Text(
+              'Delete',
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall!.copyWith(color: Colors.white),
+            ),
           ),
         ],
       ),
@@ -85,6 +96,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
   @override
   Widget build(BuildContext context) {
     final isDark = ref.watch(isDarkModeProvider);
+    final tabs = ref.watch(tabsProvider);
     super.build(context);
 
     return Scaffold(
@@ -120,142 +132,157 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
             )
           : null,
       body: isLoggedIn
-          ? Column(
-              children: [
-                //top container
-                Container(
-                  height: 250,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: isDark
-                        ? const Color.fromARGB(255, 165, 55, 21)
-                        : null,
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    //crossAxisAlignment: CrossAxisAlignment.center,
+          ? isDeleting
+                ? const Center(child: CircularProgressIndicator())
+                : Column(
                     children: [
-                      const CircleAvatar(
-                        backgroundImage: AssetImage(
-                          'assets/images/avatar1.png',
+                      //top container
+                      Container(
+                        height: 250,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? const Color.fromARGB(255, 165, 55, 21)
+                              : null,
                         ),
-                        radius: 32,
-                      ), // to be worked on later...
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          //crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const CircleAvatar(
+                              backgroundImage: AssetImage(
+                                'assets/images/avatar1.png',
+                              ),
+                              radius: 32,
+                            ), // to be worked on later...
+                            const SizedBox(height: 16),
+
+                            Text(
+                              fName ?? 'loading...',
+                              style: Theme.of(context).textTheme.bodyLarge!
+                                  .copyWith(
+                                    color: isDark ? Colors.white : Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 24,
+                                  ),
+                            ),
+                            const SizedBox(height: 8),
+
+                            Text(
+                              getVerText(),
+                              style: Theme.of(context).textTheme.bodyLarge!
+                                  .copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: isVerified == true
+                                        ? Colors.green
+                                        : isVerified == false
+                                        ? Colors.red
+                                        : Colors.grey, // if null
+                                    fontSize: 16,
+                                  ),
+                            ),
+                          ],
+                        ),
+                      ),
+
                       const SizedBox(height: 16),
 
-                      Text(
-                        fName ?? 'loading...',
-                        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                          color: isDark ? Colors.white : Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 24,
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: InkWell(
+                          splashColor: Colors.grey,
+                          child: ListTile(
+                            title: Text(
+                              'Edit profile',
+                              style: Theme.of(context).textTheme.bodyLarge!
+                                  .copyWith(
+                                    color: isDark ? Colors.white : Colors.black,
+                                    fontSize: 16,
+                                  ),
+                            ),
+                            leading: Icon(
+                              Icons.supervised_user_circle,
+                              color: isDark ? Colors.white : Colors.black,
+                              size: 32,
+                            ),
+                            trailing: Icon(
+                              Icons.arrow_forward_ios_outlined,
+                              color: isDark ? Colors.white : Colors.black,
+                            ),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                SlideRouting(page: const EditProfilePage()),
+                              );
+                            },
+                          ),
                         ),
                       ),
                       const SizedBox(height: 8),
 
-                      Text(
-                        getVerText(),
-                        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: isVerified == true
-                              ? Colors.green
-                              : isVerified == false
-                              ? Colors.red
-                              : Colors.grey, // if null
-                          fontSize: 16,
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: InkWell(
+                          splashColor: Colors.grey,
+                          child: ListTile(
+                            title: Text(
+                              'Delete account',
+                              style: Theme.of(context).textTheme.bodyLarge!
+                                  .copyWith(
+                                    color: isDark ? Colors.white : Colors.black,
+                                    fontSize: 16,
+                                  ),
+                            ),
+                            leading: Icon(
+                              Icons.delete,
+                              color: isDark ? Colors.white : Colors.black,
+                              size: 32,
+                            ),
+                            trailing: Icon(
+                              Icons.arrow_forward_ios_outlined,
+                              color: isDark ? Colors.white : Colors.black,
+                            ),
+                            onTap: () async {
+                              final confirmed = await showDeleteConfirmation(
+                                context,
+                              );
+                              if (confirmed == true) {
+                                setState(() => isDeleting = true);
+                                final success = await _authService
+                                    .deleteUserFromSupabase();
+                                if (success) {
+                                  // Sign out locally
+                                  await Supabase.instance.client.auth.signOut();
+                                  // Navigate to login page
+                                  Navigator.pushAndRemoveUntil(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => const LoginPage(),
+                                    ),
+                                    (route) =>
+                                        false, // removes all previous routes
+                                  );
+                                  ref.read(tabsProvider.notifier).state = 0;
+                                  setState(() => isDeleting = false);
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        'Failed to delete account.',
+                                      ),
+                                    ),
+                                  );
+                                }
+                              }
+                            },
+                          ),
                         ),
                       ),
+
+                      const Spacer(),
                     ],
-                  ),
-                ),
-
-                const SizedBox(height: 16),
-
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: InkWell(
-                    splashColor: Colors.grey,
-                    child: ListTile(
-                      title: Text(
-                        'Edit profile',
-                        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                          color: isDark ? Colors.white : Colors.black,
-                          fontSize: 16,
-                        ),
-                      ),
-                      leading: Icon(
-                        Icons.supervised_user_circle,
-                        color: isDark ? Colors.white : Colors.black,
-                        size: 32,
-                      ),
-                      trailing: Icon(
-                        Icons.arrow_forward_ios_outlined,
-                        color: isDark ? Colors.white : Colors.black,
-                      ),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          SlideRouting(page: const EditProfilePage()),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: InkWell(
-                    splashColor: Colors.grey,
-                    child: ListTile(
-                      title: Text(
-                        'Delete account',
-                        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                          color: isDark ? Colors.white : Colors.black,
-                          fontSize: 16,
-                        ),
-                      ),
-                      leading: Icon(
-                        Icons.delete,
-                        color: isDark ? Colors.white : Colors.black,
-                        size: 32,
-                      ),
-                      trailing: Icon(
-                        Icons.arrow_forward_ios_outlined,
-                        color: isDark ? Colors.white : Colors.black,
-                      ),
-                      onTap: () async {
-                        final confirmed = await showDeleteConfirmation(context);
-                        if (confirmed == true) {
-                          final success = await _authService
-                              .deleteUserFromSupabase();
-                          if (success) {
-                            // Sign out locally
-                            await Supabase.instance.client.auth.signOut();
-                            // Navigate to login page
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const LoginPage(),
-                              ),
-                            );
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Failed to delete account.'),
-                              ),
-                            );
-                          }
-                        }
-                      },
-                    ),
-                  ),
-                ),
-
-                const Spacer(),
-              ],
-            )
+                  )
           : const NotLoggedIn(),
     );
   }

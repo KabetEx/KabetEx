@@ -49,7 +49,7 @@ class ProductService {
     final res = await supabase
         .from('products')
         .select()
-        .eq('seller_id', sellerId)
+        .eq('seller_id', sellerId) //later change to 'user.id'
         .order('created_at', ascending: false);
 
     return (res as List<dynamic>?)?.map((p) {
