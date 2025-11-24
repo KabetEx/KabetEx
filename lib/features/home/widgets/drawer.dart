@@ -38,8 +38,8 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
               child: DrawerHeader(
                 decoration: BoxDecoration(
                   color: isDarkMode
-                      ? const Color.fromARGB(255, 129, 42, 16)
-                      : Theme.of(context).colorScheme.onPrimaryContainer,
+                      ? const Color.fromARGB(255, 108, 103, 101)
+                      : Colors.deepOrange,
                 ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,

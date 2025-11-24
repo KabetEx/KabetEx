@@ -155,13 +155,18 @@ class ProductService {
 
   //get specific category products
   Future<List<Product>> getSelectedCategoryGoods(String category) async {
-    final res = await supabase
-        .from('products')
-        .select()
-        .eq('category', category)
-        .order('created_at', ascending: false);
+    final res = await (category != 'all'
+        ? supabase
+              .from('products')
+              .select()
+              .eq('category', category)
+              .order('created_at', ascending: false) // select selected category
+        : supabase
+              .from('products')
+              .select()
+              .order('created_at', ascending: false)); //select all products
 
-    final selectedcatProducts = (res as List<dynamic>).map((map) {
+    final selectedcatProducts = (res).map((map) {
       return Product.fromMap(map);
     }).toList();
 
