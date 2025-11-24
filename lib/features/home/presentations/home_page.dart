@@ -16,7 +16,7 @@ class HomePage extends ConsumerStatefulWidget {
 class _HomePageState extends ConsumerState<HomePage>
     with AutomaticKeepAliveClientMixin {
   @override
-  bool get wantKeepAlive => true; //keeps the homepage alive
+  bool get wantKeepAlive => true; // keeps homepage alive
 
   @override
   Widget build(BuildContext context) {
@@ -37,15 +37,17 @@ class _HomePageState extends ConsumerState<HomePage>
 
               Expanded(
                 child: ScrollConfiguration(
-                  behavior: ScrollConfiguration.of(context).copyWith(
-                    overscroll: false, // removes glowing effect
-                  ),
+                  behavior: ScrollConfiguration.of(
+                    context,
+                  ).copyWith(overscroll: false),
                   child: ListView(
                     physics: const BouncingScrollPhysics(),
                     children: [
                       const MyHeroBanner(),
-                      //gridview for categories
+
+                      // 🔥 MyCategoryGrid with View All button using provider
                       const MyCategoryGrid(),
+
                       //product items gridview
                       const MyProductsGridview(),
                       const SizedBox(height: 16),

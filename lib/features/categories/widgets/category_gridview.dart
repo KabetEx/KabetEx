@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kabetex/common/slide_routing.dart';
+import 'package:kabetex/features/categories/presentations/categories_page.dart';
+import 'package:kabetex/features/home/presentations/tabs_screen.dart';
 import 'package:kabetex/providers/categories/categories_provider.dart';
 import 'package:kabetex/providers/categories/selected_category.dart';
+import 'package:kabetex/providers/nav_bar.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 
 class MyCategoryGrid extends ConsumerWidget {
@@ -13,92 +17,131 @@ class MyCategoryGrid extends ConsumerWidget {
     final selectedCategory = ref.watch(selectedCategoryProvider);
     final allCategories = ref.watch(allCategoriesProvider);
 
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Padding(
-        padding: const EdgeInsets.only(
-          left: 16.0,
-          right: 12,
-          top: 0,
-          bottom: 0,
-        ),
-        child: Row(
-          children: allCategories.map((cat) {
-            return GestureDetector(
-              onTap: () {
-                ref.read(selectedCategoryProvider.notifier).state = cat['name'];
-                print(cat['name']);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+      child: Column(
+        children: [
+          Align(
+            alignment: Alignment.bottomRight,
+            child: TextButton(
+              onPressed: () {
+                ref.read(tabsProvider.notifier).state = 1; // Categories
               },
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 8.0,
-                  horizontal: 4,
-                ),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  height: 74,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
+              child: const Text("View All"),
+            ),
+          ),
+          GridView.builder(
+            physics: const NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              crossAxisSpacing: 8,
+              mainAxisSpacing: 10,
+              childAspectRatio: 0.9,
+            ),
+            itemCount: allCategories.take(6).length,
+            itemBuilder: (context, index) {
+              final cat = allCategories[index];
+              return GestureDetector(
+                onTap: () {
+                  ref.read(selectedCategoryProvider.notifier).state =
+                      cat['name'];
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 4.0,
+                    horizontal: 4,
+                  ),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      color:
+                          //if selected
+                          selectedCategory == cat['name']
+                          ? isDarkMode
+                                ? Colors.deepOrange
+                                : Colors.transparent
+                          :
+                            //if is not selected
+                            isDarkMode
+                          ? Colors.black
+                          : Colors.transparent,
 
-                    color:
-                        //if selected
-                        selectedCategory == cat['name']
-                        ? isDarkMode
+                      border: Border.all(
+                        color: selectedCategory == cat['name']
+                            ? Colors.deepOrange
+                            : Colors.grey,
+                        width: selectedCategory == cat['name'] ? 1.4 : 0.8,
+                      ),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    alignment: Alignment.center,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          cat['name'].toUpperCase() as String,
+                          style: Theme.of(context).textTheme.bodySmall!
+                              .copyWith(
+                                color:
+                                    //if selected
+                                    selectedCategory == cat['name']
+                                    ? isDarkMode
+                                          ? Colors.white
+                                          : Colors.deepOrange
+                                    //not selected
+                                    : isDarkMode
+                                    ? Colors.white
+                                    : Colors.black,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 10,
+                                height: 1.5,
+                                fontFamily: 'poppins',
+                              ),
+                        ),
+                        const SizedBox(height: 8),
+
+                        Icon(
+                          cat['icon'],
+                          color: isDarkMode
+                              ? Colors.white
+                              : selectedCategory == cat['name']
                               ? Colors.deepOrange
-                              : Colors.transparent
-                        :
-                          //if is not selected
-                          isDarkMode
-                        ? Colors.black
-                        : Colors.transparent,
-
-                    border: Border.all(
-                      color: selectedCategory == cat['name']
-                          ? Colors.deepOrange
-                          : Colors.grey,
-                      width: selectedCategory == cat['name'] ? 1.4 : 0.8,
+                              : Colors.black,
+                        ),
+                      ],
                     ),
                   ),
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  alignment: Alignment.center,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        cat['name'].toUpperCase() as String,
-                        style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                          color:
-                              //if selected
-                              selectedCategory == cat['name']
-                              ? isDarkMode
-                                    ? Colors.white
-                                    : Colors.deepOrange
-                              //not selected
-                              : isDarkMode
-                              ? Colors.white
-                              : Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                          fontFamily: 'roboto',
-                        ),
-                      ),
-                      Icon(
-                        cat['icon'],
-                        color: isDarkMode
-                            ? Colors.white
-                            : selectedCategory == cat['name']
-                            ? Colors.deepOrange
-                            : Colors.black,
-                      ),
-                    ],
-                  ),
                 ),
-              ),
-            );
-          }).toList(),
-        ),
+              );
+            },
+          ),
+        ],
       ),
     );
   }
 }
+
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+//          Row(
+//           children: allCategories.map((cat) {
+//             return 
+//         ),
+//       ),
+//     );
+//   }
+// }

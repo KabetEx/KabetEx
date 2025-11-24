@@ -17,6 +17,7 @@ class MyBottomNav extends ConsumerWidget {
     final unselectedColor = isDarkMode ? Colors.white : Colors.black;
 
     return SalomonBottomBar(
+      duration: const Duration(milliseconds: 1000),
       backgroundColor: isDarkMode ? Colors.black : Colors.white,
       currentIndex: selectedIndex,
       onTap: (index) {

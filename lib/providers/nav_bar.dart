@@ -1,5 +1,4 @@
 import 'package:riverpod/legacy.dart';
 
-final tabsProvider = StateProvider<int>((ref) {
-  return 0;
-});
+// providers.dart
+final tabsProvider = StateProvider<int>((ref) => 0);
