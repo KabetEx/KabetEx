@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kabetex/common/slide_routing.dart';
+import 'package:kabetex/features/categories/presentations/selected_cat_page.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 
 class CategoryCard extends ConsumerWidget {
@@ -21,7 +23,12 @@ class CategoryCard extends ConsumerWidget {
           ),
           child: InkWell(
             borderRadius: BorderRadius.circular(12),
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                SlideRouting(page: SelectedCatPage(category: category)),
+              );
+            },
             splashColor: Theme.of(context).colorScheme.primaryContainer,
             child: SizedBox(
               height: 100,
@@ -34,11 +41,11 @@ class CategoryCard extends ConsumerWidget {
                     color: isDark
                         ? Colors.white
                         : Theme.of(context).colorScheme.onPrimaryContainer,
-                    size: 28,
+                    size: 32,
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    category['name'],
+                    category['name'].toUpperCase(),
                     style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                       color: isDark
                           ? Colors.white

@@ -27,7 +27,7 @@ class MyCategoryGrid extends ConsumerWidget {
               onPressed: () {
                 ref.read(tabsProvider.notifier).state = 1; // Categories
               },
-              child: const Text("View All"),
+              child: const Text("See all"),
             ),
           ),
           GridView.builder(
@@ -53,7 +53,8 @@ class MyCategoryGrid extends ConsumerWidget {
                     horizontal: 4,
                   ),
                   child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
+                    duration: const Duration(milliseconds: 500),
+                    curve: Curves.easeInOut,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8),
                       color:
@@ -82,6 +83,15 @@ class MyCategoryGrid extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        Icon(
+                          cat['icon'],
+                          color: isDarkMode
+                              ? Colors.white
+                              : selectedCategory == cat['name']
+                              ? Colors.deepOrange
+                              : Colors.black,
+                        ),
+                        const SizedBox(height: 8),
                         Text(
                           cat['name'].toUpperCase() as String,
                           style: Theme.of(context).textTheme.bodySmall!
@@ -101,16 +111,6 @@ class MyCategoryGrid extends ConsumerWidget {
                                 height: 1.5,
                                 fontFamily: 'poppins',
                               ),
-                        ),
-                        const SizedBox(height: 8),
-
-                        Icon(
-                          cat['icon'],
-                          color: isDarkMode
-                              ? Colors.white
-                              : selectedCategory == cat['name']
-                              ? Colors.deepOrange
-                              : Colors.black,
                         ),
                       ],
                     ),

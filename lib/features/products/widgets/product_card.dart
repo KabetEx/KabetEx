@@ -12,195 +12,141 @@ import 'package:shimmer/shimmer.dart';
 import 'package:kabetex/features/products/presentation/prod_details.dart';
 
 class ProductCard extends ConsumerStatefulWidget {
-  const ProductCard({super.key, required this.product});
-
   final Product product;
+
+  const ProductCard({super.key, required this.product});
 
   @override
   ConsumerState<ProductCard> createState() => _ProductCardState();
 }
 
 class _ProductCardState extends ConsumerState<ProductCard> {
-  final Random random = Random();
-  late double height;
-
-  @override
-  void initState() {
-    super.initState();
-    // Random height for masonry effect
-    height =
-        250 +
-        random.nextInt(60).toDouble(); // variable height for Pinterest style
-  }
-
+  late double randomHeight;
   bool isExisting() {
     final cart = ref.watch(cartProvider);
     return cart.any((p) => p.id == widget.product.id);
   }
 
   @override
+  void initState() {
+    super.initState();
+    randomHeight = (200 + Random().nextInt(60)).toDouble();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final isDarkMode = ref.watch(isDarkModeProvider);
 
-    // ---------------- Real Card ----------------
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          SlideRouting(page: ProdDetailsPage(product: widget.product)),
-        );
-      },
-      child: Container(
-        height: height,
-        decoration: BoxDecoration(
-          color: isDarkMode
-              ? Colors.black
-              : const Color.fromARGB(255, 237, 228, 225),
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: [
-            BoxShadow(
-              color: isDarkMode
-                  ? const Color.fromARGB(255, 65, 64, 64)
-                  : const Color.fromARGB(255, 84, 84, 84),
-              blurRadius: 1,
-              offset: const Offset(1, 1),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              SlideRouting(page: ProdDetailsPage(product: widget.product)),
+            );
+          },
+          child: Container(
+            decoration: BoxDecoration(
+              color: isDarkMode ? Colors.black : Colors.grey[200],
+              borderRadius: BorderRadius.circular(8),
             ),
-          ],
-        ),
-        child: Stack(
-          children: [
-            Column(
+            child: Stack(
               children: [
-                // Product Image
-                ClipRRect(
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(4),
-                  ),
-                  child: CachedNetworkImage(
-                    //Thumbnail image
-                    imageUrl: widget.product.imageUrls[0],
-                    height: height * 0.6,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                    placeholder: (context, url) => Shimmer.fromColors(
-                      baseColor: Colors.grey[300]!,
-                      highlightColor: Colors.grey[100]!,
-                      child: Container(
-                        height: 60,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Image
+                    ClipRRect(
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(8),
+                      ),
+                      child: CachedNetworkImage(
+                        imageUrl: widget.product.imageUrls[0],
                         width: double.infinity,
-                        color: Colors.grey[400],
+                        height: randomHeight * 0.6,
+                        fit: BoxFit.cover,
                       ),
                     ),
-                    errorWidget: (context, url, error) => Image.asset(
-                      'assets/images/placeholder.png',
-                      height: height * 0.6,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
+                    // Product info
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.product.title,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.bodyMedium!
+                                .copyWith(fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            "KSh ${widget.product.price.toStringAsFixed(0)}",
+                            style: Theme.of(context).textTheme.bodySmall!
+                                .copyWith(
+                                  color: Colors.deepOrange,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
+                    const SizedBox(height: 32), // space for button
+                  ],
                 ),
-                // Product Name & Price
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 8,
-                  ),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        //product title
-                        Text(
-                          widget.product.title,
-                          style: Theme.of(context).textTheme.bodyLarge!
-                              .copyWith(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                                overflow: TextOverflow.ellipsis,
-                                color: isDarkMode
-                                    ? Colors.white
-                                    : Theme.of(
-                                        context,
-                                      ).colorScheme.onPrimaryContainer,
-                                fontFamily: 'robot',
+                // Add to cart button
+                Positioned(
+                  bottom: 4,
+                  right: 4,
+                  child: IconButton(
+                    onPressed: () {
+                      if (isExisting()) {
+                        ref
+                            .read(cartProvider.notifier)
+                            .remove(widget.product.id!);
+                        ScaffoldMessenger.of(context).clearSnackBars();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Item removed from cart'),
+                            duration: Duration(seconds: 1),
+                          ),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).clearSnackBars();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Item added to cart'),
+                            duration: Duration(seconds: 1),
+                          ),
+                        );
+                        ref
+                            .read(cartProvider.notifier)
+                            .add(
+                              ProductHive(
+                                id: widget.product.id!,
+                                title: widget.product.title,
+                                price: widget.product.price,
+                                imageUrl: widget.product.imageUrls[0],
+                                category: widget.product.category,
                               ),
-                        ),
-                        const SizedBox(height: 4),
-                        //price
-                        Text(
-                          NumberFormat.currency(
-                            locale: 'en_KE',
-                            symbol: 'KSh ',
-                            decimalDigits: 0,
-                          ).format(widget.product.price),
-                          style: Theme.of(context).textTheme.bodyMedium!
-                              .copyWith(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
-                                color: isDarkMode
-                                    ? Colors.deepOrange
-                                    : Colors.deepOrange,
-                              ),
-                        ),
-                      ],
+                            );
+                      }
+                    }, // handle add/remove cart
+                    icon: Icon(
+                      isExisting()
+                          ? Icons.check_circle_sharp
+                          : Icons.shopping_cart_outlined,
+                      color: Colors.red,
                     ),
                   ),
                 ),
               ],
             ),
-            // add to cart Button
-            Positioned(
-              bottom: 4,
-              right: 4,
-              child: IconButton(
-                onPressed: () {
-                  if (isExisting()) {
-                    ref.read(cartProvider.notifier).remove(widget.product.id!);
-                    ScaffoldMessenger.of(context).clearSnackBars();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Item removed from cart'),
-                        duration: Duration(seconds: 1),
-                      ),
-                    );
-                  } else {
-                    ScaffoldMessenger.of(context).clearSnackBars();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Item added to cart'),
-                        duration: Duration(seconds: 1),
-                      ),
-                    );
-                    ref
-                        .read(cartProvider.notifier)
-                        .add(
-                          ProductHive(
-                            id: widget.product.id!,
-                            title: widget.product.title,
-                            price: widget.product.price,
-                            imageUrl: widget.product.imageUrls[0],
-                            category: widget.product.category,
-                          ),
-                        );
-                  }
-                },
-                icon: AnimatedScale(
-                  scale: isExisting() ? 1.1 : 1.0,
-                  duration: const Duration(milliseconds: 200),
-                  curve: Curves.easeInOut,
-                  child: Icon(
-                    isExisting()
-                        ? Icons.check_circle_sharp
-                        : Icons.shopping_cart_outlined,
-                    color: Colors.red,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }

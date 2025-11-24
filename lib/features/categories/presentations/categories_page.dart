@@ -21,22 +21,24 @@ class CategoriesPage extends ConsumerWidget {
               child: Text(
                 'All categories',
                 style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                  color: isDark
-                      ? Colors.white
-                      : Theme.of(context).colorScheme.primary,
+                  color: isDark ? Colors.white : Colors.deepOrange,
                 ),
               ),
             ),
           ),
           Expanded(
-            child: GridView.builder(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: GridView.builder(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 4,
+                ),
+                itemCount: allCategories.length,
+                itemBuilder: (context, index) {
+                  return CategoryCard(category: allCategories[index]);
+                },
               ),
-              itemCount: allCategories.length,
-              itemBuilder: (context, index) {
-                return CategoryCard(category: allCategories[index]);
-              },
             ),
           ),
         ],
