@@ -16,15 +16,6 @@ class SelectedCatPage extends ConsumerStatefulWidget {
 }
 
 class _SelectedCatPageState extends ConsumerState<SelectedCatPage> {
-  final _productServices = ProductService();
-
-  Future<List<Product>> _loadProducts() async {
-    final products = await _productServices.getSelectedCategoryGoods(
-      widget.category['name'],
-    );
-    return products;
-  }
-
   @override
   Widget build(BuildContext context) {
     final productsAsync = ref.watch(
