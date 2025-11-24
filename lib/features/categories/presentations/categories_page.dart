@@ -12,28 +12,27 @@ class CategoriesPage extends ConsumerWidget {
     final allCategories = ref.watch(allCategoriesProvider);
     final isDark = ref.watch(isDarkModeProvider);
 
-    return Scaffold(
-     backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Center(
-              child: Padding(
-                padding: const EdgeInsetsGeometry.symmetric(vertical: 16),
-                child: Text(
-                  'All categories',
-                  style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                    color: isDark
-                        ? Colors.white
-                        : Theme.of(context).colorScheme.primary,
-                  ),
+    return SafeArea(
+      child: Column(
+        children: [
+          Center(
+            child: Padding(
+              padding: const EdgeInsetsGeometry.symmetric(vertical: 16),
+              child: Text(
+                'All categories',
+                style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                  color: isDark ? Colors.white : Colors.deepOrange,
                 ),
               ),
             ),
-            Expanded(
+          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: GridView.builder(
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
+                  mainAxisSpacing: 4,
                 ),
                 itemCount: allCategories.length,
                 itemBuilder: (context, index) {
@@ -41,8 +40,8 @@ class CategoriesPage extends ConsumerWidget {
                 },
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

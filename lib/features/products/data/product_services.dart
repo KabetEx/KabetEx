@@ -152,4 +152,19 @@ class ProductService {
         });
     return allProducts;
   }
+
+  //get specific category products
+  Future<List<Product>> getSelectedCategoryGoods(String category) async {
+    final res = await supabase
+        .from('products')
+        .select()
+        .eq('category', category)
+        .order('created_at', ascending: false);
+
+    final selectedcatProducts = (res as List<dynamic>).map((map) {
+      return Product.fromMap(map);
+    }).toList();
+
+    return selectedcatProducts;
+  }
 }

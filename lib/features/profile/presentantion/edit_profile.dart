@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kabetex/features/profile_page/data/profile_services.dart';
+import 'package:kabetex/features/profile/data/profile_services.dart';
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
