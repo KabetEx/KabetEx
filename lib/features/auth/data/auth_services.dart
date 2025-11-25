@@ -99,6 +99,15 @@ class AuthService {
     }
   }
 
+  Future<Map<String, dynamic>> getProfile() async {
+    final profile = await supabase
+        .from('profiles')
+        .select()
+        .eq('id', user!.id)
+        .single();
+    return profile;
+  }
+
   //-----------------delete account-------------
   Future<bool> deleteUserFromSupabase() async {
     try {

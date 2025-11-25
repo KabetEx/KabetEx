@@ -71,15 +71,12 @@ class ProductService {
           .delete()
           .eq('id', productId) //which product to delete
           .eq('seller_id', user!.id); //whose product to delete
-      print('Successful');
 
       //delete images
       if (imagePath.isNotEmpty) {
-        print('$imagePath');
         await supabase.storage.from('product-images').remove(imagePath);
       }
     } catch (e) {
-      print('error deleting product/image $e');
       rethrow;
     }
   }
@@ -108,9 +105,7 @@ class ProductService {
           .eq('id', id)
           .eq('seller_id', user!.id);
 
-      print('Product updated successfully');
     } catch (e) {
-      print('Error updating product: $e');
       rethrow;
     }
   }

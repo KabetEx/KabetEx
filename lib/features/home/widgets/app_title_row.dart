@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_switch/flutter_switch.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:kabetex/features/profile/data/profile_services.dart';
 import 'package:kabetex/features/search/search_page.dart';
+import 'package:kabetex/providers/home/profile_provider.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 
 class AppTitleRow extends ConsumerStatefulWidget {
@@ -19,31 +19,12 @@ class _AppTitleRowState extends ConsumerState<AppTitleRow> {
   @override
   void initState() {
     super.initState();
-    loadUserName();
-  }
-
-  //capitalize name
-  String capitalize(String text) {
-    if (text.isEmpty) return text;
-    return text[0].toUpperCase() + text.substring(1).toLowerCase();
-  }
-
-  void loadUserName() async {
-    final profile = await ProfileServices().getProfile();
-
-    if (profile != null) {
-      final fullName = profile['full_name'] ?? '';
-      final first = fullName.split(' ').first;
-
-      setState(() {
-        firstName = capitalize(first);
-      });
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     final isDarkMode = ref.watch(isDarkModeProvider);
+    final asyncProfile = ref.watch(futureProfileProvider);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 2),
@@ -135,6 +116,7 @@ class _AppTitleRowState extends ConsumerState<AppTitleRow> {
               ],
             ),
           ),
+
           //2nd row
           Padding(
             padding: const EdgeInsets.only(left: 8),
@@ -158,15 +140,39 @@ class _AppTitleRowState extends ConsumerState<AppTitleRow> {
                                 fontSize: 20,
                               ),
                         ),
-                        TextSpan(
-                          text: firstName!.isEmpty ? 'guest' : firstName,
-                          style: Theme.of(context).textTheme.titleSmall!
-                              .copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: isDarkMode
-                                    ? Colors.deepOrange
-                                    : Colors.black,
-                              ),
+                        asyncProfile.when(
+                          loading: () => const TextSpan(
+                            text: 'Loading...',
+                            style: TextStyle(
+                              fontStyle: FontStyle.italic,
+                              color: Colors.grey,
+                            ),
+                          ),
+                          data: (data) {
+                            final fullName = data?['full_name'];
+                            final firstName =
+                                fullName != null && fullName.isNotEmpty
+                                ? fullName.split(' ')[0]
+                                : 'Guest';
+
+                            return TextSpan(
+                              text: firstName,
+                              style: Theme.of(context).textTheme.titleSmall!
+                                  .copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: isDarkMode
+                                        ? Colors.deepOrange
+                                        : Colors.black,
+                                  ),
+                            );
+                          },
+                          error: (e, st) => const TextSpan(
+                            text: 'Error loading name',
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
                         ),
                       ],
                     ),

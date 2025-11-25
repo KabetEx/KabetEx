@@ -88,37 +88,7 @@ class MyProductsPage extends ConsumerWidget {
       );
     }
 
-    //   return Scaffold(
-    //     backgroundColor: isDark
-    //         ? Colors.black
-    //         : const Color.fromARGB(255, 237, 228, 225),
-    //     appBar: AppBar(
-    //       title: const Text('Upload a product'),
-    //       centerTitle: true,
-    //     ),
-    //     body: Center(
-    //       child: Column(
-    //         mainAxisAlignment: MainAxisAlignment.center,
-    //         crossAxisAlignment: CrossAxisAlignment.center,
-    //         children: [
-    //           const Text('You have to create \n an account to post'),
-    //           ElevatedButton(
-    //             style: ElevatedButton.styleFrom(
-    //               backgroundColor: Colors.deepOrange,
-    //             ),
-    //             onPressed: () {
-    //               Navigator.pushReplacement(
-    //                 context,
-    //                 MaterialPageRoute(builder: (context) => const SignupPage()),
-    //               );
-    //             },
-    //             child: const Text('Create an account'),
-    //           ),
-    //         ],
-    //       ),
-    //     ),
-    //   );
-    // }
+
 
     return Scaffold(
       appBar: AppBar(
