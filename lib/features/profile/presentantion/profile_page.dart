@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/common/slide_routing.dart';
 import 'package:kabetex/features/auth/data/auth_services.dart';
 import 'package:kabetex/features/auth/presentation/login.dart';
+import 'package:kabetex/features/profile/presentantion/change_password.dart';
 import 'package:kabetex/features/profile/presentantion/edit_profile.dart';
 import 'package:kabetex/features/profile/widgets/not_logged_In.dart';
 import 'package:kabetex/providers/home/profile_provider.dart';
@@ -172,6 +173,39 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     Navigator.push(
                       context,
                       SlideRouting(page: const EditProfilePage()),
+                    );
+                  },
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 8),
+
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: InkWell(
+                splashColor: Colors.grey,
+                child: ListTile(
+                  title: Text(
+                    'Change password',
+                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                      color: isDark ? Colors.white : Colors.black,
+                      fontSize: 16,
+                    ),
+                  ),
+                  leading: Icon(
+                    Icons.password,
+                    color: isDark ? Colors.white : Colors.black,
+                    size: 32,
+                  ),
+                  trailing: Icon(
+                    Icons.arrow_forward_ios_outlined,
+                    color: isDark ? Colors.white : Colors.black,
+                  ),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      SlideRouting(page: const ChangePasswordPage()),
                     );
                   },
                 ),

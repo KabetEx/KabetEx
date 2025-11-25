@@ -76,7 +76,7 @@ class _LoginPageState extends State<LoginPage> {
                 onTap: () {
                   FocusScope.of(context).unfocus(); // dismiss keyboard
                 },
-                behavior: HitTestBehavior.translucent,
+                //behavior: HitTestBehavior.translucent,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 4.0,
