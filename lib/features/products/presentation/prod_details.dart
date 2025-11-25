@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:kabetex/features/cart/data/product_hive.dart';
+import 'package:kabetex/features/products/data/product.dart';
+import 'package:kabetex/features/products/data/product_services.dart';
 import 'package:kabetex/features/products/widgets/image_carousel.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kabetex/features/products/data/product.dart';
 import 'package:kabetex/providers/cart/all_cart_products.dart';
 import 'package:kabetex/providers/theme_provider.dart';
-import 'package:kabetex/features/products/data/product_services.dart';
+import 'package:kabetex/features/cart/data/product_hive.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ProdDetailsPage extends ConsumerStatefulWidget {
@@ -29,13 +29,12 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
     super.initState();
     product = widget.product;
     if (product == null && widget.productId != null) {
-      fetchProduct(widget.productId!); //fetch product by id
+      fetchProduct(widget.productId!);
     }
   }
 
   Future<void> fetchProduct(String id) async {
     setState(() => isLoading = true);
-    // fetch from Supabase
     final fetchedProduct = await ProductService().getProductById(id);
     setState(() {
       product = fetchedProduct;
@@ -49,64 +48,44 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
   }
 
   String formatForWhatsApp(String input) {
-    // Remove spaces, dashes, plus signs
     input = input.replaceAll(RegExp(r'[^\d]'), '');
-
-    // If starts with 0 → remove it
-    if (input.startsWith('0')) {
-      input = input.substring(1);
-    }
-
-    // If starts with country code already, return
-    if (input.startsWith('254')) {
-      return input;
-    }
-
-    // Otherwise add country code
+    if (input.startsWith('0')) input = input.substring(1);
+    if (input.startsWith('254')) return input;
     return '254$input';
   }
 
   void contactSeller() async {
+    setState(() => isContacting = true);
     try {
-      setState(() => isContacting = true);
-      //get seller's number
       final sellerNumber = await ProductService().getSellerNumber(
         product!.sellerId,
       );
-      //format number
-      final formattedNum = formatForWhatsApp(sellerNumber!);
+      if (sellerNumber == null) return;
 
-      if (formattedNum.isEmpty) {
-        print("Seller number not available");
-        return;
-      }
+      final formattedNum = formatForWhatsApp(sellerNumber);
       await openWhatsApp(
         formattedNum,
         "Hey! I found your product '${product!.title}' on Kabetex and I'm interested.",
       );
-      setState(() => isContacting = false);
     } catch (e) {
-      print('error launching whatsapp');
+      print('Error contacting seller: $e');
     } finally {
-      setState(() => isContacting = true);
+      setState(() => isContacting = false);
     }
   }
 
   Future<void> openWhatsApp(String phoneNumber, String message) async {
     final encoded = Uri.encodeComponent(message);
-
     final deepLink = Uri.parse(
       "whatsapp://send?phone=$phoneNumber&text=$encoded",
     );
     final webLink = Uri.parse("https://wa.me/$phoneNumber?text=$encoded");
 
-    // Try deep link first (most reliable)
     if (await canLaunchUrl(deepLink)) {
       await launchUrl(deepLink, mode: LaunchMode.externalApplication);
       return;
     }
 
-    // Fallback to web link
     if (await canLaunchUrl(webLink)) {
       await launchUrl(webLink, mode: LaunchMode.externalApplication);
       return;
@@ -119,11 +98,16 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
   Widget build(BuildContext context) {
     final isDarkMode = ref.watch(isDarkModeProvider);
 
+    final titleColor = isDarkMode ? Colors.white : Colors.black87;
+    final priceColor = isDarkMode ? Colors.grey : Colors.deepOrange;
+    final descColor = isDarkMode ? Colors.white70 : Colors.grey[800];
+    final sectionHeadingColor = isDarkMode ? Colors.white : Colors.black87;
+
     if (isLoading) return const Center(child: CircularProgressIndicator());
     if (product == null) return const Center(child: Text('Product not found'));
 
     return Scaffold(
-     backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: isDarkMode
             ? Colors.black
@@ -136,7 +120,6 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
             onPressed: () {
               if (isExisting()) {
                 ref.read(cartProvider.notifier).remove(product!.id!);
-                ScaffoldMessenger.of(context).clearSnackBars();
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('Item removed from cart'),
@@ -144,13 +127,6 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
                   ),
                 );
               } else {
-                ScaffoldMessenger.of(context).clearSnackBars();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Item added to cart'),
-                    duration: Duration(seconds: 1),
-                  ),
-                );
                 ref
                     .read(cartProvider.notifier)
                     .add(
@@ -162,6 +138,12 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
                         category: product!.category,
                       ),
                     );
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Item added to cart'),
+                    duration: Duration(seconds: 1),
+                  ),
+                );
               }
             },
             icon: AnimatedScale(
@@ -179,147 +161,128 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
         ],
       ),
       body: SafeArea(
-        child: SizedBox.expand(
-          child: Stack(
-            children: [
-              SingleChildScrollView(
-                padding: const EdgeInsets.only(bottom: 90),
-                child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    //product gallery
-                    ProductGallery(
-                      images: product!.imageUrls,
-                      product: product!,
-                    ),
+        child: Stack(
+          children: [
+            SingleChildScrollView(
+              padding: const EdgeInsets.only(bottom: 90),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ProductGallery(images: product!.imageUrls, product: product!),
+                  const SizedBox(height: 16),
 
-                    const SizedBox(height: 16),
-
-                    //product title
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16.0,
-                        vertical: 8,
-                      ),
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          product!.title,
-                          overflow: TextOverflow.visible,
-                          style: Theme.of(context).textTheme.titleLarge!
-                              .copyWith(
-                                color: isDarkMode
-                                    ? Colors.white
-                                    : Theme.of(
-                                        context,
-                                      ).colorScheme.onPrimaryContainer,
-                                fontSize: 24,
-                                fontFamily: 'poppins',
-                              ),
-                        ),
+                  // Title
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Text(
+                      product!.title,
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontSize: 26,
+                        fontWeight: FontWeight.w600,
+                        color: titleColor,
                       ),
                     ),
-                    //price
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16.0,
-                          vertical: 4,
-                        ),
-                        child: Text(
-                          NumberFormat.currency(
-                            locale: 'en_KE',
-                            symbol: 'KSH ',
-                          ).format(product!.price),
-                          style: Theme.of(context).textTheme.bodyLarge!
-                              .copyWith(
-                                color: isDarkMode
-                                    ? Colors.white
-                                    : Colors.deepOrange,
-                                fontSize: 20,
-                                fontWeight: FontWeight.w400,
-                                fontFamily: 'sans',
-                              ),
-                        ),
-                      ),
-                    ),
-
-                    //product description
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16.0,
-                          vertical: 8,
-                        ),
-                        child: Text(
-                          'Description',
-                          style: Theme.of(context).textTheme.titleMedium!
-                              .copyWith(
-                                color: isDarkMode ? Colors.white : Colors.black,
-                                fontSize: 24,
-                                fontWeight: FontWeight.w400,
-                                decoration: TextDecoration.underline,
-                                fontFamily: 'sans',
-                              ),
-                        ),
-                      ),
-                    ),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16.0,
-                          vertical: 8,
-                        ),
-                        child: Text(
-                          product!.description,
-                          style: Theme.of(context).textTheme.bodyLarge!
-                              .copyWith(
-                                color: isDarkMode
-                                    ? Colors.white
-                                    : Colors.grey[800],
-                                fontSize: 20,
-                                fontWeight: FontWeight.w400,
-                                height: 1.4,
-                                fontFamily: 'inter',
-                              ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                  ],
-                ),
-              ),
-              Positioned(
-                bottom: 16, // distance from bottom
-                left: 16,
-                right: 16,
-                child: ElevatedButton.icon(
-                  onPressed: contactSeller,
-                  icon: isContacting
-                      ? null
-                      : const Icon(Icons.chat, color: Colors.white, size: 30),
-                  label: isLoading
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : Text(
-                          'Contact seller',
-                          style: Theme.of(context).textTheme.titleSmall!
-                              .copyWith(color: Colors.white, fontSize: 20),
-                        ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
-                    elevation: 6, // shadow for floating effect
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
-                ),
+                  const SizedBox(height: 8),
+
+                  // Price
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Text(
+                      NumberFormat.currency(
+                        locale: 'en_KE',
+                        symbol: 'KSH ',
+                      ).format(product!.price),
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                        color: priceColor,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Description heading
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Text(
+                      'Description',
+                      style: TextStyle(
+                        fontFamily: 'Roboto Slab',
+                        fontSize: 22,
+                        fontWeight: FontWeight.w500,
+                        color: sectionHeadingColor,
+                        decoration: TextDecoration.underline,
+                        decorationThickness: 2,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+
+                  // Description
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Text(
+                      product!.description,
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: 17,
+                        fontWeight: FontWeight.w400,
+                        color: descColor,
+                        height: 1.45,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
               ),
-            ],
-          ),
+            ),
+
+            // Floating Contact Button
+            Positioned(
+              bottom: 16,
+              left: 16,
+              right: 16,
+              child: ElevatedButton(
+                onPressed: isContacting ? null : contactSeller,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange,
+                  elevation: 6,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                child: isContacting
+                    ? const SizedBox(
+                        height: 24,
+                        width: 24,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.chat, color: Colors.white, size: 28),
+                          SizedBox(width: 8),
+                          Text(
+                            'Contact Seller',
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+              ),
+            ),
+          ],
         ),
       ),
     );
