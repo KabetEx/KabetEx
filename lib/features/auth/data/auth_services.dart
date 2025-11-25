@@ -67,15 +67,6 @@ class AuthService {
     }
   }
 
-  // ---------------- SIGN OUT ----------------
-  Future<void> signOut() async {
-    try {
-      await supabase.auth.signOut();
-      print('User signed out');
-    } catch (e) {
-      print('SignOut Error: $e');
-    }
-  }
 
   // ---------------- CREATE PROFILE ----------------
   Future<void> createProfile({

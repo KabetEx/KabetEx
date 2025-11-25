@@ -71,9 +71,12 @@ class MyApp extends ConsumerWidget {
         appBarTheme: const AppBarThemeData().copyWith(
           backgroundColor: const Color.fromARGB(255, 222, 216, 216),
           centerTitle: true,
-          titleTextStyle: Theme.of(
-            context,
-          ).textTheme.titleLarge!.copyWith(color: Colors.white),
+          titleTextStyle: Theme.of(context).textTheme.titleLarge!.copyWith(
+            color: Colors.deepOrange,
+            fontWeight: FontWeight.bold,
+            fontSize: 32,
+            fontFamily: 'Poppins',
+          ),
           iconTheme: IconThemeData(
             color: isDarkMode
                 ? const Color.fromARGB(255, 237, 228, 225)

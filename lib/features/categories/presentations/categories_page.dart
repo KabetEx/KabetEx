@@ -20,9 +20,7 @@ class CategoriesPage extends ConsumerWidget {
               padding: const EdgeInsetsGeometry.symmetric(vertical: 16),
               child: Text(
                 'All categories',
-                style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                  color: isDark ? Colors.white : Colors.deepOrange,
-                ),
+                style: Theme.of(context).appBarTheme.titleTextStyle,
               ),
             ),
           ),

@@ -306,7 +306,7 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
                   setState(() {
                     isSigningOut = true;
                   });
-                  authService.signOut();
+                  Supabase.instance.client.auth.signOut();
                   setState(() {
                     isSigningOut = true;
                     Navigator.push(
