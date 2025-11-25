@@ -32,9 +32,10 @@ class ProfileServices {
       await _supabase.from('profiles').update(updates).eq('id', user.id);
       print('Profile updated');
     } catch (e) {
-      print('Update Profile Error: $e');
+      rethrow;
     }
   }
+
   //get user Full name
   Future<String> getUserFname() async {
     final profile = await ProfileServices().getProfile();
@@ -47,5 +48,4 @@ class ProfileServices {
 
     return profile!['isVerified'] as bool;
   }
-
 }
