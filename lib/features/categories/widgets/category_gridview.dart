@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kabetex/common/slide_routing.dart';
-import 'package:kabetex/features/categories/presentations/categories_page.dart';
-import 'package:kabetex/features/home/presentations/tabs_screen.dart';
 import 'package:kabetex/providers/categories/categories_provider.dart';
 import 'package:kabetex/providers/categories/selected_category.dart';
 import 'package:kabetex/providers/nav_bar.dart';
@@ -37,7 +34,7 @@ class MyCategoryGrid extends ConsumerWidget {
               crossAxisCount: 3,
               crossAxisSpacing: 2,
               mainAxisSpacing: 2,
-              childAspectRatio: 0.9,
+              childAspectRatio: 1.1,
             ),
             itemCount: allCategories.take(6).length,
             itemBuilder: (context, index) {
