@@ -35,8 +35,8 @@ class MyCategoryGrid extends ConsumerWidget {
             shrinkWrap: true,
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 3,
-              crossAxisSpacing: 8,
-              mainAxisSpacing: 10,
+              crossAxisSpacing: 2,
+              mainAxisSpacing: 2,
               childAspectRatio: 0.9,
             ),
             itemCount: allCategories.take(6).length,
