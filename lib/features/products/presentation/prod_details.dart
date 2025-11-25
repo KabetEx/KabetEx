@@ -161,128 +161,133 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
         ],
       ),
       body: SafeArea(
-        child: Stack(
-          children: [
-            SingleChildScrollView(
-              padding: const EdgeInsets.only(bottom: 90),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ProductGallery(images: product!.imageUrls, product: product!),
-                  const SizedBox(height: 16),
-
-                  // Title
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Text(
-                      product!.title,
-                      style: TextStyle(
-                        fontFamily: 'Poppins',
-                        fontSize: 26,
-                        fontWeight: FontWeight.w600,
-                        color: titleColor,
-                      ),
+        child: SizedBox.expand(
+          child: Stack(
+            children: [
+              SingleChildScrollView(
+                padding: const EdgeInsets.only(bottom: 90),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ProductGallery(
+                      images: product!.imageUrls,
+                      product: product!,
                     ),
-                  ),
-                  const SizedBox(height: 8),
+                    const SizedBox(height: 16),
 
-                  // Price
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Text(
-                      NumberFormat.currency(
-                        locale: 'en_KE',
-                        symbol: 'KSH ',
-                      ).format(product!.price),
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 18,
-                        fontWeight: FontWeight.w500,
-                        color: priceColor,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Description heading
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Text(
-                      'Description',
-                      style: TextStyle(
-                        fontFamily: 'Roboto Slab',
-                        fontSize: 22,
-                        fontWeight: FontWeight.w500,
-                        color: sectionHeadingColor,
-                        decoration: TextDecoration.underline,
-                        decorationThickness: 2,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-
-                  // Description
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Text(
-                      product!.description,
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 17,
-                        fontWeight: FontWeight.w400,
-                        color: descColor,
-                        height: 1.45,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                ],
-              ),
-            ),
-
-            // Floating Contact Button
-            Positioned(
-              bottom: 16,
-              left: 16,
-              right: 16,
-              child: ElevatedButton(
-                onPressed: isContacting ? null : contactSeller,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
-                  elevation: 6,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                child: isContacting
-                    ? const SizedBox(
-                        height: 24,
-                        width: 24,
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
-                          strokeWidth: 2,
+                    // Title
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Text(
+                        product!.title,
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 26,
+                          fontWeight: FontWeight.w600,
+                          color: titleColor,
                         ),
-                      )
-                    : const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.chat, color: Colors.white, size: 28),
-                          SizedBox(width: 8),
-                          Text(
-                            'Contact Seller',
-                            style: TextStyle(
-                              fontFamily: 'Poppins',
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
                       ),
+                    ),
+                    const SizedBox(height: 8),
+
+                    // Price
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Text(
+                        NumberFormat.currency(
+                          locale: 'en_KE',
+                          symbol: 'KSH ',
+                        ).format(product!.price),
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                          color: priceColor,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Description heading
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Text(
+                        'Description',
+                        style: TextStyle(
+                          fontFamily: 'Roboto Slab',
+                          fontSize: 22,
+                          fontWeight: FontWeight.w500,
+                          color: sectionHeadingColor,
+                          decoration: TextDecoration.underline,
+                          decorationThickness: 2,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+
+                    // Description
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Text(
+                        product!.description,
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 17,
+                          fontWeight: FontWeight.w400,
+                          color: descColor,
+                          height: 1.45,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                ),
               ),
-            ),
-          ],
+
+              // Floating Contact Button
+              Positioned(
+                bottom: 8,
+                left: 16,
+                right: 16,
+                child: ElevatedButton(
+                  onPressed: isContacting ? null : contactSeller,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.deepOrange,
+                    elevation: 6,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                  ),
+                  child: isContacting
+                      ? const SizedBox(
+                          height: 24,
+                          width: 24,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.chat, color: Colors.white, size: 28),
+                            SizedBox(width: 8),
+                            Text(
+                              'Contact Seller',
+                              style: TextStyle(
+                                fontFamily: 'Poppins',
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
