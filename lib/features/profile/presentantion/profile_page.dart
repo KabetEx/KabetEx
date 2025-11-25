@@ -5,6 +5,7 @@ import 'package:kabetex/features/auth/data/auth_services.dart';
 import 'package:kabetex/features/auth/presentation/login.dart';
 import 'package:kabetex/features/profile/presentantion/change_password.dart';
 import 'package:kabetex/features/profile/presentantion/edit_profile.dart';
+import 'package:kabetex/features/profile/presentantion/phone_verification.dart';
 import 'package:kabetex/features/profile/widgets/not_logged_In.dart';
 import 'package:kabetex/providers/home/profile_provider.dart';
 import 'package:kabetex/providers/nav_bar.dart';
@@ -60,6 +61,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     );
   }
 
+  void onVerified() {
+    setState(() {
+      isVerified = true;
+    });
+    ref.refresh(futureProfileProvider);
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = ref.watch(isDarkModeProvider);
@@ -76,7 +84,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           else ...[
             // Top container
             Container(
-              height: 250,
+              height: 300,
               width: double.infinity,
               decoration: BoxDecoration(color: isDark ? null : null),
               child: Padding(
@@ -136,6 +144,29 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                                 ),
                               ),
                             ),
+                            if (!isVerified)
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    SlideRouting(
+                                      page: PhoneVerificationPage(
+                                        phoneNumber: '+254113617517',
+                                        onVerified: onVerified,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                child: Text(
+                                  'Verify Now',
+                                  style: Theme.of(context).textTheme.bodyLarge!
+                                      .copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.green,
+                                        fontSize: 16,
+                                      ),
+                                ),
+                              ),
                           ],
                         );
                       },
@@ -145,11 +176,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               ),
             ),
 
-            const SizedBox(height: 16),
-
             // Edit profile tile
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.symmetric(horizontal: 8),
               child: InkWell(
                 splashColor: Colors.grey,
                 child: ListTile(
@@ -179,10 +208,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               ),
             ),
 
-            const SizedBox(height: 8),
-
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8),
               child: InkWell(
                 splashColor: Colors.grey,
                 child: ListTile(
@@ -212,11 +239,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               ),
             ),
 
-            const SizedBox(height: 8),
-
             // Delete account tile
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.symmetric(horizontal: 8),
               child: InkWell(
                 splashColor: Colors.grey,
                 child: ListTile(
