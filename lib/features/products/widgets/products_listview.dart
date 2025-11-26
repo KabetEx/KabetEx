@@ -196,8 +196,8 @@ Widget _buildShimmerGrid() {
       return Column(
         children: [
           Shimmer.fromColors(
-            baseColor: const Color.fromARGB(255, 111, 111, 111),
-            highlightColor: Colors.grey[300]!,
+            baseColor: const Color.fromARGB(255, 163, 163, 163),
+            highlightColor: const Color.fromARGB(255, 139, 139, 139),
             child: Container(
               height: height * 0.6,
               width: double.infinity,

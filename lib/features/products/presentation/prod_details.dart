@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:kabetex/features/products/data/product.dart';
 import 'package:kabetex/features/products/data/product_services.dart';
+import 'package:kabetex/features/products/widgets/contact_button.dart';
 import 'package:kabetex/features/products/widgets/image_carousel.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kabetex/features/products/widgets/seller_card.dart';
 import 'package:kabetex/providers/cart/all_cart_products.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 import 'package:kabetex/features/cart/data/product_hive.dart';
@@ -24,15 +26,25 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
   bool isLoading = false;
   bool isContacting = false;
 
+  final _productService = ProductService();
+  String? sellerId;
+  String? sellerName;
+  String? sellerNumber;
+  bool isVerified = false;
+
   @override
   void initState() {
     super.initState();
     product = widget.product;
     if (product == null && widget.productId != null) {
       fetchProduct(widget.productId!);
+    } else if (product != null) {
+      // ✅ only load profile if product already exists
+      _loadSellerProfile();
     }
   }
 
+  //fetch product with id
   Future<void> fetchProduct(String id) async {
     setState(() => isLoading = true);
     final fetchedProduct = await ProductService().getProductById(id);
@@ -40,6 +52,24 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
       product = fetchedProduct;
       isLoading = false;
     });
+    if (product != null) _loadSellerProfile();
+  }
+
+  void _loadSellerProfile() async {
+    try {
+      final sellerProfile = await _productService.getSellerprofile(
+        product!.sellerId,
+      );
+      if (!mounted || sellerProfile == null) return;
+      setState(() {
+        sellerId = sellerProfile['id'] ?? '';
+        sellerName = sellerProfile['full_name'] ?? '';
+        sellerNumber = sellerProfile['phone_number'] ?? '';
+        isVerified = sellerProfile['isVerified'] as bool;
+      });
+    } catch (e) {
+      print('Error loading seller profile: $e');
+    }
   }
 
   bool isExisting() {
@@ -106,6 +136,8 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
     if (isLoading) return const Center(child: CircularProgressIndicator());
     if (product == null) return const Center(child: Text('Product not found'));
 
+    final isAvailable = product!.isActive ?? true;
+
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
@@ -116,6 +148,23 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
           color: isDarkMode ? Colors.white : Colors.black,
         ),
         actions: [
+          // availability badge
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Chip(
+              label: Text(
+                isAvailable ? 'Available' : 'Unavailable',
+                style: const TextStyle(fontSize: 12),
+              ),
+              backgroundColor: isAvailable
+                  ? Colors.green.withAlpha(100)
+                  : Colors.grey[700],
+              labelStyle: TextStyle(
+                color: isAvailable ? Colors.green[700] : Colors.white,
+              ),
+            ),
+          ),
+          // existing cart icon button
           IconButton(
             onPressed: () {
               if (isExisting()) {
@@ -169,6 +218,7 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // ✅ image gallery
                     ProductGallery(
                       images: product!.imageUrls,
                       product: product!,
@@ -190,23 +240,73 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
                     ),
                     const SizedBox(height: 8),
 
-                    // Price
+                    // Price + Category chip row
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: Text(
-                        NumberFormat.currency(
-                          locale: 'en_KE',
-                          symbol: 'KSH ',
-                        ).format(product!.price),
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 18,
-                          fontWeight: FontWeight.w500,
-                          color: priceColor,
-                        ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            NumberFormat.currency(
+                              locale: 'en_KE',
+                              symbol: 'KSH ',
+                            ).format(product!.price),
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500,
+                              color: priceColor,
+                            ),
+                          ),
+                          Chip(
+                            label: Text(
+                              product!.category,
+                              style: const TextStyle(fontSize: 14),
+                            ),
+                            backgroundColor: Colors.deepOrange.withAlpha(200),
+                            labelStyle: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(height: 16),
+
+                    // Seller info card
+                    SellerCard(
+                      isDarkMode: isDarkMode,
+                      isVerified: isVerified,
+                      sellerName: sellerName ?? 'loading...',
+                      sellerNumber: sellerNumber ?? 'loading...',
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Quick actions (Share + Save)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Row(
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.share),
+                            onPressed: () {
+                              // TODO: implement share deep link using product!.id
+                            },
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Share this product',
+                            style: TextStyle(
+                              color: isDarkMode
+                                  ? Colors.white70
+                                  : Colors.black87,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
 
                     // Description heading
                     Padding(
@@ -244,47 +344,11 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
                 ),
               ),
 
-              // Floating Contact Button
-              Positioned(
-                bottom: 8,
-                left: 16,
-                right: 16,
-                child: ElevatedButton(
-                  onPressed: isContacting ? null : contactSeller,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.deepOrange,
-                    elevation: 6,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                  child: isContacting
-                      ? const SizedBox(
-                          height: 24,
-                          width: 24,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2,
-                          ),
-                        )
-                      : const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.chat, color: Colors.white, size: 28),
-                            SizedBox(width: 8),
-                            Text(
-                              'Contact Seller',
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        ),
-                ),
+              // existing floating Contact button (unchanged)
+              ContactButton(
+                isAvailable: isAvailable,
+                isContacting: isContacting,
+                contactSeller: contactSeller,
               ),
             ],
           ),

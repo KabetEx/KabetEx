@@ -28,6 +28,25 @@ class ProductService {
     return urls;
   }
 
+  //get seller's profile
+  Future<Map<String, dynamic>?> getSellerprofile(String sellerId) async {
+    try {
+      final res = await supabase
+          .from('profiles')
+          .select('id, full_name, phone_number, isVerified')
+          .eq('id', sellerId)
+          .maybeSingle();
+
+      if (res == null) {
+        return null;
+      }
+      return res;
+    } catch (e) {
+      print('Error fetching profile $e');
+    }
+    return null;
+  }
+
   //  get seller Whatsapp number
   Future<String?> getSellerNumber(String sellerId) async {
     final res = await supabase
@@ -104,7 +123,6 @@ class ProductService {
           })
           .eq('id', id)
           .eq('seller_id', user!.id);
-
     } catch (e) {
       rethrow;
     }
