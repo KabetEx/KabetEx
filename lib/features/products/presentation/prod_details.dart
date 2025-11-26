@@ -9,6 +9,7 @@ import 'package:kabetex/features/products/widgets/seller_card.dart';
 import 'package:kabetex/providers/cart/all_cart_products.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 import 'package:kabetex/features/cart/data/product_hive.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ProdDetailsPage extends ConsumerStatefulWidget {
@@ -27,6 +28,7 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
   bool isContacting = false;
 
   final _productService = ProductService();
+  final user = Supabase.instance.client.auth.currentUser;
   String? sellerId;
   String? sellerName;
   String? sellerNumber;
@@ -124,6 +126,119 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
     print("Could not open WhatsApp");
   }
 
+  void _showReportDialog(BuildContext context) {
+    String? selectedReason;
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text('Report Product'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Please select a reason:'),
+                const SizedBox(height: 12),
+                ...[
+                  'Spam',
+                  'Inappropriate content',
+                  'Fake product',
+                  'Wrong category',
+                  'Other',
+                ].map(
+                  (reason) => InkWell(
+                    onTap: () {
+                      setState(() => selectedReason = reason);
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 20,
+                            height: 20,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: selectedReason == reason
+                                    ? Colors.deepOrange
+                                    : Colors.grey,
+                                width: 2,
+                              ),
+                            ),
+                            child: selectedReason == reason
+                                ? Center(
+                                    child: Container(
+                                      width: 10,
+                                      height: 10,
+                                      decoration: const BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: Colors.deepOrange,
+                                      ),
+                                    ),
+                                  )
+                                : null,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              reason,
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: selectedReason == null
+                  ? null
+                  : () async {
+                      try {
+                        await _productService.reportProduct(
+                          product!.id!,
+                          user!.id,
+                          selectedReason!,
+                        );
+                        if (mounted) {
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Reported: $selectedReason'),
+                              duration: const Duration(seconds: 2),
+                            ),
+                          );
+                        }
+                      } catch (e) {
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Failed to report: $e'),
+                              duration: const Duration(seconds: 2),
+                            ),
+                          );
+                        }
+                      }
+                    },
+              child: const Text('Submit'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDarkMode = ref.watch(isDarkModeProvider);
@@ -156,12 +271,9 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
                 isAvailable ? 'Available' : 'Unavailable',
                 style: const TextStyle(fontSize: 12),
               ),
-              backgroundColor: isAvailable
-                  ? Colors.green.withAlpha(100)
-                  : Colors.grey[700],
-              labelStyle: TextStyle(
-                color: isAvailable ? Colors.green[700] : Colors.white,
-              ),
+              side: const BorderSide(color: Colors.transparent),
+              backgroundColor: isAvailable ? Colors.green : Colors.grey[700],
+              labelStyle: const TextStyle(color: Colors.white),
             ),
           ),
           // existing cart icon button
@@ -203,9 +315,34 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
                 isExisting()
                     ? Icons.check_circle_sharp
                     : Icons.shopping_cart_outlined,
-                color: Colors.deepOrange,
+                color: Colors.green,
               ),
             ),
+          ),
+
+          //report menu
+          PopupMenuButton<String>(
+            icon: Icon(
+              Icons.more_vert,
+              color: isDarkMode ? Colors.white : Colors.black,
+            ),
+            onSelected: (value) {
+              if (value == 'report') {
+                _showReportDialog(context);
+              }
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'report',
+                child: Row(
+                  children: [
+                    Icon(Icons.flag_outlined, size: 20),
+                    SizedBox(width: 8),
+                    Text('Report product'),
+                  ],
+                ),
+              ),
+            ],
           ),
         ],
       ),

@@ -44,6 +44,7 @@ class SellerCard extends StatelessWidget {
                             horizontal: 6,
                             vertical: 2,
                           ),
+                          side: const BorderSide(color: Colors.transparent),
                           label: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [

@@ -47,6 +47,25 @@ class ProductService {
     return null;
   }
 
+  Future<void> reportProduct(
+    String productId,
+    String sellerId,
+    String selectedReason,
+  ) async {
+    if (user == null) return;
+    try {
+      await supabase.from('reports').insert({
+        'product_id': productId,
+        'seller_id': sellerId,
+        'reason': selectedReason,
+        'reporter_id': supabase.auth.currentUser!.id,
+      });
+    } catch (e) {
+      print('Error reporting: $e');
+      rethrow;
+    }
+  }
+
   //  get seller Whatsapp number
   Future<String?> getSellerNumber(String sellerId) async {
     final res = await supabase
