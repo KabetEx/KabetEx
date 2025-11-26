@@ -7,7 +7,7 @@ import 'package:kabetex/features/auth/presentation/sign_up.dart';
 import 'package:kabetex/features/products/widgets/product_image.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:kabetex/providers/categories/categories_provider.dart';
-import 'package:kabetex/providers/seller_products/my_products.dart';
+import 'package:kabetex/providers/products/seller_products/my_products.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 import 'package:kabetex/features/products/data/product_services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
