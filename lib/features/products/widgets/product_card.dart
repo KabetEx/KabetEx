@@ -2,13 +2,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:kabetex/features/cart/data/product_hive.dart';
 import 'package:kabetex/providers/cart/all_cart_products.dart';
 import 'package:kabetex/common/slide_routing.dart';
 import 'package:kabetex/features/products/data/product.dart';
 import 'package:kabetex/providers/theme_provider.dart';
-import 'package:shimmer/shimmer.dart';
 import 'package:kabetex/features/products/presentation/prod_details.dart';
 
 class ProductCard extends ConsumerStatefulWidget {
