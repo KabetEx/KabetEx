@@ -202,41 +202,43 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
               child: const Text('Cancel'),
             ),
             TextButton(
-              onPressed: selectedReason == null
-                  ? null
-                  : () async {
-                      try {
-                        await _productService.reportProduct(
-                          product!.id!,
-                          user!.id,
-                          selectedReason!,
-                        );
-                        if (mounted) {
-                          Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Reported: $selectedReason'),
-                              duration: const Duration(seconds: 2),
-                            ),
-                          );
-                        }
-                      } catch (e) {
-                        if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Failed to report: $e'),
-                              duration: const Duration(seconds: 2),
-                            ),
-                          );
-                        }
-                      }
-                    },
+              onPressed: () {
+                report(selectedReason!);
+              },
               child: const Text('Submit'),
             ),
           ],
         ),
       ),
     );
+  }
+
+  void report(String selectedReason) async {
+    try {
+      await _productService.reportProduct(
+        product!.id!,
+        user!.id,
+        selectedReason,
+      );
+      if (mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Reported: $selectedReason'),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to report: $e'),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    }
   }
 
   @override
