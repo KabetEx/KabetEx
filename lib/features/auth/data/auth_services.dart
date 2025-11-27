@@ -67,7 +67,6 @@ class AuthService {
     }
   }
 
-
   // ---------------- CREATE PROFILE ----------------
   Future<void> createProfile({
     required String id,
@@ -90,12 +89,18 @@ class AuthService {
     }
   }
 
-  Future<Map<String, dynamic>> getProfile() async {
+  Future<Map<String, dynamic>?> getProfile() async {
+    final currentUser = Supabase.instance.client.auth.currentUser;
+
+    // if logged out, return null instead of crashing
+    if (currentUser == null) return null;
+
     final profile = await supabase
         .from('profiles')
         .select()
-        .eq('id', user!.id)
-        .single();
+        .eq('id', currentUser.id)
+        .maybeSingle(); 
+
     return profile;
   }
 

@@ -5,6 +5,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:kabetex/features/search/search_page.dart';
 import 'package:kabetex/providers/home/profile_provider.dart';
 import 'package:kabetex/providers/theme_provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AppTitleRow extends ConsumerStatefulWidget {
   const AppTitleRow({super.key});
@@ -14,8 +15,6 @@ class AppTitleRow extends ConsumerStatefulWidget {
 }
 
 class _AppTitleRowState extends ConsumerState<AppTitleRow> {
-  String? firstName = '';
-
   @override
   void initState() {
     super.initState();
@@ -42,15 +41,19 @@ class _AppTitleRowState extends ConsumerState<AppTitleRow> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 //menu icon
-                GestureDetector(
-                  onTap: () {
-                    Scaffold.of(context).openDrawer();
+                Builder(
+                  builder: (context) {
+                    return GestureDetector(
+                      onTap: () {
+                        Scaffold.of(context).openDrawer();
+                      },
+                      child: Icon(
+                        Icons.menu_rounded,
+                        size: 35,
+                        color: isDarkMode ? Colors.white : Colors.black,
+                      ),
+                    );
                   },
-                  child: Icon(
-                    Icons.menu_rounded,
-                    size: 35,
-                    color: isDarkMode ? Colors.white : Colors.black,
-                  ),
                 ),
 
                 const Spacer(),
@@ -149,14 +152,25 @@ class _AppTitleRowState extends ConsumerState<AppTitleRow> {
                             ),
                           ),
                           data: (data) {
-                            final fullName = data?['full_name'];
+                            if (data == null) {
+                              return const TextSpan(
+                                text: 'Guest',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20,
+                                  color: Colors.deepOrange,
+                                ),
+                              );
+                            }
+
+                            final fullName = data['full_name'];
                             final firstName =
                                 fullName != null && fullName.isNotEmpty
                                 ? fullName.split(' ')[0]
                                 : 'Guest';
 
                             return TextSpan(
-                              text: firstName,
+                              text: firstName ?? 'guest',
                               style: Theme.of(context).textTheme.titleSmall!
                                   .copyWith(
                                     fontWeight: FontWeight.bold,
@@ -166,9 +180,9 @@ class _AppTitleRowState extends ConsumerState<AppTitleRow> {
                                   ),
                             );
                           },
-                          error: (e, st) => const TextSpan(
-                            text: 'Error loading name',
-                            style: TextStyle(
+                          error: (e, st) => TextSpan(
+                            text: 'Error loading name $e',
+                            style: const TextStyle(
                               color: Colors.red,
                               fontStyle: FontStyle.italic,
                             ),

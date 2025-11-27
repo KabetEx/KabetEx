@@ -35,7 +35,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       context: context,
       builder: (context) {
         final isDark = ref.watch(isDarkModeProvider);
-        
+
         return AlertDialog(
           title: Text(
             'Delete Account',
@@ -319,6 +319,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                         setState(() => isLoggingOut = true);
 
                         await Supabase.instance.client.auth.signOut();
+                        ref.refresh(futureProfileProvider);
 
                         if (!mounted) return;
 

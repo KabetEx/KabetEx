@@ -284,9 +284,9 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
                     )
                   : user == null
                   ? Text(
-                      'Create an account',
+                      'Log in',
                       style: Theme.of(context).textTheme.labelLarge!.copyWith(
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.bold,
                         fontSize: 18,
                         color: Colors.green,
                         fontFamily: 'roboto',
@@ -309,17 +309,16 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
                   Supabase.instance.client.auth.signOut();
                   setState(() {
                     isSigningOut = true;
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const LoginPage(),
-                      ),
-                    );
                   });
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const LoginPage()),
+                  );
                 }
+
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => const SignupPage()),
+                  MaterialPageRoute(builder: (context) => const LoginPage()),
                 );
               },
             ),
