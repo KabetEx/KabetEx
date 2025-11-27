@@ -31,15 +31,24 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   bool get isLoggedIn => _user != null;
 
   Future<bool?> showDeleteConfirmation(BuildContext context) async {
+    final isDark = ref.watch(isDarkModeProvider);
+
     return showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Account'),
+        title: Text(
+          'Delete Account',
+          style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+            color: isDark ? Colors.white : Colors.black,
+            fontSize: 24,
+          ),
+        ),
         content: Text(
           'Are you sure you want to delete your account? This cannot be undone.',
-          style: Theme.of(
-            context,
-          ).textTheme.bodyLarge!.copyWith(color: Colors.black),
+          style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+            color: isDark ? Colors.grey[300] : Colors.black,
+            fontSize: 18,
+          ),
         ),
         actions: [
           TextButton(
@@ -302,13 +311,29 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   ),
                   minimumSize: const Size.fromHeight(50),
                 ),
-                onPressed: () {
-                  setState(() => isLoggingOut = true);
-                  Supabase.instance.client.auth.signOut();
-                  setState(() => isLoggingOut = false);
-                },
+                onPressed: isLoggingOut
+                    ? null
+                    : () async {
+                        setState(() => isLoggingOut = true);
+
+                        await Supabase.instance.client.auth.signOut();
+
+                        if (!mounted) return;
+
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (_) => const LoginPage()),
+                          (route) => false,
+                        );
+                      },
                 child: isLoggingOut
-                    ? const Center(child: CircularProgressIndicator())
+                    ? const SizedBox(
+                        height: 16,
+                        width: 16,
+                        child: Center(
+                          child: CircularProgressIndicator(color: Colors.white),
+                        ),
+                      )
                     : const Text(
                         'Log Out',
                         style: TextStyle(

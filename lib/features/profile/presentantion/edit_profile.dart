@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/features/profile/data/profile_services.dart';
 import 'package:kabetex/providers/home/profile_provider.dart';
+import 'package:kabetex/providers/theme_provider.dart';
 
 class EditProfilePage extends ConsumerStatefulWidget {
   const EditProfilePage({super.key});
@@ -13,6 +14,7 @@ class EditProfilePage extends ConsumerStatefulWidget {
 class _EditProfilePageState extends ConsumerState<EditProfilePage> {
   final _profileService = ProfileServices();
   String? _selectedYear;
+  bool isUpdating = false;
   final GlobalKey<FormState> _formKey1 = GlobalKey<FormState>();
 
   late TextEditingController nameController;
@@ -31,6 +33,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
 
   void updateProfile() async {
     if (_formKey1.currentState!.validate()) {
+      setState(() => isUpdating = true);
       try {
         await _profileService.updateProfile({
           'full_name': nameController.text,
@@ -51,6 +54,8 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('Error updating profile: $e')));
+      } finally {
+        setState(() => isUpdating = false);
       }
     }
   }
@@ -66,6 +71,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
   @override
   Widget build(BuildContext context) {
     final asyncProfile = ref.watch(futureProfileProvider);
+    final isDark = ref.watch(isDarkModeProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -95,7 +101,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                 yearController.text = data!['year'] ?? '';
               }
               _selectedYear ??= data!['year'];
-        
+
               return Form(
                 key: _formKey1,
                 child: Column(
@@ -105,6 +111,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                         horizontal: 20,
                         vertical: 8,
                       ),
+                      //name
                       child: TextFormField(
                         keyboardType: TextInputType.name,
                         textCapitalization: TextCapitalization.words,
@@ -116,13 +123,14 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                         validator: (val) => val == null || val.isEmpty
                             ? 'Enter your name'
                             : null,
-                        style: Theme.of(
-                          context,
-                        ).textTheme.labelMedium!.copyWith(color: Colors.black),
+                        style: Theme.of(context).textTheme.labelMedium!
+                            .copyWith(
+                              color: isDark ? Colors.white : Colors.black,
+                            ),
                       ),
                     ),
                     const SizedBox(height: 16),
-              
+
                     // Email
                     Padding(
                       padding: const EdgeInsets.symmetric(
@@ -144,13 +152,14 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                           }
                           return null;
                         },
-                        style: Theme.of(
-                          context,
-                        ).textTheme.labelMedium!.copyWith(color: Colors.black),
+                        style: Theme.of(context).textTheme.labelMedium!
+                            .copyWith(
+                              color: isDark ? Colors.white : Colors.black,
+                            ),
                       ),
                     ),
                     const SizedBox(height: 16),
-              
+
                     //phone
                     Padding(
                       padding: const EdgeInsets.symmetric(
@@ -175,13 +184,14 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                           }
                           return null;
                         },
-                        style: Theme.of(
-                          context,
-                        ).textTheme.labelMedium!.copyWith(color: Colors.black),
+                        style: Theme.of(context).textTheme.labelMedium!
+                            .copyWith(
+                              color: isDark ? Colors.white : Colors.black,
+                            ),
                       ),
                     ),
                     const SizedBox(height: 16),
-              
+
                     Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 20,
@@ -201,7 +211,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                               color: Colors.deepOrange,
                               width: 0.5,
                             ),
-              
+
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.deepOrange.withAlpha(25),
@@ -241,7 +251,16 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                                       .map(
                                         (year) => DropdownMenuItem(
                                           value: year,
-                                          child: Center(child: Text(year)),
+                                          child: Center(
+                                            child: Text(
+                                              year,
+                                              style: TextStyle(
+                                                color: isDark
+                                                    ? Colors.white
+                                                    : Colors.black,
+                                              ),
+                                            ),
+                                          ),
                                         ),
                                       )
                                       .toList(),
@@ -250,7 +269,9 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                               validator: (val) => val == null || val.isEmpty
                                   ? 'Select your campus year'
                                   : null,
-                              dropdownColor: Colors.white,
+                              dropdownColor: isDark
+                                  ? Colors.black
+                                  : Colors.white,
                             ),
                           ),
                         ),
@@ -263,20 +284,30 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                         width: double.infinity,
                         height: 50,
                         child: ElevatedButton(
-                          onPressed: updateProfile,
+                          onPressed: isUpdating ? null : updateProfile,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.deepOrange,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
                           ),
-                          child: const Text(
-                            'Update Profile',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                            ),
-                          ),
+                          child: isUpdating
+                              ? const SizedBox(
+                                  height: 16,
+                                  width: 16,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    backgroundColor: Colors.deepOrange,
+                                  ),
+                                )
+                              : Text(
+                                  'Update Profile',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18,
+                                    color: isDark ? Colors.white : Colors.black,
+                                  ),
+                                ),
                         ),
                       ),
                     ),
@@ -291,9 +322,6 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
               return const Center(child: CircularProgressIndicator());
             },
           ),
-        
-          //
-          //
         ),
       ),
     );
