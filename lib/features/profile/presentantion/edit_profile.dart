@@ -55,6 +55,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
           context,
         ).showSnackBar(SnackBar(content: Text('Error updating profile: $e')));
       } finally {
+        if(!mounted) return;
         setState(() => isUpdating = false);
       }
     }
