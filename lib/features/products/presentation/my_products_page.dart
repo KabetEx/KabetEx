@@ -88,8 +88,6 @@ class MyProductsPage extends ConsumerWidget {
       );
     }
 
-
-
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -106,7 +104,7 @@ class MyProductsPage extends ConsumerWidget {
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (e, st) => Center(child: Text("Error: $e")),
             data: (products) {
-              if (products.isEmpty) {
+              if (products!.isEmpty) {
                 return Center(
                   child: Text(
                     "You haven't posted anything yet 👀",

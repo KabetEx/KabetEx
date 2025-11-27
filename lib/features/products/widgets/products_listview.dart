@@ -24,56 +24,6 @@ class MyProductsGridview extends ConsumerWidget {
     final selectedCategory = ref.watch(selectedCategoryProvider);
     final allProductsAsync = ref.watch(productsStreamProvider);
 
-    // 1️⃣ Try to use cached data when offline
-    // final cachedProducts = allProductsAsync.asData?.value;
-    // if (!isOnline && cachedProducts == null) {
-    //   final filtered = selectedCategory == 'all'
-    //       ? cachedProducts
-    //       : cachedProducts!
-    //             .where((p) => p.category == selectedCategory)
-    //             .toList();
-
-    //   if (filtered!.isEmpty) {
-    //     return Center(
-    //       child: Text(
-    //         'No products yet 😔',
-    //         style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-    //           color: isDark ? Colors.white : Colors.black,
-    //         ),
-    //       ),
-    //     );
-    //   }
-
-    //   return Column(
-    //     children: [
-    //       Container(
-    //         width: double.infinity,
-    //         color: Colors.redAccent,
-    //         padding: const EdgeInsets.all(8),
-    //         child: const Text(
-    //           'Offline – showing cached products',
-    //           textAlign: TextAlign.center,
-    //           style: TextStyle(color: Colors.white),
-    //         ),
-    //       ),
-    //       MasonryGridView.builder(
-    //         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
-    //         shrinkWrap: true,
-    //         physics: const NeverScrollableScrollPhysics(),
-    //         gridDelegate: const SliverSimpleGridDelegateWithFixedCrossAxisCount(
-    //           crossAxisCount: 2,
-    //         ),
-    //         mainAxisSpacing: 8,
-    //         crossAxisSpacing: 8,
-    //         itemCount: filtered.length,
-    //         itemBuilder: (context, index) {
-    //           return ProductCard(product: filtered[index]);
-    //         },
-    //       ),
-    //     ],
-    //   );
-    // }
-
     return allProductsAsync.when(
       loading: () {
         if (isOnline == false) {

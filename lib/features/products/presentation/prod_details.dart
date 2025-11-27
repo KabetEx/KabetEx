@@ -5,6 +5,7 @@ import 'package:kabetex/features/products/data/product_services.dart';
 import 'package:kabetex/features/products/widgets/contact_button.dart';
 import 'package:kabetex/features/products/widgets/image_carousel.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kabetex/features/products/widgets/product_card.dart';
 import 'package:kabetex/features/products/widgets/seller_card.dart';
 import 'package:kabetex/providers/cart/all_cart_products.dart';
 import 'package:kabetex/providers/theme_provider.dart';
@@ -29,6 +30,7 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
 
   final _productService = ProductService();
   final user = Supabase.instance.client.auth.currentUser;
+  late Future<List<Product>?> sellerProductsFuture;
   String? sellerId;
   String? sellerName;
   String? sellerNumber;
@@ -41,19 +43,24 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
     if (product == null && widget.productId != null) {
       fetchProduct(widget.productId!);
     } else if (product != null) {
-      // ✅ only load profile if product already exists
       _loadSellerProfile();
+      sellerProductsFuture = _loadSellerProducts();
     }
   }
 
-  //fetch product with id
   Future<void> fetchProduct(String id) async {
     setState(() => isLoading = true);
     final fetchedProduct = await ProductService().getProductById(id);
+    if (!mounted) return;
+
     setState(() {
       product = fetchedProduct;
       isLoading = false;
+      if (product != null) {
+        sellerProductsFuture = _loadSellerProducts();
+      }
     });
+
     if (product != null) _loadSellerProfile();
   }
 
@@ -202,9 +209,11 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
               child: const Text('Cancel'),
             ),
             TextButton(
-              onPressed: () {
-                report(selectedReason!);
-              },
+              onPressed: selectedReason == null
+                  ? null
+                  : () {
+                      report(selectedReason!);
+                    },
               child: const Text('Submit'),
             ),
           ],
@@ -241,6 +250,19 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
     }
   }
 
+  Future<List<Product>?> _loadSellerProducts() async {
+    try {
+      final sellerProducts = await _productService.getMyProducts(
+        product!.sellerId,
+      );
+      print('Fetched seller products: $sellerProducts');
+      return sellerProducts;
+    } catch (e) {
+      print('error: $e');
+      return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDarkMode = ref.watch(isDarkModeProvider);
@@ -265,7 +287,6 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
           color: isDarkMode ? Colors.white : Colors.black,
         ),
         actions: [
-          // availability badge
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: Chip(
@@ -278,7 +299,6 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
               labelStyle: const TextStyle(color: Colors.white),
             ),
           ),
-          // existing cart icon button
           IconButton(
             onPressed: () {
               if (isExisting()) {
@@ -321,8 +341,6 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
               ),
             ),
           ),
-
-          //report menu
           PopupMenuButton<String>(
             icon: Icon(
               Icons.more_vert,
@@ -357,14 +375,11 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // ✅ image gallery
                     ProductGallery(
                       images: product!.imageUrls,
                       product: product!,
                     ),
                     const SizedBox(height: 16),
-
-                    // Title
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: Text(
@@ -378,8 +393,6 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
                       ),
                     ),
                     const SizedBox(height: 8),
-
-                    // Price + Category chip row
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: Row(
@@ -412,8 +425,6 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
                       ),
                     ),
                     const SizedBox(height: 16),
-
-                    // Seller info card
                     SellerCard(
                       isDarkMode: isDarkMode,
                       isVerified: isVerified,
@@ -421,17 +432,13 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
                       sellerNumber: sellerNumber ?? 'loading...',
                     ),
                     const SizedBox(height: 16),
-
-                    // Quick actions (Share + Save)
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: Row(
                         children: [
                           IconButton(
                             icon: const Icon(Icons.share),
-                            onPressed: () {
-                              // TODO: implement share deep link using product!.id
-                            },
+                            onPressed: () {},
                           ),
                           const SizedBox(width: 8),
                           Text(
@@ -446,8 +453,6 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
                       ),
                     ),
                     const SizedBox(height: 8),
-
-                    // Description heading
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: Text(
@@ -463,8 +468,6 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
                       ),
                     ),
                     const SizedBox(height: 8),
-
-                    // Description
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: Text(
@@ -478,12 +481,67 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
                         ),
                       ),
                     ),
+
+                    //more from seller
                     const SizedBox(height: 16),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Text(
+                          'More from ${(sellerName ?? 'loading').split(' ').first}',
+                          style: Theme.of(context).textTheme.bodyLarge!
+                              .copyWith(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                        ),
+                      ),
+                    ),
+                    FutureBuilder(
+                      future: sellerProductsFuture,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+                        if (snapshot.hasError) {
+                          return Center(
+                            child: Text('Error: ${snapshot.error}'),
+                          );
+                        }
+                        if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                          return const Center(child: Text('Nothing'));
+                        }
+
+                        final sellerProducts = snapshot.data!;
+                        return SizedBox(
+                          height: 300,
+                          child: ListView.builder(
+                            padding: const EdgeInsets.all(8),
+                            scrollDirection: Axis.horizontal,
+                            itemCount: sellerProducts.length,
+                            itemBuilder: (context, index) {
+                              return SizedBox(
+                                width: 200, // fix RenderBox error
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: ProductCard(
+                                    product: sellerProducts[index],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        );
+                      },
+                    ),
                   ],
                 ),
               ),
-
-              // existing floating Contact button (unchanged)
+              const SizedBox(height: 16),
               ContactButton(
                 isAvailable: isAvailable,
                 isContacting: isContacting,

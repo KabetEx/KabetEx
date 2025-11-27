@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kabetex/features/products/data/product.dart';
 import 'package:kabetex/features/products/data/product_services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -9,7 +10,7 @@ final authUserProvider = StreamProvider((ref) {
   );
 });
 
-final myProductsProvider = FutureProvider<List<dynamic>>((ref) async {
+final myProductsProvider = FutureProvider<List<Product>?>((ref) async {
   final userAsync = ref.watch(authUserProvider);
 
   // Wait until the user is loaded

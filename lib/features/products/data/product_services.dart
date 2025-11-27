@@ -83,12 +83,13 @@ class ProductService {
   }
 
   //-----------------fetch my products----------------------------//
-  Future<List<Product>> getMyProducts(String sellerId) async {
+  Future<List<Product>?> getMyProducts(String sellerId) async {
     final res = await supabase
         .from('products')
         .select()
-        .eq('seller_id', sellerId) //later change to 'user.id'
+        .eq('seller_id', sellerId)
         .order('created_at', ascending: false);
+    print('Getting products for ID: $sellerId');
 
     return (res as List<dynamic>?)?.map((p) {
           return Product.fromMap(p);
