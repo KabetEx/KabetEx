@@ -300,19 +300,20 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
                         fontFamily: 'Quicksand',
                       ),
                     ),
-              onTap: () {
+              onTap: () async {
                 //user is logged in - signout
                 if (user != null) {
-                  setState(() {
-                    isSigningOut = true;
-                  });
-                  Supabase.instance.client.auth.signOut();
-                  setState(() {
-                    isSigningOut = true;
-                  });
-                  Navigator.push(
+                  setState(() => isSigningOut = true);
+                  await Supabase.instance.client.auth.signOut();
+
+                  if (!mounted) return; // safety check
+
+                  setState(() => isSigningOut = false);
+
+                  Navigator.pushAndRemoveUntil(
                     context,
-                    MaterialPageRoute(builder: (context) => const LoginPage()),
+                    MaterialPageRoute(builder: (_) => const LoginPage()),
+                    (route) => false, // remove all previous pages
                   );
                 } else {
                   Navigator.pushReplacement(
