@@ -15,7 +15,7 @@ class MyCategoryGrid extends ConsumerWidget {
     final allCategories = ref.watch(allCategoriesProvider);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+      padding: const EdgeInsets.only(left: 12, right: 12, top: 2, bottom: 16),
       child: Column(
         children: [
           Align(
@@ -32,9 +32,9 @@ class MyCategoryGrid extends ConsumerWidget {
             shrinkWrap: true,
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 3,
-              crossAxisSpacing: 8,
+              crossAxisSpacing: 10,
               mainAxisSpacing: 10,
-              childAspectRatio: 0.9,
+              childAspectRatio: 1.1,
             ),
             itemCount: allCategories.take(6).length,
             itemBuilder: (context, index) {
@@ -44,73 +44,66 @@ class MyCategoryGrid extends ConsumerWidget {
                   ref.read(selectedCategoryProvider.notifier).state =
                       cat['name'];
                 },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 4.0,
-                    horizontal: 4,
-                  ),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 500),
-                    curve: Curves.easeInOut,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      color:
-                          //if selected
-                          selectedCategory == cat['name']
-                          ? isDarkMode
-                                ? Colors.deepOrange
-                                : Colors.transparent
-                          :
-                            //if is not selected
-                            isDarkMode
-                          ? Colors.black
-                          : Colors.transparent,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 500),
+                  curve: Curves.easeInOut,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    color:
+                        //if selected
+                        selectedCategory == cat['name']
+                        ? isDarkMode
+                              ? Colors.transparent
+                              : Colors.transparent
+                        :
+                          //if is not selected
+                          isDarkMode
+                        ? Colors.black
+                        : Colors.transparent,
 
-                      border: Border.all(
-                        color: selectedCategory == cat['name']
+                    border: Border.all(
+                      color: selectedCategory == cat['name']
+                          ? Colors.deepOrange
+                          : Colors.grey,
+                      width: selectedCategory == cat['name'] ? 1.4 : 0.8,
+                    ),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  alignment: Alignment.center,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        cat['icon'],
+                        color: isDarkMode
+                            ? Colors.white
+                            : selectedCategory == cat['name']
                             ? Colors.deepOrange
-                            : Colors.grey,
-                        width: selectedCategory == cat['name'] ? 1.4 : 0.8,
+                            : Colors.black,
                       ),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    alignment: Alignment.center,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          cat['icon'],
-                          color: isDarkMode
-                              ? Colors.white
-                              : selectedCategory == cat['name']
-                              ? Colors.deepOrange
-                              : Colors.black,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          cat['name'].toUpperCase() as String,
-                          style: Theme.of(context).textTheme.bodySmall!
-                              .copyWith(
-                                color:
-                                    //if selected
-                                    selectedCategory == cat['name']
-                                    ? isDarkMode
-                                          ? Colors.white
-                                          : Colors.deepOrange
-                                    //not selected
-                                    : isDarkMode
+                      const SizedBox(height: 8),
+                      Text(
+                        cat['name'].toUpperCase() as String,
+                        style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                          color:
+                              //if selected
+                              selectedCategory == cat['name']
+                              ? isDarkMode
                                     ? Colors.white
-                                    : Colors.black,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 10,
-                                height: 1.5,
-                                fontFamily: 'poppins',
-                              ),
+                                    : Colors.deepOrange
+                              //not selected
+                              : isDarkMode
+                              ? Colors.white
+                              : Colors.black,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 10,
+                          height: 1.5,
+                          fontFamily: 'poppins',
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               );

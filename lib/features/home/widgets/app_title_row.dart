@@ -139,7 +139,7 @@ class _AppTitleRowState extends ConsumerState<AppTitleRow> {
                                 color: isDarkMode
                                     ? Colors.deepOrange
                                     : Colors.black,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w500,
                                 fontSize: 20,
                               ),
                         ),
@@ -153,12 +153,14 @@ class _AppTitleRowState extends ConsumerState<AppTitleRow> {
                           ),
                           data: (data) {
                             if (data == null) {
-                              return const TextSpan(
+                              return TextSpan(
                                 text: 'Guest',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 20,
-                                  color: Colors.deepOrange,
+                                  color: isDarkMode
+                                      ? Colors.deepOrange
+                                      : Colors.black,
                                 ),
                               );
                             }
