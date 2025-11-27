@@ -226,7 +226,7 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
     try {
       await _productService.reportProduct(
         product!.id!,
-        user!.id,
+        product!.sellerId,
         selectedReason,
       );
       if (mounted) {
