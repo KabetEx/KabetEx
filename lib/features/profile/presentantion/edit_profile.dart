@@ -66,6 +66,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
     nameController.dispose();
     emailController.dispose();
     phoneController.dispose();
+    yearController.dispose();
     super.dispose();
   }
 

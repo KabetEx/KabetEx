@@ -31,42 +31,44 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   bool get isLoggedIn => _user != null;
 
   Future<bool?> showDeleteConfirmation(BuildContext context) async {
-    final isDark = ref.watch(isDarkModeProvider);
-
     return showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(
-          'Delete Account',
-          style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-            color: isDark ? Colors.white : Colors.black,
-            fontSize: 24,
-          ),
-        ),
-        content: Text(
-          'Are you sure you want to delete your account? This cannot be undone.',
-          style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-            color: isDark ? Colors.grey[300] : Colors.black,
-            fontSize: 18,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: Text(
-              'Delete',
-              style: Theme.of(
-                context,
-              ).textTheme.bodySmall!.copyWith(color: Colors.white),
+      builder: (context) {
+        final isDark = ref.watch(isDarkModeProvider);
+        
+        return AlertDialog(
+          title: Text(
+            'Delete Account',
+            style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+              color: isDark ? Colors.white : Colors.black,
+              fontSize: 24,
             ),
           ),
-        ],
-      ),
+          content: Text(
+            'Are you sure you want to delete your account? This cannot be undone.',
+            style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+              color: isDark ? Colors.grey[300] : Colors.black,
+              fontSize: 18,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context, true),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+              child: Text(
+                'Delete',
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall!.copyWith(color: Colors.white),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
