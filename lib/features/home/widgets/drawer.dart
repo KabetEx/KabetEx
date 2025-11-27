@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kabetex/common/slide_routing.dart';
 import 'package:kabetex/features/auth/presentation/login.dart';
+import 'package:kabetex/features/contact_report/presentation/report_page.dart';
 import 'package:kabetex/features/products/presentation/post_product_page.dart';
 import 'package:kabetex/features/products/presentation/my_products_page.dart';
 import 'package:kabetex/features/settings/presentations/settings_page.dart';
@@ -234,6 +236,7 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
               ),
               onTap: () {
                 Navigator.pop(context);
+                Navigator.push(context, SlideRouting(page: const ReportPage()));
               },
             ),
 
