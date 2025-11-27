@@ -103,7 +103,8 @@ class _LoginPageState extends State<LoginPage> {
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                           color: Colors.black,
-                          fontWeight: FontWeight.w400,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
                         ),
                       ),
 
@@ -131,7 +132,10 @@ class _LoginPageState extends State<LoginPage> {
                                       .copyWith(color: Colors.black),
                                   keyboardType: TextInputType.emailAddress,
                                   decoration: InputDecoration(
-                                    prefixIcon: const Icon(Icons.email),
+                                    prefixIcon: Icon(
+                                      Icons.email,
+                                      color: Colors.grey[600],
+                                    ),
                                     filled: true,
                                     fillColor: const Color.fromARGB(
                                       21,
@@ -140,6 +144,9 @@ class _LoginPageState extends State<LoginPage> {
                                       34,
                                     ),
                                     hintText: 'Email',
+                                    hintStyle: TextStyle(
+                                      color: Colors.grey[600],
+                                    ),
                                     errorBorder: const OutlineInputBorder(
                                       borderSide: BorderSide(
                                         color: Colors.red,
@@ -191,7 +198,10 @@ class _LoginPageState extends State<LoginPage> {
                                       .copyWith(color: Colors.black),
                                   keyboardType: TextInputType.visiblePassword,
                                   decoration: InputDecoration(
-                                    prefixIcon: const Icon(Icons.lock),
+                                    prefixIcon: Icon(
+                                      Icons.lock,
+                                      color: Colors.grey[600],
+                                    ),
                                     suffixIcon: IconButton(
                                       onPressed: () {
                                         setState(() {
@@ -202,6 +212,7 @@ class _LoginPageState extends State<LoginPage> {
                                         hidePass
                                             ? Icons.remove_red_eye_outlined
                                             : Icons.visibility_off,
+                                        color: Colors.grey[600],
                                       ),
                                     ),
                                     filled: true,
@@ -212,6 +223,9 @@ class _LoginPageState extends State<LoginPage> {
                                       34,
                                     ),
                                     hintText: 'Password',
+                                    hintStyle: TextStyle(
+                                      color: Colors.grey[600],
+                                    ),
                                     enabledBorder: const OutlineInputBorder(
                                       borderSide: BorderSide.none,
                                     ),
@@ -255,7 +269,7 @@ class _LoginPageState extends State<LoginPage> {
                                   'Forgot your password?',
                                   style: Theme.of(context).textTheme.bodyMedium!
                                       .copyWith(
-                                        color: Colors.deepOrange,
+                                        color: Colors.grey[700],
                                         fontWeight: FontWeight.bold,
                                       ),
                                 ),
@@ -320,11 +334,19 @@ class _LoginPageState extends State<LoginPage> {
                                 'Create an account',
                                 style: Theme.of(context).textTheme.bodyLarge!
                                     .copyWith(
-                                      color: Colors.black,
+                                      color: Colors.deepOrange,
                                       fontWeight: FontWeight.bold,
+                                      fontSize: 24,
                                     ),
                               ),
                             ),
+                            const SizedBox(height: 8),
+
+                            Text(
+                              'Or',
+                              style: TextStyle(color: Colors.grey[500]),
+                            ),
+
                             // Continue as Guest
                             TextButton(
                               onPressed: () {
@@ -336,7 +358,8 @@ class _LoginPageState extends State<LoginPage> {
                               child: const Text(
                                 'Continue as Guest',
                                 style: TextStyle(
-                                  color: Colors.deepOrange,
+                                  color: Colors.black,
+                                  fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
