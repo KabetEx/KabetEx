@@ -320,16 +320,26 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     : () async {
                         setState(() => isLoggingOut = true);
 
-                        await Supabase.instance.client.auth.signOut();
-                        ref.invalidate(futureProfileProvider);
+                        try {
+                          ref.invalidate(futureProfileProvider);
+                          await Supabase.instance.client.auth.signOut();
 
-                        if (!mounted) return;
-
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(builder: (_) => const LoginPage()),
-                          (route) => false,
-                        );
+                          if (mounted) {
+                            Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const LoginPage(),
+                              ),
+                              (route) => false,
+                            );
+                          }
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Failed to log out: $e')),
+                          );
+                        } finally {
+                          if (mounted) setState(() => isLoggingOut = false);
+                        }
                       },
                 child: isLoggingOut
                     ? const SizedBox(
