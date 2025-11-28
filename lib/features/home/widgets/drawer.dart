@@ -6,6 +6,7 @@ import 'package:kabetex/features/contact_report/presentation/report_page.dart';
 import 'package:kabetex/features/products/presentation/post_product_page.dart';
 import 'package:kabetex/features/products/presentation/my_products_page.dart';
 import 'package:kabetex/features/settings/presentations/settings_page.dart';
+import 'package:kabetex/providers/home/profile_provider.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 import 'package:kabetex/features/auth/data/auth_services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -318,11 +319,13 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
                     MaterialPageRoute(builder: (_) => const LoginPage()),
                     (route) => false, // remove all previous pages
                   );
+                  ref.invalidate(futureProfileProvider);
                 } else {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(builder: (context) => const LoginPage()),
                   );
+                  ref.invalidate(futureProfileProvider);
                 }
               },
             ),

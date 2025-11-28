@@ -121,8 +121,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                         ),
                       ),
                       data: (data) {
-                        final fullName = data?['full_name'];
-                        final bool isVerified = data?['isVerified'] ?? false;
+                        if (data == null) return const Text('');
+
+                        final fullName = data['full_name'] ?? '';
+                        final bool isVerified = data['isVerified'] ?? false;
 
                         return Column(
                           children: [
@@ -319,7 +321,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                         setState(() => isLoggingOut = true);
 
                         await Supabase.instance.client.auth.signOut();
-                        ref.refresh(futureProfileProvider);
+                        ref.invalidate(futureProfileProvider);
 
                         if (!mounted) return;
 
