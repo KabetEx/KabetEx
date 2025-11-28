@@ -396,7 +396,7 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
 
                     SellerCard(
                       isDark: isDarkMode,
-                      sellerId: widget.product!.sellerId,
+                      sellerId: product!.sellerId,
                     ),
                     const SizedBox(height: 8),
                     Padding(
