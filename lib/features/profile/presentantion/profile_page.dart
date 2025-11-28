@@ -334,9 +334,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                             );
                           }
                         } catch (e) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Failed to log out: $e')),
-                          );
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Failed to log out: $e')),
+                            );
+                          }
                         } finally {
                           if (mounted) setState(() => isLoggingOut = false);
                         }
