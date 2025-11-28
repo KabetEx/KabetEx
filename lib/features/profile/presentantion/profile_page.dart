@@ -321,8 +321,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                         setState(() => isLoggingOut = true);
 
                         try {
-                          ref.invalidate(futureProfileProvider);
                           await Supabase.instance.client.auth.signOut();
+                          ref.invalidate(futureProfileProvider);
 
                           if (mounted) {
                             Navigator.pushAndRemoveUntil(
