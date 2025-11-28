@@ -5,6 +5,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/features/auth/presentation/sign_up.dart';
+import 'package:kabetex/features/auth/widgets/error_BotttomSheet.dart';
 import 'package:kabetex/features/home/presentations/tabs_screen.dart';
 import 'package:kabetex/features/auth/data/auth_services.dart';
 import 'package:kabetex/common/slide_routing.dart';
@@ -56,9 +57,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       }
     } catch (e) {
       String error = e.toString();
-      if (e.toString().contains('Failed host lookup')) {
-        error = 'Please check your Internet connection';
+      if (e is SocketException) {
+        error = 'Please check your internet connection';
+      } else if (e.toString().contains('Failed host lookup')) {
+        error = 'Cannot reach the server. Check your internet connection';
       }
+
       if (!mounted) return;
 
       showModalBottomSheet(
@@ -67,42 +71,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
         ),
-        builder: (_) {
-          return Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Login Failed',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  error.toString(),
-                  style: const TextStyle(color: Colors.white70, fontSize: 16),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.deepOrange,
-                    minimumSize: const Size(double.infinity, 48),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('OK'),
-                ),
-              ],
-            ),
-          );
-        },
+        builder: (_) => ErrorBottomSheet(error: error),
       );
     } finally {
       setState(() => isLogging = false);
