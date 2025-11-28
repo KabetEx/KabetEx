@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_switch/flutter_switch.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:kabetex/features/search/search_page.dart';
-import 'package:kabetex/providers/products/seller_products/profile_provider.dart';
+import 'package:kabetex/features/products/providers/user_provider.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 

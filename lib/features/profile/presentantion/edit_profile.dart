@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/features/profile/data/profile_services.dart';
-import 'package:kabetex/providers/products/seller_products/profile_provider.dart';
+import 'package:kabetex/features/products/providers/user_provider.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 
 class EditProfilePage extends ConsumerStatefulWidget {

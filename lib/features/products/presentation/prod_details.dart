@@ -2,14 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:kabetex/features/products/data/product.dart';
 import 'package:kabetex/features/products/data/product_services.dart';
+import 'package:kabetex/features/products/providers/seller_provider.dart';
 import 'package:kabetex/features/products/widgets/contact_button.dart';
 import 'package:kabetex/features/products/widgets/image_carousel.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/features/products/widgets/product_card.dart';
+import 'package:kabetex/features/products/widgets/sellerCard_shimmer.dart';
 import 'package:kabetex/features/products/widgets/seller_card.dart';
 import 'package:kabetex/providers/cart/all_cart_products.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 import 'package:kabetex/features/cart/data/product_hive.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -30,22 +33,17 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
 
   final _productService = ProductService();
   final user = Supabase.instance.client.auth.currentUser;
-  late Future<List<Product>?> sellerProductsFuture;
-  String? sellerId;
-  String? sellerName;
-  String? sellerNumber;
-  bool isVerified = false;
 
   @override
   void initState() {
     super.initState();
     product = widget.product;
+
     if (product == null && widget.productId != null) {
       fetchProduct(widget.productId!);
-    } else if (product != null) {
-      sellerProductsFuture = _loadSellerProducts();
     }
-    _loadSellerInfo();
+
+    // _loadSellerInfo();
   }
 
   Future<void> fetchProduct(String id) async {
@@ -56,20 +54,6 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
     setState(() {
       product = fetchedProduct;
       isLoading = false;
-      if (product != null) {
-        sellerProductsFuture = _loadSellerProducts();
-      }
-    });
-  }
-
-  Future<void> _loadSellerInfo() async {
-    if (product == null) return;
-    final profile = await ProductService().getSellerprofile(product!.sellerId);
-    if (!mounted) return;
-    setState(() {
-      sellerName = profile?['full_name'] ?? 'Guest';
-      sellerNumber = profile?['phone_number'];
-      isVerified = profile?['isVerified'] ?? false;
     });
   }
 
@@ -87,10 +71,12 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
 
   void contactSeller() async {
     setState(() => isContacting = true);
+
     try {
-      final sellerNumber = await ProductService().getSellerNumber(
-        product!.sellerId,
+      final sellerProfile = await ref.read(
+        sellerProfileProvider(product!.sellerId).future,
       );
+      final sellerNumber = sellerProfile?['phone_number'];
       if (sellerNumber == null) return;
 
       final formattedNum = formatForWhatsApp(sellerNumber);
@@ -242,19 +228,6 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
     }
   }
 
-  //more products from seller
-  Future<List<Product>?> _loadSellerProducts() async {
-    try {
-      final sellerProducts = await _productService.getMyProducts(
-        product!.sellerId,
-      );
-      return sellerProducts;
-    } catch (e) {
-      print('error: $e');
-      return null;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final isDarkMode = ref.watch(isDarkModeProvider);
@@ -268,6 +241,9 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
     if (product == null) return const Center(child: Text('Product not found'));
 
     final isAvailable = product!.isActive ?? true;
+
+    final sellerProducts = ref.watch(sellerProductsProvider(product!.sellerId));
+    final sellerProfile = ref.watch(sellerProfileProvider(product!.sellerId));
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -343,8 +319,8 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
                 _showReportDialog(context);
               }
             },
-            itemBuilder: (context) => [
-              const PopupMenuItem(
+            itemBuilder: (context) => const [
+              PopupMenuItem(
                 value: 'report',
                 child: Row(
                   children: [
@@ -358,11 +334,11 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
           ),
         ],
       ),
-      body: SafeArea(
-        child: SizedBox.expand(
-          child: Stack(
-            children: [
-              SingleChildScrollView(
+      body: Stack(
+        children: [
+          SafeArea(
+            child: SizedBox.expand(
+              child: SingleChildScrollView(
                 padding: const EdgeInsets.only(bottom: 90),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -417,32 +393,12 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    SellerCard(
-                      isDark: isDarkMode,
-                      sellerId: widget.product!.sellerId,
-                    ),
 
-                    const SizedBox(height: 16),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: Row(
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.share),
-                            onPressed: () {},
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Share this product',
-                            style: TextStyle(
-                              color: isDarkMode
-                                  ? Colors.white70
-                                  : Colors.black87,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                    // SellerCard(
+                    //   isDark: isDarkMode,
+                    //   sellerId: widget.product!.sellerId,
+                    // ),
+                    SellerCardShimmer(isDark: isDarkMode),
                     const SizedBox(height: 8),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -453,7 +409,6 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
                           fontSize: 22,
                           fontWeight: FontWeight.w500,
                           color: sectionHeadingColor,
-                          decoration: TextDecoration.underline,
                           decorationThickness: 2,
                         ),
                       ),
@@ -472,76 +427,179 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
                         ),
                       ),
                     ),
-
-                    //more from seller
                     const SizedBox(height: 16),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        child: Text(
-                          'More from ${(sellerName ?? 'loading').split(' ').first}',
-                          style: Theme.of(context).textTheme.bodyLarge!
-                              .copyWith(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                        ),
-                      ),
-                    ),
-                    FutureBuilder(
-                      future: sellerProductsFuture,
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        }
-                        if (snapshot.hasError) {
-                          return Center(
-                            child: Text('Error: ${snapshot.error}'),
-                          );
-                        }
-                        if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                          return const Center(child: Text('Nothing'));
-                        }
 
-                        final sellerProducts = snapshot.data!;
-                        return SizedBox(
-                          height: 300,
-                          child: ListView.builder(
-                            padding: const EdgeInsets.all(8),
-                            scrollDirection: Axis.horizontal,
-                            itemCount: sellerProducts.length,
-                            itemBuilder: (context, index) {
-                              return SizedBox(
-                                width: 200, // fix RenderBox error
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: ProductCard(
-                                    product: sellerProducts[index],
+                    // MORE FROM SELLER section header
+                    sellerProfile.when(
+                      data: (profile) {
+                        String name = profile?['full_name'] ?? 'Guest';
+                        final firstName = name.split(' ').first;
+
+                        return Align(
+                          alignment: Alignment.centerLeft,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16.0,
+                            ),
+                            child: RichText(
+                              text: TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: 'More from ',
+                                    style: TextStyle(
+                                      fontFamily: 'Roboto Slab',
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.w500,
+                                      color: sectionHeadingColor,
+                                      decorationThickness: 2,
+                                    ),
                                   ),
-                                ),
-                              );
-                            },
+                                  TextSpan(
+                                    text: firstName,
+                                    style: const TextStyle(
+                                      fontFamily: 'Sans',
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.black,
+                                      decorationThickness: 1,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                         );
                       },
+                      loading: () => Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Text(
+                          'Loading seller...',
+                          style: TextStyle(color: Colors.grey[600]),
+                        ),
+                      ),
+                      error: (err, st) => const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Text(
+                          'Failed to load seller',
+                          style: TextStyle(color: Colors.red),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 8),
+                    sellerProducts.when(
+                      data: (products) {
+                        if (products == null || products.isEmpty) {
+                          return const Padding(
+                            padding: EdgeInsets.all(16),
+                            child: Text("Nothing here from this seller"),
+                          );
+                        }
+                        return SizedBox(
+                          height: 300,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: products.length,
+                              itemBuilder: (context, index) {
+                                final p = products[index];
+                                return SizedBox(
+                                  width: 200,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: ProductCard(product: p),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        );
+                      },
+                      loading: () =>
+                          SizedBox(height: 300, child: _buildShimmerGrid()),
+                      error: (e, st) => const Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Text("Error loading seller’s products"),
+                      ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
-              ContactButton(
-                isAvailable: isAvailable,
-                isContacting: isContacting,
-                contactSeller: contactSeller,
-              ),
-            ],
+            ),
           ),
-        ),
+          ContactButton(
+            isAvailable: isAvailable,
+            isContacting: isContacting,
+            contactSeller: contactSeller,
+          ),
+        ],
       ),
     );
   }
+}
+
+// ===========================
+// SHIMMER LOADER
+// ===========================
+Widget _buildShimmerGrid() {
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 8),
+    child: ListView.builder(
+      scrollDirection: Axis.horizontal,
+      itemCount: 3,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      itemBuilder: (context, index) {
+        return Container(
+          width: 200,
+          margin: const EdgeInsets.only(right: 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // product image shimmer
+              Shimmer.fromColors(
+                baseColor: const Color.fromARGB(255, 170, 170, 170),
+                highlightColor: const Color.fromARGB(255, 210, 210, 210),
+                child: Container(
+                  height: 160,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    color: Colors.grey[300],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              // title shimmer
+              Shimmer.fromColors(
+                baseColor: Colors.grey[400]!,
+                highlightColor: Colors.grey[200]!,
+                child: Container(
+                  height: 16,
+                  width: 120,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(4),
+                    color: Colors.grey[300],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 6),
+              // price shimmer
+              Shimmer.fromColors(
+                baseColor: Colors.grey[400]!,
+                highlightColor: Colors.grey[200]!,
+                child: Container(
+                  height: 14,
+                  width: 80,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(4),
+                    color: Colors.grey[300],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    ),
+  );
 }

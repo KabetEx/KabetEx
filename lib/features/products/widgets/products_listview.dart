@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:kabetex/features/products/widgets/product_card.dart';
 import 'package:kabetex/providers/categories/selected_category.dart';
-import 'package:kabetex/providers/products/products_stream_provider.dart';
+import 'package:kabetex/features/products/providers/products_stream_provider.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 import 'package:shimmer/shimmer.dart';
 

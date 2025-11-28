@@ -6,7 +6,7 @@ import 'package:kabetex/features/contact_report/presentation/report_page.dart';
 import 'package:kabetex/features/products/presentation/post_product_page.dart';
 import 'package:kabetex/features/products/presentation/my_products_page.dart';
 import 'package:kabetex/features/settings/presentations/settings_page.dart';
-import 'package:kabetex/providers/products/seller_products/profile_provider.dart';
+import 'package:kabetex/features/products/providers/user_provider.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 import 'package:kabetex/features/auth/data/auth_services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';

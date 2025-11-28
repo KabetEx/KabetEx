@@ -1,13 +1,10 @@
+//used in product details page
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kabetex/features/auth/data/auth_services.dart';
+import 'package:kabetex/features/products/data/product.dart';
+import 'package:kabetex/features/products/data/product_services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-//used for current logged in user
-final futureProfileProvider = FutureProvider<Map<String, dynamic>?>((ref) {
-  return AuthService().getProfile();
-});
-
-//used in product details page
+//sellers profile
 final sellerProfileProvider =
     FutureProvider.family<Map<String, dynamic>?, String>((ref, sellerId) async {
       try {
@@ -26,3 +23,18 @@ final sellerProfileProvider =
         throw Exception('Failed to fetch seller profile');
       }
     });
+
+final sellerProductsProvider = FutureProvider.family<List<Product>?, String>((
+  ref,
+  sellerId,
+) async {
+  final productService = ProductService();
+
+  try {
+    final sellerProducts = await productService.getMyProducts(sellerId);
+    return sellerProducts;
+  } catch (e) {
+    print('error: $e');
+    return null;
+  }
+});

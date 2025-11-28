@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
 class ContactButton extends StatelessWidget {
-  const ContactButton({super.key,
-  required this.isAvailable,
-  required this.isContacting,
-  required this.contactSeller,
+  const ContactButton({
+    super.key,
+    required this.isAvailable,
+    required this.isContacting,
+    required this.contactSeller,
   });
 
   final bool isAvailable;
@@ -14,7 +15,7 @@ class ContactButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      bottom: 8,
+      bottom: 16,
       left: 16,
       right: 16,
       child: ElevatedButton(

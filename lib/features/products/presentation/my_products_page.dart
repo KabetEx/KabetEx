@@ -4,8 +4,8 @@ import 'package:kabetex/common/slide_routing.dart';
 import 'package:kabetex/features/products/data/product.dart';
 import 'package:kabetex/features/products/data/product_services.dart';
 import 'package:kabetex/features/products/presentation/edit_product.dart';
+import 'package:kabetex/features/products/providers/user_provider.dart';
 import 'package:kabetex/features/products/widgets/SellerProductTile.dart';
-import 'package:kabetex/providers/products/seller_products/my_products.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 
 class MyProductsPage extends ConsumerWidget {

@@ -1,7 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kabetex/features/auth/data/auth_services.dart';
 import 'package:kabetex/features/products/data/product.dart';
 import 'package:kabetex/features/products/data/product_services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+//used for current logged in user
+final futureProfileProvider = FutureProvider<Map<String, dynamic>?>((ref) {
+  return AuthService().getProfile();
+});
 
 //check if user exists
 final authUserProvider = StreamProvider((ref) {
@@ -10,6 +16,7 @@ final authUserProvider = StreamProvider((ref) {
   );
 });
 
+//my products provider
 final myProductsProvider = FutureProvider<List<Product>?>((ref) async {
   final userAsync = ref.watch(authUserProvider);
 
@@ -20,5 +27,3 @@ final myProductsProvider = FutureProvider<List<Product>?>((ref) async {
 
   return ProductService().getMyProducts(user.id);
 });
-
-
