@@ -18,6 +18,9 @@ class _AppTitleRowState extends ConsumerState<AppTitleRow> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.invalidate(futureProfileProvider);
+    });
   }
 
   @override

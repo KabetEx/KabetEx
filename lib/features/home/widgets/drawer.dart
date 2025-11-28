@@ -319,7 +319,7 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
                     MaterialPageRoute(builder: (_) => const LoginPage()),
                     (route) => false, // remove all previous pages
                   );
-                  ref.invalidate(futureProfileProvider);
+                 if(mounted) ref.invalidate(futureProfileProvider);
                 } else {
                   Navigator.pushReplacement(
                     context,

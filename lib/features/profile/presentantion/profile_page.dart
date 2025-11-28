@@ -8,7 +8,7 @@ import 'package:kabetex/features/profile/presentantion/edit_profile.dart';
 import 'package:kabetex/features/profile/presentantion/phone_verification.dart';
 import 'package:kabetex/features/profile/widgets/not_logged_In.dart';
 import 'package:kabetex/providers/home/profile_provider.dart';
-import 'package:kabetex/providers/nav_bar.dart';
+import 'package:kabetex/providers/home/nav_bar.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
