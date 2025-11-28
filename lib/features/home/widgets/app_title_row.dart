@@ -5,7 +5,6 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:kabetex/features/search/search_page.dart';
 import 'package:kabetex/features/products/providers/user_provider.dart';
 import 'package:kabetex/providers/theme_provider.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AppTitleRow extends ConsumerStatefulWidget {
   const AppTitleRow({super.key});
