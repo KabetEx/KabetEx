@@ -394,11 +394,10 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
                     ),
                     const SizedBox(height: 16),
 
-                    // SellerCard(
-                    //   isDark: isDarkMode,
-                    //   sellerId: widget.product!.sellerId,
-                    // ),
-                    SellerCardShimmer(isDark: isDarkMode),
+                    SellerCard(
+                      isDark: isDarkMode,
+                      sellerId: widget.product!.sellerId,
+                    ),
                     const SizedBox(height: 8),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
