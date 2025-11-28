@@ -37,6 +37,8 @@ class ProductService {
           .eq('id', sellerId)
           .maybeSingle();
 
+      print('fetching profile for seller: $sellerId');
+
       if (res == null) {
         return null;
       }
@@ -89,7 +91,6 @@ class ProductService {
         .select()
         .eq('seller_id', sellerId)
         .order('created_at', ascending: false);
-    print('Getting products for ID: $sellerId');
 
     return (res as List<dynamic>?)?.map((p) {
           return Product.fromMap(p);

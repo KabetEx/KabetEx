@@ -43,9 +43,9 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
     if (product == null && widget.productId != null) {
       fetchProduct(widget.productId!);
     } else if (product != null) {
-      _loadSellerProfile();
       sellerProductsFuture = _loadSellerProducts();
     }
+    _loadSellerInfo();
   }
 
   Future<void> fetchProduct(String id) async {
@@ -60,25 +60,17 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
         sellerProductsFuture = _loadSellerProducts();
       }
     });
-
-    if (product != null) _loadSellerProfile();
   }
 
-  void _loadSellerProfile() async {
-    try {
-      final sellerProfile = await _productService.getSellerprofile(
-        product!.sellerId,
-      );
-      if (!mounted || sellerProfile == null) return;
-      setState(() {
-        sellerId = sellerProfile['id'] ?? '';
-        sellerName = sellerProfile['full_name'] ?? '';
-        sellerNumber = sellerProfile['phone_number'] ?? '';
-        isVerified = sellerProfile['isVerified'] as bool;
-      });
-    } catch (e) {
-      print('Error loading seller profile: $e');
-    }
+  Future<void> _loadSellerInfo() async {
+    if (product == null) return;
+    final profile = await ProductService().getSellerprofile(product!.sellerId);
+    if (!mounted) return;
+    setState(() {
+      sellerName = profile?['full_name'] ?? 'Guest';
+      sellerNumber = profile?['phone_number'];
+      isVerified = profile?['isVerified'] ?? false;
+    });
   }
 
   bool isExisting() {
@@ -250,12 +242,12 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
     }
   }
 
+  //more products from seller
   Future<List<Product>?> _loadSellerProducts() async {
     try {
       final sellerProducts = await _productService.getMyProducts(
         product!.sellerId,
       );
-      print('Fetched seller products: $sellerProducts');
       return sellerProducts;
     } catch (e) {
       print('error: $e');
@@ -426,11 +418,10 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
                     ),
                     const SizedBox(height: 16),
                     SellerCard(
-                      isDarkMode: isDarkMode,
-                      isVerified: isVerified,
-                      sellerName: sellerName ?? 'loading...',
-                      sellerNumber: sellerNumber ?? 'loading...',
+                      isDark: isDarkMode,
+                      sellerId: widget.product!.sellerId,
                     ),
+
                     const SizedBox(height: 16),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
