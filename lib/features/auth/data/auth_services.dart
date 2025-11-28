@@ -60,7 +60,7 @@ class AuthService {
           .signInWithPassword(email: email, password: password)
           .timeout(const Duration(seconds: 10));
     } on AuthException catch (error) {
-      throw error.message;
+      throw Exception(error.message);
     } on SocketException {
       throw Exception(
         'No internet connection. Please check your WiFi or data.',
