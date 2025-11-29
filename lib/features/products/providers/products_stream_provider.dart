@@ -10,10 +10,10 @@ final _productServiceProvider = Provider<ProductService>((ref) {
   return ProductService();
 });
 
-final productsStreamProvider = StreamProvider.autoDispose<List<Product>>((ref) {
-  ref.keepAlive(); // keeps the stream alive when navigating away
+// FutureProvider for initial load
+final productsProvider = FutureProvider.autoDispose<List<Product>>((ref) async {
   final service = ref.watch(_productServiceProvider);
-  return service.getProductsStream();
+  return service.fetchProducts(limit: 20, offset: 0);
 });
 
 // ✅ simple non-null cache

@@ -187,23 +187,40 @@ class ProductService {
     return allProducts;
   }
 
-  //get specific category products
-  Future<List<Product>> getSelectedCategoryGoods(String category) async {
-    final res = await (category != 'all'
-        ? supabase
-              .from('products')
-              .select()
-              .eq('category', category)
-              .order('created_at', ascending: false) // select selected category
-        : supabase
-              .from('products')
-              .select()
-              .order('created_at', ascending: false)); //select all products
+  // Fetch active products, newest first, with pagination
+  Future<List<Product>> fetchProducts({int limit = 20, int offset = 0}) async {
+    final response = await supabase
+        .from('products')
+        .select()
+        .eq('isActive', true)
+        .order('created_at', ascending: false)
+        .range(offset, offset + limit - 1);
 
-    final selectedcatProducts = (res).map((map) {
-      return Product.fromMap(map);
-    }).toList();
+    final products = (response as List)
+        .map((map) => Product.fromMap(map))
+        .toList();
 
-    return selectedcatProducts;
+    return products;
   }
+
+  //get specific category products
+  // Future<List<Product>> getSelectedCategoryGoods(String category) async {
+  //   final res = await (category != 'all'
+  //       ? supabase
+  //             .from('products')
+  //             .select()
+  //             .eq('category', category)
+  //             .order('created_at', ascending: false) // select selected category
+  //       : supabase
+  //             .from('products')
+  //             .select()
+  //             .order('created_at', ascending: false)); //select all products
+
+  //   final selectedcatProducts = (res).map((map) {
+  //     return Product.fromMap(map);
+  //   }).toList();
+
+  //   return selectedcatProducts;
+  // }
+
 }

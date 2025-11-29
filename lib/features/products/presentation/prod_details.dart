@@ -7,7 +7,6 @@ import 'package:kabetex/features/products/widgets/contact_button.dart';
 import 'package:kabetex/features/products/widgets/image_carousel.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/features/products/widgets/product_card.dart';
-import 'package:kabetex/features/products/widgets/sellerCard_shimmer.dart';
 import 'package:kabetex/features/products/widgets/seller_card.dart';
 import 'package:kabetex/providers/cart/all_cart_products.dart';
 import 'package:kabetex/providers/theme_provider.dart';
