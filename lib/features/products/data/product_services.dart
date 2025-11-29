@@ -172,7 +172,6 @@ class ProductService {
         .eq('isActive', true)
         .order('created_at', ascending: false);
 
-    //listen to changes from products tables
     final allProducts = supabase
         .from('products')
         .stream(primaryKey: ['id'])
@@ -222,4 +221,18 @@ class ProductService {
     return selectedcatProducts;
   }
 
+  // Increment views in Supabase
+  Future<int> incrementViews(String productId, int currentViews) async {
+    final newViews = currentViews + 1;
+    try {
+      await supabase
+          .from('products')
+          .update({'views': newViews})
+          .eq('id', productId);
+      print('Incrementing views for ID: $productId');
+    } catch (e) {
+      print('Error incrementing views');
+    }
+    return newViews; // return updated count
+  }
 }

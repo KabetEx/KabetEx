@@ -24,6 +24,7 @@ class PostProductPageState extends ConsumerState<PostProductPage> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
+  final TextEditingController _quantityController = TextEditingController();
 
   final productService = ProductService();
   final user = Supabase.instance.client.auth.currentUser;
@@ -70,6 +71,7 @@ class PostProductPageState extends ConsumerState<PostProductPage> {
           title: _titleController.text,
           category: _selectedCategory,
           description: _descController.text,
+          quantity: int.tryParse(_quantityController.text)!,
           price: double.tryParse(_priceController.text)!,
           imageUrls: imageUrls,
           sellerId: user!.id,

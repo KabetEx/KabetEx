@@ -1,15 +1,7 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:kabetex/features/products/data/product.dart';
-import 'package:kabetex/features/products/data/product_services.dart';
-import 'package:kabetex/features/products/providers/all_products_provider.dart';
 import 'package:kabetex/features/products/widgets/product_card.dart';
-import 'package:kabetex/providers/categories/selected_category.dart';
-import 'package:kabetex/providers/theme_provider.dart';
-import 'package:shimmer/shimmer.dart';
 
 class MyProductsGridview extends StatelessWidget {
   final List<Product> products;

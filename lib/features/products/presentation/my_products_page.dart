@@ -116,17 +116,23 @@ class MyProductsPage extends ConsumerWidget {
               }
 
               //else
-              return ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: products.length,
-                itemBuilder: (_, index) {
-                  final product = products[index];
-                  return SellerProductTile(
-                    product: product,
-                    onDelete: delete,
-                    onEdit: edit,
-                  );
+              return RefreshIndicator(
+                onRefresh: () async {
+                  ref.refresh(myProductsProvider);
+                  await Future.delayed(const Duration(milliseconds: 500));
                 },
+                child: ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: products.length,
+                  itemBuilder: (_, index) {
+                    final product = products[index];
+                    return SellerProductTile(
+                      product: product,
+                      onDelete: delete,
+                      onEdit: edit,
+                    );
+                  },
+                ),
               );
             },
           );

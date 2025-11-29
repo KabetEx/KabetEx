@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:kabetex/features/products/data/product.dart';
 import 'package:kabetex/features/products/data/product_services.dart';
+import 'package:kabetex/features/products/providers/all_products_provider.dart';
 import 'package:kabetex/features/products/providers/seller_provider.dart';
 import 'package:kabetex/features/products/widgets/contact_button.dart';
 import 'package:kabetex/features/products/widgets/image_carousel.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/features/products/widgets/product_card.dart';
 import 'package:kabetex/features/products/widgets/seller_card.dart';
+import 'package:kabetex/features/products/widgets/trending_badge.dart';
 import 'package:kabetex/providers/cart/all_cart_products.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 import 'package:kabetex/features/cart/data/product_hive.dart';
@@ -41,8 +43,6 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
     if (product == null && widget.productId != null) {
       fetchProduct(widget.productId!);
     }
-
-    // _loadSellerInfo();
   }
 
   Future<void> fetchProduct(String id) async {
@@ -54,6 +54,7 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
       product = fetchedProduct;
       isLoading = false;
     });
+    print('Product fetched');
   }
 
   bool isExisting() {
@@ -232,7 +233,7 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
     final isDarkMode = ref.watch(isDarkModeProvider);
 
     final titleColor = isDarkMode ? Colors.white : Colors.black87;
-    final priceColor = isDarkMode ? Colors.grey : Colors.deepOrange;
+    final priceColor = isDarkMode ? Colors.grey : Colors.grey[700];
     final descColor = isDarkMode ? Colors.white70 : Colors.grey[800];
     final sectionHeadingColor = isDarkMode ? Colors.white : Colors.black87;
 
@@ -243,6 +244,11 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
 
     final sellerProducts = ref.watch(sellerProductsProvider(product!.sellerId));
     final sellerProfile = ref.watch(sellerProfileProvider(product!.sellerId));
+
+    // Trigger increment once
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(productViewProvider(product!).notifier).increment();
+    });
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -347,13 +353,14 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
                       product: product!,
                     ),
                     const SizedBox(height: 16),
+                    //title
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: Text(
                         product!.title,
                         style: TextStyle(
                           fontFamily: 'Poppins',
-                          fontSize: 26,
+                          fontSize: 24,
                           fontWeight: FontWeight.w600,
                           color: titleColor,
                         ),
@@ -377,12 +384,23 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
                               color: priceColor,
                             ),
                           ),
+                          // Trending badge
+                          Consumer(
+                            builder: (context, ref, _) {
+                              final views = ref.watch(
+                                productViewProvider(product!),
+                              );
+                              return views > 50
+                                  ? const SizedBox(child: TrendingBadge())
+                                  : const SizedBox.shrink();
+                            },
+                          ),
                           Chip(
                             label: Text(
                               product!.category,
                               style: const TextStyle(fontSize: 14),
                             ),
-                            backgroundColor: Colors.deepOrange.withAlpha(200),
+                            backgroundColor: Colors.deepOrange.withAlpha(500),
                             labelStyle: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -393,18 +411,46 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
                     ),
                     const SizedBox(height: 16),
 
-                    SellerCard(
-                      isDark: isDarkMode,
-                      sellerId: product!.sellerId,
-                    ),
+                    SellerCard(isDark: isDarkMode, sellerId: product!.sellerId),
                     const SizedBox(height: 8),
+
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0,
+                        vertical: 8,
+                      ),
+                      child: RichText(
+                        text: TextSpan(
+                          children: [
+                            TextSpan(
+                              text: 'Stock: ',
+                              style: Theme.of(context).textTheme.bodyLarge!
+                                  .copyWith(
+                                    fontFamily: 'Roboto Slab',
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w500,
+                                    color: sectionHeadingColor,
+                                  ),
+                            ),
+                            TextSpan(
+                              text: product!.quantity.toString(),
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey[700],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: Text(
                         'Description',
                         style: TextStyle(
                           fontFamily: 'Roboto Slab',
-                          fontSize: 22,
+                          fontSize: 18,
                           fontWeight: FontWeight.w500,
                           color: sectionHeadingColor,
                           decorationThickness: 2,
@@ -446,7 +492,7 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
                                     text: 'More from ',
                                     style: TextStyle(
                                       fontFamily: 'Roboto Slab',
-                                      fontSize: 22,
+                                      fontSize: 20,
                                       fontWeight: FontWeight.w500,
                                       color: sectionHeadingColor,
                                       decorationThickness: 2,
@@ -454,11 +500,13 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
                                   ),
                                   TextSpan(
                                     text: firstName,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontFamily: 'Sans',
                                       fontSize: 22,
                                       fontWeight: FontWeight.w700,
-                                      color: Colors.black,
+                                      color: isDarkMode
+                                          ? Colors.white
+                                          : Colors.black,
                                       decorationThickness: 1,
                                     ),
                                   ),

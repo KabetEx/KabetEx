@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/features/cart/data/product_hive.dart';
+import 'package:kabetex/features/products/providers/all_products_provider.dart';
+import 'package:kabetex/features/products/widgets/trending_badge.dart';
 import 'package:kabetex/providers/cart/all_cart_products.dart';
 import 'package:kabetex/common/slide_routing.dart';
 import 'package:kabetex/features/products/data/product.dart';
@@ -94,6 +96,7 @@ class _ProductCardState extends ConsumerState<ProductCard> {
                     const SizedBox(height: 32), // space for button
                   ],
                 ),
+                
                 // Add to cart button
                 Positioned(
                   bottom: 4,

@@ -51,6 +51,40 @@ class ProductListNotifier extends StateNotifier<List<Product>> {
   }
 }
 
+final productViewProvider =
+    StateNotifierProvider.family<ProductViewNotifier, int, Product>((
+      ref,
+      product,
+    ) {
+      return ProductViewNotifier(product);
+    });
+
+class ProductViewNotifier extends StateNotifier<int> {
+  final Product product;
+  final service = ProductService();
+
+  ProductViewNotifier(this.product) : super(product.views);
+
+  // Called once when page opens
+  Future<void> increment() async {
+    //wait 3 seconds b4 increment views
+    await Future.delayed(const Duration(seconds: 3));
+
+    // Local increment first for instant UI feedback
+    state = state + 1;
+
+    try {
+      // Update DB in background
+      final newViews = await service.incrementViews(product.id!, state - 1);
+      state = newViews; // sync state with DB
+      print(newViews);
+    } catch (e) {
+      // optional: rollback if needed
+      state = state - 1;
+    }
+  }
+}
+
 // Connectivity StreamProvider
 final connectivityProvider = StreamProvider<bool>((ref) async* {
   final connectivity = Connectivity();
