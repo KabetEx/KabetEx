@@ -90,7 +90,12 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   Future<void> _refreshProducts() async {
-    await _loadProducts();
+    Future<void> _refreshProducts() async {
+  while (isLoading) {
+    await Future.delayed(const Duration(milliseconds: 200));
+  }
+  await _loadProducts();
+}
   }
 
   @override
