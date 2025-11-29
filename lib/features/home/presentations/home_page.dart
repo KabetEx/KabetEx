@@ -4,7 +4,11 @@ import 'package:kabetex/features/home/widgets/app_title_row.dart';
 import 'package:kabetex/features/categories/widgets/category_gridview.dart';
 import 'package:kabetex/features/home/widgets/hero_banner.dart';
 import 'package:kabetex/features/home/widgets/drawer.dart';
+import 'package:kabetex/features/products/data/product.dart';
+import 'package:kabetex/features/products/data/product_services.dart';
 import 'package:kabetex/features/products/widgets/products_listview.dart';
+import 'package:kabetex/features/products/widgets/products_shimmer.dart';
+import 'package:kabetex/providers/theme_provider.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -14,42 +18,122 @@ class HomePage extends ConsumerStatefulWidget {
 }
 
 class _HomePageState extends ConsumerState<HomePage> {
-  
+  List<Product> products = [];
+  bool isLoading = true;
+  bool isLoadingMore = false;
+  bool hasMore = true;
+  final int limit = 10;
+  final service = ProductService();
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProducts();
+
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+              _scrollController.position.maxScrollExtent - 200 &&
+          !isLoadingMore &&
+          hasMore) {
+        _loadMoreProducts();
+      }
+    });
+  }
+
+  Future<void> _loadProducts() async {
+    setState(() {
+      isLoading = true;
+      hasMore = true;
+    });
+    try {
+      final fetched = await service.fetchProducts(limit: limit, offset: 0);
+      setState(() {
+        products = fetched;
+        hasMore = fetched.length == limit;
+      });
+    } catch (_) {
+      print("Error fetching products");
+    } finally {
+      setState(() => isLoading = false);
+    }
+  }
+
+  Future<void> _loadMoreProducts() async {
+    if (!hasMore) return;
+
+    setState(() => isLoadingMore = true);
+    try {
+      await Future.delayed(const Duration(seconds: 1));
+
+      final fetched = await service.fetchProducts(
+        limit: limit,
+        offset: products.length,
+      );
+      setState(() {
+        products.addAll(fetched);
+        hasMore = fetched.length == limit;
+      });
+    } catch (_) {
+      print("Error loading more products");
+    } finally {
+      setState(() => isLoadingMore = false);
+    }
+  }
+
+  Future<void> _refreshProducts() async {
+    await _loadProducts();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isDark = ref.watch(isDarkModeProvider);
+
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       drawer: const Mydrawer(),
-      body: GestureDetector(
-        onTap: () {
-          FocusScope.of(context).unfocus();
-        },
-        child: SafeArea(
-          child: Column(
+      body: SafeArea(
+        child: RefreshIndicator(
+          backgroundColor: isDark ? Colors.black : Colors.white,
+          color: Colors.deepOrange,
+          onRefresh: _refreshProducts,
+          child: ListView(
+            controller: _scrollController,
+            physics: const AlwaysScrollableScrollPhysics(),
             children: [
               const AppTitleRow(),
               const SizedBox(height: 8),
+              const MyHeroBanner(),
+              const MyCategoryGrid(),
 
-              Expanded(
-                child: ScrollConfiguration(
-                  behavior: ScrollConfiguration.of(
-                    context,
-                  ).copyWith(overscroll: false),
-                  child: ListView(
-                    physics: const BouncingScrollPhysics(),
-                    children: [
-                      const MyHeroBanner(),
+              // Products or shimmer
+              if (isLoading)
+                const ProductsShimmer()
+              else if (products.isEmpty)
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Text(
+                      "No products yet 😔",
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                  ),
+                )
+              else
+                MyProductsGridview(products: products),
 
-                      // 🔥 MyCategoryGrid with View All button using provider
-                      const MyCategoryGrid(),
-
-                      //product items gridview
-                      const MyProductsGridview(),
-                      const SizedBox(height: 16),
-                    ],
+              // Loading more indicator
+              if (isLoadingMore)
+                const Center(
+                  child: SizedBox(
+                    height: 24,
+                    width: 24,
+                    child: CircularProgressIndicator(
+                      color: Colors.deepOrange,
+                      strokeWidth: 1.5,
+                    ),
                   ),
                 ),
-              ),
+              // const ProductsShimmer(),
             ],
           ),
         ),
