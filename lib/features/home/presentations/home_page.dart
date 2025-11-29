@@ -41,6 +41,12 @@ class _HomePageState extends ConsumerState<HomePage> {
     });
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    _scrollController.dispose();
+  }
+
   Future<void> _loadProducts() async {
     setState(() {
       isLoading = true;
