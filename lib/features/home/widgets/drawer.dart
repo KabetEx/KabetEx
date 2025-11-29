@@ -310,12 +310,12 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
 
                   if (!mounted) return; // safety check
 
+                  setState(() => isSigningOut = false);
                   Navigator.pushAndRemoveUntil(
                     context,
                     MaterialPageRoute(builder: (_) => const LoginPage()),
                     (route) => false, // remove all previous pages
                   );
-                  setState(() => isSigningOut = false);
 
                   if (mounted) ref.invalidate(futureProfileProvider);
                 } else {
