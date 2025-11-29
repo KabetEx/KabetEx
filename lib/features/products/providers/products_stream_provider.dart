@@ -16,9 +16,6 @@ final productsStreamProvider = StreamProvider.autoDispose<List<Product>>((ref) {
   return service.getProductsStream();
 });
 
-// ✅ simple non-null cache
-final lastProductsCacheProvider = StateProvider<List<Product>>((ref) => []);
-
 // connectivity
 final connectivityProvider = StreamProvider<bool>((ref) async* {
   final connectivity = Connectivity();
