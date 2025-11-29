@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kabetex/features/home/presentations/home_products_section.dart';
 import 'package:kabetex/features/home/widgets/app_title_row.dart';
 import 'package:kabetex/features/categories/widgets/category_gridview.dart';
 import 'package:kabetex/features/home/widgets/hero_banner.dart';
@@ -32,10 +33,11 @@ class _HomePageState extends ConsumerState<HomePage> {
     _loadProducts();
 
     _scrollController.addListener(() {
-      if (_scrollController.position.pixels >=
-              _scrollController.position.maxScrollExtent - 200 &&
+      if (!isLoading &&
           !isLoadingMore &&
-          hasMore) {
+          hasMore &&
+          _scrollController.position.pixels >=
+              _scrollController.position.maxScrollExtent - 200) {
         _loadMoreProducts();
       }
     });
@@ -104,41 +106,18 @@ class _HomePageState extends ConsumerState<HomePage> {
           onRefresh: _refreshProducts,
           child: ListView(
             controller: _scrollController,
-            physics: const AlwaysScrollableScrollPhysics(),
+            physics: const ClampingScrollPhysics(),
             children: [
               const AppTitleRow(),
               const SizedBox(height: 8),
               const MyHeroBanner(),
               const MyCategoryGrid(),
 
-              // Products or shimmer
-              if (isLoading)
-                const ProductsShimmer()
-              else if (products.isEmpty)
-                Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24.0),
-                    child: Text(
-                      "No products yet 😔",
-                      style: Theme.of(context).textTheme.bodyLarge,
-                    ),
-                  ),
-                )
-              else
-                MyProductsGridview(products: products),
-
-              // Loading more indicator
-              if (isLoadingMore)
-                const Center(
-                  child: SizedBox(
-                    height: 24,
-                    width: 24,
-                    child: CircularProgressIndicator(
-                      color: Colors.deepOrange,
-                      strokeWidth: 1.5,
-                    ),
-                  ),
-                ),
+              HomeProductsSection(
+                isLoading: isLoading,
+                isLoadingMore: isLoadingMore,
+                products: products,
+              ),
               // const ProductsShimmer(),
             ],
           ),
