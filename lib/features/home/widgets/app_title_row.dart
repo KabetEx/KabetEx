@@ -5,6 +5,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:kabetex/features/search/presentation/search_page.dart';
 import 'package:kabetex/features/products/providers/user_provider.dart';
 import 'package:kabetex/providers/theme_provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AppTitleRow extends ConsumerStatefulWidget {
   const AppTitleRow({super.key});
@@ -18,7 +19,7 @@ class _AppTitleRowState extends ConsumerState<AppTitleRow> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.invalidate(futureProfileProvider);
+      ref.refresh(futureProfileProvider);
     });
   }
 
@@ -154,7 +155,9 @@ class _AppTitleRowState extends ConsumerState<AppTitleRow> {
                             ),
                           ),
                           data: (data) {
-                            if (data == null) {
+                            final user =
+                                Supabase.instance.client.auth.currentUser;
+                            if (data == null || user == null) {
                               return TextSpan(
                                 text: 'Guest',
                                 style: TextStyle(

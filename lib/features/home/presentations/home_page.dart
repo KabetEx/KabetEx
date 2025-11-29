@@ -5,10 +5,7 @@ import 'package:kabetex/features/home/widgets/app_title_row.dart';
 import 'package:kabetex/features/categories/widgets/category_gridview.dart';
 import 'package:kabetex/features/home/widgets/hero_banner.dart';
 import 'package:kabetex/features/home/widgets/drawer.dart';
-import 'package:kabetex/features/products/data/product.dart';
-import 'package:kabetex/features/products/data/product_services.dart';
-import 'package:kabetex/features/products/widgets/products_listview.dart';
-import 'package:kabetex/features/products/widgets/products_shimmer.dart';
+import 'package:kabetex/features/products/providers/all_products_provider.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 
 class HomePage extends ConsumerStatefulWidget {
@@ -18,89 +15,57 @@ class HomePage extends ConsumerStatefulWidget {
   ConsumerState<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends ConsumerState<HomePage> {
-  List<Product> products = [];
-  bool isLoading = true;
-  bool isLoadingMore = false;
-  bool hasMore = true;
-  final int limit = 10;
-  final service = ProductService();
+class _HomePageState extends ConsumerState<HomePage>
+    with AutomaticKeepAliveClientMixin {
   final ScrollController _scrollController = ScrollController();
+  bool isRefreshing = false;
 
   @override
   void initState() {
     super.initState();
-    _loadProducts();
+
+    // Load products once at start
+    Future.microtask(() => ref.read(productsProvider.notifier).loadProducts());
 
     _scrollController.addListener(() {
-      if (!isLoading &&
-          !isLoadingMore &&
-          hasMore &&
-          _scrollController.position.pixels >=
-              _scrollController.position.maxScrollExtent - 200) {
-        _loadMoreProducts();
+      final notifier = ref.read(productsProvider.notifier);
+      if (_scrollController.position.pixels >=
+              _scrollController.position.maxScrollExtent - 200 &&
+          notifier.hasMore &&
+          !notifier.isLoading &&
+          !isRefreshing) {
+        notifier.loadMore();
       }
     });
   }
 
   @override
+  bool get wantKeepAlive => true;
+
+  @override
   void dispose() {
-    super.dispose();
     _scrollController.dispose();
-  }
-
-  Future<void> _loadProducts() async {
-    setState(() {
-      isLoading = true;
-      hasMore = true;
-    });
-    try {
-      final fetched = await service.fetchProducts(limit: limit, offset: 0);
-      setState(() {
-        products = fetched;
-        hasMore = fetched.length == limit;
-      });
-    } catch (_) {
-      print("Error fetching products");
-    } finally {
-      setState(() => isLoading = false);
-    }
-  }
-
-  Future<void> _loadMoreProducts() async {
-    if (!hasMore) return;
-
-    setState(() => isLoadingMore = true);
-    try {
-      await Future.delayed(const Duration(seconds: 1));
-
-      final fetched = await service.fetchProducts(
-        limit: limit,
-        offset: products.length,
-      );
-      setState(() {
-        products.addAll(fetched);
-        hasMore = fetched.length == limit;
-      });
-    } catch (_) {
-      print("Error loading more products");
-    } finally {
-      setState(() => isLoadingMore = false);
-    }
+    super.dispose();
   }
 
   Future<void> _refreshProducts() async {
-    Future<void> _refreshProducts() async {
-  while (isLoading) {
-    await Future.delayed(const Duration(milliseconds: 200));
-  }
-  await _loadProducts();
-}
+    final notifier = ref.read(productsProvider.notifier);
+
+    setState(() => isRefreshing = true);
+    // wait first for load b4 reload
+    while (notifier.isLoading) {
+      await Future.delayed(const Duration(milliseconds: 300));
+    }
+    await ref.read(productsProvider.notifier).loadProducts();
+    setState(() => isRefreshing = false);
   }
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final isDark = ref.watch(isDarkModeProvider);
+    final productsState = ref.watch(productsProvider);
+    final notifier = ref.read(productsProvider.notifier);
 
     return Scaffold(
       drawer: const Mydrawer(),
@@ -119,11 +84,13 @@ class _HomePageState extends ConsumerState<HomePage> {
               const MyCategoryGrid(),
 
               HomeProductsSection(
-                isLoading: isLoading,
-                isLoadingMore: isLoadingMore,
-                products: products,
+                // Show shimmer during initial load OR refresh
+                isLoading:
+                    (notifier.isLoading && productsState.isEmpty) ||
+                    isRefreshing,
+                isLoadingMore: notifier.isLoading && productsState.isNotEmpty,
+                products: productsState,
               ),
-              // const ProductsShimmer(),
             ],
           ),
         ),

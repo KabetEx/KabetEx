@@ -276,8 +276,6 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
                     ),
               title: isSigningOut
                   ? const SizedBox(
-                      height: 14,
-                      width: 14,
                       child: Center(
                         child: CircularProgressIndicator(
                           color: Colors.white,
@@ -312,14 +310,14 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
 
                   if (!mounted) return; // safety check
 
-                  setState(() => isSigningOut = false);
-
                   Navigator.pushAndRemoveUntil(
                     context,
                     MaterialPageRoute(builder: (_) => const LoginPage()),
                     (route) => false, // remove all previous pages
                   );
-                 if(mounted) ref.invalidate(futureProfileProvider);
+                  setState(() => isSigningOut = false);
+
+                  if (mounted) ref.invalidate(futureProfileProvider);
                 } else {
                   Navigator.pushReplacement(
                     context,

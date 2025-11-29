@@ -59,6 +59,10 @@ class AuthService {
       await supabase.auth
           .signInWithPassword(email: email, password: password)
           .timeout(const Duration(seconds: 10));
+
+      if (user == null) {
+        return;
+      }
     } on AuthException catch (error) {
       throw Exception(error.message);
     } on SocketException {

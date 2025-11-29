@@ -173,8 +173,10 @@ class MyApp extends ConsumerWidget {
             return const Center(child: CircularProgressIndicator());
           }
           if (user == null) {
+            Future.delayed(Durations.medium3);
             return const LoginPage();
           }
+          Future.delayed(Durations.medium3);
           return const TabsScreen();
         },
       ),
