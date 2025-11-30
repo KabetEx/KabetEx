@@ -26,7 +26,7 @@ class _CartItemState extends ConsumerState<CartItem> {
     ).format(widget.product.price);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14),
       child: SizedBox(
         height: 80,
         width: double.infinity,
@@ -44,11 +44,7 @@ class _CartItemState extends ConsumerState<CartItem> {
                   return Shimmer.fromColors(
                     baseColor: Colors.grey[300]!,
                     highlightColor: Colors.grey[100]!,
-                    child: Container(
-                      height: 80,
-                      width: 80,
-                      color: Colors.grey,
-                    ),
+                    child: Container(height: 80, width: 80, color: Colors.grey),
                   );
                 },
                 // error
@@ -56,9 +52,9 @@ class _CartItemState extends ConsumerState<CartItem> {
                 fit: BoxFit.cover,
               ),
             ),
-    
+
             const SizedBox(width: 8),
-    
+
             //collumn
             Expanded(
               child: Column(
@@ -68,16 +64,17 @@ class _CartItemState extends ConsumerState<CartItem> {
                   //title
                   Text(
                     widget.product.title,
-                    style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                       fontSize: 20,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w500,
                       color: isDarkMode ? Colors.white : Colors.black,
                       overflow: TextOverflow.ellipsis,
+                      fontFamily: 'Lato',
                     ),
                   ),
-    
+
                   const SizedBox(height: 10),
-    
+
                   //category & price
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -106,7 +103,7 @@ class _CartItemState extends ConsumerState<CartItem> {
                           ),
                         ),
                       ),
-    
+
                       //price
                       Align(
                         alignment: Alignment.centerRight,
@@ -129,7 +126,7 @@ class _CartItemState extends ConsumerState<CartItem> {
                 ],
               ),
             ),
-    
+
             //price
           ],
         ),

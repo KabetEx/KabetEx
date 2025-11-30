@@ -19,7 +19,7 @@ class _CartPageState extends ConsumerState<CartPage> {
     final cartProducts = ref.watch(cartProvider);
     final totalCart = ref.watch(cartProvider.notifier).totalAmount;
     final isDarkMode = ref.watch(isDarkModeProvider);
-
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
     final formattedTotal = NumberFormat.currency(
       locale: 'en_KE',
       symbol: 'KES ',
@@ -46,33 +46,57 @@ class _CartPageState extends ConsumerState<CartPage> {
                 itemBuilder: (context, index) {
                   return Dismissible(
                     key: ValueKey(cartProducts[index].id),
-                    onDismissed: (direction) {
+                    onDismissed: (direction) async {
                       final deletedProduct = cartProducts[index];
 
                       // Remove from Hive & Riverpod
                       ref.read(cartProvider.notifier).remove(deletedProduct.id);
 
-                      // Show SnackBar safely
-                      ScaffoldMessenger.of(context)
-                        ..hideCurrentSnackBar()
-                        ..showSnackBar(
-                          SnackBar(
-                            content: const Text('Item removed from cart'),
-                            duration: const Duration(seconds: 2),
-                            action: SnackBarAction(
-                              label: 'Undo',
+                      await showDialog(
+                        context: context,
+
+                        builder: (context) => AlertDialog(
+                          title: Text(
+                            'Item removed',
+                            style: Theme.of(context).textTheme.bodyLarge!
+                                .copyWith(
+                                  color: isDarkMode
+                                      ? Colors.black
+                                      : Colors.white,
+                                ),
+                          ),
+                          content: Text(
+                            'Item removed from cart',
+                            style: Theme.of(context).textTheme.bodyMedium!
+                                .copyWith(
+                                  color: isDarkMode
+                                      ? Colors.black
+                                      : Colors.white,
+                                ),
+                          ),
+                          backgroundColor: isDarkMode
+                              ? Colors.grey
+                              : Colors.black,
+                          actions: [
+                            TextButton(
                               onPressed: () {
-                                // Undo logic
                                 ref
                                     .read(cartProvider.notifier)
                                     .add(deletedProduct);
+                                Navigator.of(context).pop();
                               },
+                              child: const Text('Undo'),
                             ),
-                          ),
-                        );
+                            ElevatedButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              child: const Text('OK'),
+                            ),
+                          ],
+                        ),
+                      );
                     },
                     child: InkWell(
-                      splashColor: Theme.of(context).colorScheme.primary,
+                      splashColor: Colors.grey,
                       onTap: () {
                         Navigator.push(
                           context,
@@ -93,22 +117,24 @@ class _CartPageState extends ConsumerState<CartPage> {
             //total
             Container(
               padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: isDarkMode ? Colors.grey : Colors.white60,
-              ),
+              decoration: const BoxDecoration(color: Colors.transparent),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  Text(
                     'Total',
-                    style: TextStyle(color: Colors.black, fontSize: 18),
+                    style: TextStyle(
+                      color: isDarkMode ? Colors.white : Colors.black,
+                      fontSize: 20,
+                    ),
                   ),
                   Text(
                     formattedTotal,
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 20,
+                    style: TextStyle(
+                      color: isDarkMode ? Colors.white : Colors.black,
+                      fontSize: 24,
                       fontWeight: FontWeight.bold,
+                      fontFamily: 'Lato',
                     ),
                   ),
                 ],
