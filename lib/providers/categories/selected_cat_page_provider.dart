@@ -4,5 +4,5 @@ import 'package:kabetex/features/products/data/product_services.dart';
 
 final selectedCategoryProductsProvider =
     FutureProvider.family<List<Product>, String>((ref, category) async {
-      return await ProductService().getSelectedCategoryGoods(category);
+      return await ProductService().getSelectedCategoryProducts(category);
     });

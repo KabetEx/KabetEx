@@ -42,13 +42,22 @@ class SellerProductTile extends ConsumerWidget {
       title: Text(
         product.title,
         overflow: TextOverflow.ellipsis,
-        style: Theme.of(context).textTheme.titleSmall!.copyWith(
+        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
           color: isDark ? Colors.white : Colors.black,
+          fontSize: 18,
         ),
       ),
-      subtitle: Text(
-        product.isActive! ? "Active" : "Inactive",
-        style: TextStyle(color: product.isActive! ? Colors.green : Colors.red),
+      subtitle: Row(
+        children: [
+          Text(
+            product.isActive! ? "Active" : "Inactive",
+            style: TextStyle(
+              color: product.isActive! ? Colors.green : Colors.red,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text('Views: ${product.views}'),
+        ],
       ),
       trailing: PopupMenuButton<String>(
         iconColor: isDark ? Colors.white : Colors.black,

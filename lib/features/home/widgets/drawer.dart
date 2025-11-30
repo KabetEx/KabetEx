@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kabetex/common/slide_routing.dart';
 import 'package:kabetex/features/auth/presentation/login.dart';
-import 'package:kabetex/features/auth/presentation/sign_up.dart';
+import 'package:kabetex/features/contact_report/presentation/report_page.dart';
 import 'package:kabetex/features/products/presentation/post_product_page.dart';
 import 'package:kabetex/features/products/presentation/my_products_page.dart';
 import 'package:kabetex/features/settings/presentations/settings_page.dart';
+import 'package:kabetex/features/products/providers/user_provider.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 import 'package:kabetex/features/auth/data/auth_services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -235,6 +237,7 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
               ),
               onTap: () {
                 Navigator.pop(context);
+                Navigator.push(context, SlideRouting(page: const ReportPage()));
               },
             ),
 
@@ -273,8 +276,6 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
                     ),
               title: isSigningOut
                   ? const SizedBox(
-                      height: 14,
-                      width: 14,
                       child: Center(
                         child: CircularProgressIndicator(
                           color: Colors.white,
@@ -284,9 +285,9 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
                     )
                   : user == null
                   ? Text(
-                      'Create an account',
+                      'Log in',
                       style: Theme.of(context).textTheme.labelLarge!.copyWith(
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.bold,
                         fontSize: 18,
                         color: Colors.green,
                         fontFamily: 'roboto',
@@ -301,26 +302,29 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
                         fontFamily: 'Quicksand',
                       ),
                     ),
-              onTap: () {
+              onTap: () async {
+                //user is logged in - signout
                 if (user != null) {
-                  setState(() {
-                    isSigningOut = true;
-                  });
-                  authService.signOut();
-                  setState(() {
-                    isSigningOut = true;
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const LoginPage(),
-                      ),
-                    );
-                  });
+                  setState(() => isSigningOut = true);
+                  await Supabase.instance.client.auth.signOut();
+
+                  if (!mounted) return; // safety check
+
+                  setState(() => isSigningOut = false);
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (_) => const LoginPage()),
+                    (route) => false, // remove all previous pages
+                  );
+
+                  if (mounted) ref.invalidate(futureProfileProvider);
+                } else {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => const LoginPage()),
+                  );
+                  ref.invalidate(futureProfileProvider);
                 }
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => const SignupPage()),
-                );
               },
             ),
           ],

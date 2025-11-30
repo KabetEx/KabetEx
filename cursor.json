@@ -1,0 +1,13 @@
+{
+  "rules": [
+    "Never rewrite whole files unless explicitly asked.",
+    "Preserve data models exactly unless instructed.",
+    "When adding fields, update JSON serialization, Hive adapters, and references.",
+    "Use Flutter best practices.",
+    "Always explain changes before applying.",
+    "always use the latest version of the package",
+"always use simple and easy to understand code",
+"always explain the code you write with comments",
+"always use simple and easy English"
+  ]
+}

@@ -24,7 +24,7 @@
         <package android:name="com.whatsapp" />
         <package android:name="com.whatsapp.w4b" />
 
-        <!-- Flutter PROCESS_TEXT (KEEP IT HERE!) -->
+        <!-- Flutter PROCESS_TEXT -->
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
@@ -33,7 +33,7 @@
     </queries>
 
     <application
-        android:label="kabetex"
+        android:label="KabetEx"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
 

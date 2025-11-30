@@ -28,6 +28,44 @@ class ProductService {
     return urls;
   }
 
+  //get seller's profile
+  Future<Map<String, dynamic>?> getSellerprofile(String sellerId) async {
+    try {
+      final res = await supabase
+          .from('profiles')
+          .select('id, full_name, phone_number, isVerified')
+          .eq('id', sellerId)
+          .maybeSingle();
+
+      print('fetching profile for seller: $sellerId');
+
+      if (res == null) {
+        return null;
+      }
+      return res;
+    } catch (e) {
+      print('Error fetching profile $e');
+    }
+    return null;
+  }
+
+  Future<void> reportProduct(
+    String productId,
+    String sellerId,
+    String selectedReason,
+  ) async {
+    try {
+      await supabase.from('product-reports').insert({
+        'product_id': productId,
+        'seller_id': sellerId,
+        'reason': selectedReason,
+        'reporter_id': user?.id ?? 'GUEST',
+      });
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   //  get seller Whatsapp number
   Future<String?> getSellerNumber(String sellerId) async {
     final res = await supabase
@@ -45,11 +83,11 @@ class ProductService {
   }
 
   //-----------------fetch my products----------------------------//
-  Future<List<Product>> getMyProducts(String sellerId) async {
+  Future<List<Product>?> getMyProducts(String sellerId) async {
     final res = await supabase
         .from('products')
         .select()
-        .eq('seller_id', sellerId) //later change to 'user.id'
+        .eq('seller_id', sellerId)
         .order('created_at', ascending: false);
 
     return (res as List<dynamic>?)?.map((p) {
@@ -66,26 +104,22 @@ class ProductService {
 
     try {
       //delete products record first
-      final res = await supabase
+      await supabase
           .from('products')
           .delete()
           .eq('id', productId) //which product to delete
           .eq('seller_id', user!.id); //whose product to delete
-      print('Successful');
 
       //delete images
       if (imagePath.isNotEmpty) {
-        print('$imagePath');
         await supabase.storage.from('product-images').remove(imagePath);
       }
     } catch (e) {
-      print('error deleting product/image $e');
       rethrow;
     }
   }
 
   //edit product
-  // In product_services.dart
   Future<void> updateProduct(
     String id,
     String title,
@@ -107,10 +141,7 @@ class ProductService {
           })
           .eq('id', id)
           .eq('seller_id', user!.id);
-
-      print('Product updated successfully');
     } catch (e) {
-      print('Error updating product: $e');
       rethrow;
     }
   }
@@ -139,7 +170,6 @@ class ProductService {
         .eq('isActive', true)
         .order('created_at', ascending: false);
 
-    //listen to changes from products tables
     final allProducts = supabase
         .from('products')
         .stream(primaryKey: ['id'])
@@ -153,8 +183,24 @@ class ProductService {
     return allProducts;
   }
 
+  // Fetch active products, newest first, with pagination
+  Future<List<Product>> fetchProducts({int limit = 20, int offset = 0}) async {
+    final response = await supabase
+        .from('products')
+        .select()
+        .eq('isActive', true)
+        .order('created_at', ascending: false)
+        .range(offset, offset + limit - 1);
+
+    final products = (response as List)
+        .map((map) => Product.fromMap(map))
+        .toList();
+
+    return products;
+  }
+
   //get specific category products
-  Future<List<Product>> getSelectedCategoryGoods(String category) async {
+  Future<List<Product>> getSelectedCategoryProducts(String category) async {
     final res = await (category != 'all'
         ? supabase
               .from('products')
@@ -171,5 +217,20 @@ class ProductService {
     }).toList();
 
     return selectedcatProducts;
+  }
+
+  // Increment views in Supabase
+  Future<int> incrementViews(String productId, int currentViews) async {
+    final newViews = currentViews + 1;
+    try {
+      await supabase
+          .from('products')
+          .update({'views': newViews})
+          .eq('id', productId);
+      print('Incrementing views for ID: $productId');
+    } catch (e) {
+      print('Error incrementing views');
+    }
+    return newViews; // return updated count
   }
 }

@@ -4,8 +4,8 @@ import 'package:kabetex/common/slide_routing.dart';
 import 'package:kabetex/features/products/data/product.dart';
 import 'package:kabetex/features/products/data/product_services.dart';
 import 'package:kabetex/features/products/presentation/edit_product.dart';
+import 'package:kabetex/features/products/providers/user_provider.dart';
 import 'package:kabetex/features/products/widgets/SellerProductTile.dart';
-import 'package:kabetex/providers/seller_products/my_products.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 
 class MyProductsPage extends ConsumerWidget {
@@ -88,38 +88,6 @@ class MyProductsPage extends ConsumerWidget {
       );
     }
 
-    //   return Scaffold(
-    //     backgroundColor: isDark
-    //         ? Colors.black
-    //         : const Color.fromARGB(255, 237, 228, 225),
-    //     appBar: AppBar(
-    //       title: const Text('Upload a product'),
-    //       centerTitle: true,
-    //     ),
-    //     body: Center(
-    //       child: Column(
-    //         mainAxisAlignment: MainAxisAlignment.center,
-    //         crossAxisAlignment: CrossAxisAlignment.center,
-    //         children: [
-    //           const Text('You have to create \n an account to post'),
-    //           ElevatedButton(
-    //             style: ElevatedButton.styleFrom(
-    //               backgroundColor: Colors.deepOrange,
-    //             ),
-    //             onPressed: () {
-    //               Navigator.pushReplacement(
-    //                 context,
-    //                 MaterialPageRoute(builder: (context) => const SignupPage()),
-    //               );
-    //             },
-    //             child: const Text('Create an account'),
-    //           ),
-    //         ],
-    //       ),
-    //     ),
-    //   );
-    // }
-
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -136,7 +104,7 @@ class MyProductsPage extends ConsumerWidget {
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (e, st) => Center(child: Text("Error: $e")),
             data: (products) {
-              if (products.isEmpty) {
+              if (products!.isEmpty) {
                 return Center(
                   child: Text(
                     "You haven't posted anything yet 👀",
@@ -148,17 +116,23 @@ class MyProductsPage extends ConsumerWidget {
               }
 
               //else
-              return ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: products.length,
-                itemBuilder: (_, index) {
-                  final product = products[index];
-                  return SellerProductTile(
-                    product: product,
-                    onDelete: delete,
-                    onEdit: edit,
-                  );
+              return RefreshIndicator(
+                onRefresh: () async {
+                  ref.refresh(myProductsProvider);
+                  await Future.delayed(const Duration(milliseconds: 500));
                 },
+                child: ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: products.length,
+                  itemBuilder: (_, index) {
+                    final product = products[index];
+                    return SellerProductTile(
+                      product: product,
+                      onDelete: delete,
+                      onEdit: edit,
+                    );
+                  },
+                ),
               );
             },
           );

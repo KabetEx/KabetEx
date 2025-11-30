@@ -1,8 +1,10 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/features/products/data/product.dart';
+import 'package:kabetex/features/products/presentation/full_screen_image.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 
 class ProductGallery extends ConsumerStatefulWidget {
@@ -34,19 +36,21 @@ class _ProductGalleryState extends ConsumerState<ProductGallery> {
             itemBuilder: (context, index, realIndex) {
               return GestureDetector(
                 onTap: () {
-                  // Navigator.push(
-                  //   context,
-                  //   MaterialPageRoute(
-                  //     builder: (_) => FullScreenImage(image: images[index]),
-                  //   ),
-                  // ); fullscreen Image
-                  // later...
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => FullscreenImagePage(
+                        images: widget.images,
+                        initialIndex: index,
+                      ),
+                    ),
+                  );
                 },
                 child: Container(
                   width: double.infinity,
                   decoration: BoxDecoration(
                     image: DecorationImage(
-                      image: NetworkImage(widget.images[index]),
+                      image: CachedNetworkImageProvider(widget.images[index]),
                       fit: BoxFit.cover,
                     ),
                     boxShadow: [

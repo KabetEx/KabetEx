@@ -27,7 +27,7 @@ class _CartPageState extends ConsumerState<CartPage> {
     ).format(totalCart);
 
     return Scaffold(
-    backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -36,11 +36,7 @@ class _CartPageState extends ConsumerState<CartPage> {
                 padding: const EdgeInsetsGeometry.symmetric(vertical: 16),
                 child: Text(
                   'Your cart',
-                  style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                    color: isDarkMode
-                        ? Colors.white
-                        : Theme.of(context).colorScheme.primary,
-                  ),
+                  style: Theme.of(context).appBarTheme.titleTextStyle,
                 ),
               ),
             ),

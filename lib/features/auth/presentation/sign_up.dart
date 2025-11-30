@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:kabetex/features/auth/widgets/error_BotttomSheet.dart';
 import 'package:kabetex/features/home/presentations/tabs_screen.dart';
 import 'package:kabetex/common/slide_routing.dart';
 import 'package:kabetex/features/auth/data/auth_services.dart';
@@ -54,9 +57,23 @@ class _SignupPageState extends State<SignupPage> {
           SlideRouting(page: const TabsScreen()),
         );
       }
-    } on AuthException catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.message), backgroundColor: Colors.red),
+    } catch (e) {
+      String error = e.toString();
+      if (e is SocketException) {
+        error = 'Please check your internet connection';
+      } else if (e.toString().contains('Failed host lookup')) {
+        error = 'Cannot reach the server. Check your internet connection';
+      }
+
+      if (!mounted) return;
+
+      showModalBottomSheet(
+        context: context,
+        backgroundColor: Colors.grey[900],
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+        ),
+        builder: (_) => ErrorBottomSheet(error: error),
       );
     } finally {
       setState(() {
@@ -78,11 +95,11 @@ class _SignupPageState extends State<SignupPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          child: GestureDetector(
-            onTap: () => FocusScope.of(context).unfocus(),
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 40.0),
               child: Column(
@@ -156,9 +173,14 @@ class _SignupPageState extends State<SignupPage> {
                             keyboardType: TextInputType.name,
                             textCapitalization: TextCapitalization.words,
                             decoration: inputDecoration.copyWith(
-                              prefixIcon: const Icon(Icons.person),
+                              prefixIcon: Icon(
+                                Icons.person,
+                                color: Colors.grey[600],
+                              ),
                               hintText: 'Full Name',
+                              hintStyle: TextStyle(color: Colors.grey[600]),
                             ),
+
                             controller: _nameController,
                             validator: (val) => val == null || val.isEmpty
                                 ? 'Enter your name'
@@ -177,8 +199,12 @@ class _SignupPageState extends State<SignupPage> {
                           child: TextFormField(
                             keyboardType: TextInputType.emailAddress,
                             decoration: inputDecoration.copyWith(
-                              prefixIcon: const Icon(Icons.email),
+                              prefixIcon: Icon(
+                                Icons.email,
+                                color: Colors.grey[600],
+                              ),
                               hintText: 'Email',
+                              hintStyle: TextStyle(color: Colors.grey[600]),
                             ),
                             controller: _emailController,
                             validator: (val) {
@@ -204,8 +230,12 @@ class _SignupPageState extends State<SignupPage> {
                             keyboardType: TextInputType.phone,
                             maxLength: 10,
                             decoration: inputDecoration.copyWith(
-                              prefixIcon: const Icon(Icons.phone),
+                              prefixIcon: Icon(
+                                Icons.phone,
+                                color: Colors.grey[600],
+                              ),
                               hintText: 'WhatsApp number',
+                              hintStyle: TextStyle(color: Colors.grey[600]),
                               counterText: '',
                             ),
                             controller: _phoneController,
@@ -315,8 +345,12 @@ class _SignupPageState extends State<SignupPage> {
                             style: Theme.of(context).textTheme.labelMedium!
                                 .copyWith(color: Colors.black),
                             decoration: inputDecoration.copyWith(
-                              prefixIcon: const Icon(Icons.lock),
+                              prefixIcon: Icon(
+                                Icons.lock,
+                                color: Colors.grey[600],
+                              ),
                               hintText: 'Password',
+                              hintStyle: TextStyle(color: Colors.grey[600]),
                               suffixIcon: IconButton(
                                 onPressed: () => setState(
                                   () => hidePassword = !hidePassword,
@@ -325,6 +359,7 @@ class _SignupPageState extends State<SignupPage> {
                                   hidePassword
                                       ? Icons.remove_red_eye_outlined
                                       : Icons.visibility_off,
+                                  color: Colors.grey[600],
                                 ),
                               ),
                             ),
@@ -338,35 +373,8 @@ class _SignupPageState extends State<SignupPage> {
                         const SizedBox(height: 16),
 
                         // Sign Up Button
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: SizedBox(
-                            width: double.infinity,
-                            height: 50,
-                            child: ElevatedButton(
-                              onPressed: submitForm,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.deepOrange,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
-                              child: isSigningUp
-                                  ? const CircularProgressIndicator(
-                                      color: Colors.white,
-                                    )
-                                  : const Text(
-                                      'Sign Up',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18,
-                                      ),
-                                    ),
-                            ),
-                          ),
-                        ),
-
                         const SizedBox(height: 12),
+                        _buildSignUpBtn(submitForm, isSigningUp),
 
                         // Already have account
                         TextButton(
@@ -392,7 +400,7 @@ class _SignupPageState extends State<SignupPage> {
                           child: const Text(
                             'Continue as Guest',
                             style: TextStyle(
-                              color: Colors.deepOrange,
+                              color: Colors.black,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -408,4 +416,33 @@ class _SignupPageState extends State<SignupPage> {
       ),
     );
   }
+}
+
+Widget _buildSignUpBtn(VoidCallback onPressed, bool isSigningUp) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 20),
+    child: SizedBox(
+      width: double.infinity,
+      height: 50,
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.deepOrange,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+        child: isSigningUp
+            ? const CircularProgressIndicator(color: Colors.white)
+            : const Text(
+                'Sign Up',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  color: Colors.white,
+                ),
+              ),
+      ),
+    ),
+  );
 }

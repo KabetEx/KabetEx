@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/features/products/data/product.dart';
 import 'package:kabetex/features/auth/presentation/sign_up.dart';
-import 'package:kabetex/features/products/widgets/product_image.dart';
+import 'package:kabetex/features/products/providers/user_provider.dart';
+import 'package:kabetex/features/products/widgets/prod_details/product_image.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:kabetex/providers/categories/categories_provider.dart';
-import 'package:kabetex/providers/seller_products/my_products.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 import 'package:kabetex/features/products/data/product_services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -24,6 +24,7 @@ class PostProductPageState extends ConsumerState<PostProductPage> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
+  final TextEditingController _quantityController = TextEditingController();
 
   final productService = ProductService();
   final user = Supabase.instance.client.auth.currentUser;
@@ -63,17 +64,18 @@ class PostProductPageState extends ConsumerState<PostProductPage> {
           .eq('id', user!.id)
           .single();
 
-      final sellerNumber = profile['phoneNumber'];
+      final sellerNumber = profile['phone_number'];
       // 2. Create product in Supabase
       await productService.createProduct(
         Product(
           title: _titleController.text,
           category: _selectedCategory,
           description: _descController.text,
+          quantity: int.tryParse(_quantityController.text)!,
           price: double.tryParse(_priceController.text)!,
           imageUrls: imageUrls,
           sellerId: user!.id,
-          sellerNumber: profile['phone_number'],
+          sellerNumber:sellerNumber,
         ),
       );
       ref.refresh(myProductsProvider); //refresh my products

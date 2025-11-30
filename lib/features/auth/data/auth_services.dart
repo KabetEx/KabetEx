@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -15,10 +18,9 @@ class AuthService {
     required String year,
   }) async {
     try {
-      final response = await supabase.auth.signUp(
-        email: email,
-        password: password,
-      );
+      final response = await supabase.auth
+          .signUp(email: email, password: password)
+          .timeout(const Duration(seconds: 10));
 
       // 🔥 If user is null → signup failed → throw AuthException manually
       if (response.user == null) {
@@ -34,11 +36,17 @@ class AuthService {
         year: year,
       );
       print('User signed up and profile created!');
-    } on AuthException {
-      rethrow;
+    } on AuthException catch (e) {
+      throw AuthException(e.message);
+    } on SocketException {
+      throw Exception(
+        'No internet connection. Please check your WiFi or data.',
+      );
+    } on TimeoutException {
+      throw Exception('Request timed out. Your internet is probably off.');
     } catch (e) {
-      // 🔥 rethrow general errors too so UI can show them
-      throw Exception('Unexpected Error: $e');
+      // Any other Supabase/Unexpected error
+      throw e.toString();
     }
   }
 
@@ -48,32 +56,25 @@ class AuthService {
     required String password,
   }) async {
     try {
-      final res = await supabase.auth.signInWithPassword(
-        email: email,
-        password: password,
-      );
+      await supabase.auth
+          .signInWithPassword(email: email, password: password)
+          .timeout(const Duration(seconds: 10));
 
-      //successful login
-      if (res.session != null) {
-        print('Logged in as: ${res.user?.email}');
-      } else {
-        print('Login failed: session is null.');
-      }
     } on AuthException catch (error) {
-      throw AuthException(error.message);
+      throw Exception(error.message);
+    } on SocketException {
+      throw Exception(
+        'No internet connection. Please check your WiFi or data.',
+      );
+    } on TimeoutException {
+      throw Exception('Request timed out. Your internet is probably off.');
+    } on http.ClientException {
+      throw Exception(
+        'No internet connection. Please check your WiFi or data.',
+      );
     } catch (e) {
-      // 🔥 Send unexpected errors to UI too
-      throw Exception('Unexpected Error: $e');
-    }
-  }
-
-  // ---------------- SIGN OUT ----------------
-  Future<void> signOut() async {
-    try {
-      await supabase.auth.signOut();
-      print('User signed out');
-    } catch (e) {
-      print('SignOut Error: $e');
+      // Any other Supabase/Unexpected error
+      throw e.toString();
     }
   }
 
@@ -93,10 +94,24 @@ class AuthService {
         'phone_number': phone,
         'year': year,
       });
-      print('Profile Insert Response: $res');
     } catch (e) {
-      print('Create Profile Error: $e');
+      rethrow;
     }
+  }
+
+  Future<Map<String, dynamic>?> getProfile() async {
+    final currentUser = Supabase.instance.client.auth.currentUser;
+
+    // if logged out, return null instead of crashing
+    if (currentUser == null) return null;
+
+    final profile = await supabase
+        .from('profiles')
+        .select()
+        .eq('id', currentUser.id)
+        .maybeSingle();
+
+    return profile;
   }
 
   //-----------------delete account-------------

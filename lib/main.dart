@@ -71,9 +71,12 @@ class MyApp extends ConsumerWidget {
         appBarTheme: const AppBarThemeData().copyWith(
           backgroundColor: const Color.fromARGB(255, 222, 216, 216),
           centerTitle: true,
-          titleTextStyle: Theme.of(
-            context,
-          ).textTheme.titleLarge!.copyWith(color: Colors.white),
+          titleTextStyle: const TextStyle(
+            color: Colors.deepOrange,
+            fontWeight: FontWeight.bold,
+            fontSize: 32,
+            fontFamily: 'Poppins',
+          ),
           iconTheme: IconThemeData(
             color: isDarkMode
                 ? const Color.fromARGB(255, 237, 228, 225)
@@ -123,6 +126,13 @@ class MyApp extends ConsumerWidget {
         appBarTheme: AppBarThemeData(
           backgroundColor: Colors.black,
           foregroundColor: Colors.white,
+          centerTitle: true,
+          titleTextStyle: const TextStyle(
+            color: Colors.deepOrange,
+            fontWeight: FontWeight.bold,
+            fontSize: 32,
+            fontFamily: 'Poppins',
+          ),
           iconTheme: IconThemeData(
             color: isDarkMode
                 ? const Color.fromARGB(255, 237, 228, 225)
@@ -163,8 +173,10 @@ class MyApp extends ConsumerWidget {
             return const Center(child: CircularProgressIndicator());
           }
           if (user == null) {
+            Future.delayed(Durations.medium3);
             return const LoginPage();
           }
+          Future.delayed(Durations.medium3);
           return const TabsScreen();
         },
       ),

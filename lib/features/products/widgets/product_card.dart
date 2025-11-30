@@ -94,6 +94,7 @@ class _ProductCardState extends ConsumerState<ProductCard> {
                     const SizedBox(height: 32), // space for button
                   ],
                 ),
+                
                 // Add to cart button
                 Positioned(
                   bottom: 4,
@@ -132,12 +133,17 @@ class _ProductCardState extends ConsumerState<ProductCard> {
                             );
                       }
                     }, // handle add/remove cart
-                    icon: Icon(
-                      isExisting()
-                          ? Icons.check_circle_sharp
-                          : Icons.shopping_cart_outlined,
-                      color: Colors.red,
-                    ),
+                    icon: isExisting()
+                        ? Icon(
+                            Icons.check_circle_sharp,
+                            color: isDarkMode ? Colors.white : Colors.green,
+                          )
+                        : Icon(
+                            Icons.shopping_cart_outlined,
+                            color: isDarkMode
+                                ? Colors.white
+                                : const Color.fromARGB(255, 97, 97, 97),
+                          ),
                   ),
                 ),
               ],

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/providers/cart/all_cart_products.dart';
-import 'package:kabetex/providers/nav_bar.dart';
+import 'package:kabetex/providers/home/nav_bar.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 
 class MyBottomNav extends ConsumerWidget {
