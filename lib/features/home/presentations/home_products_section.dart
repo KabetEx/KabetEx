@@ -20,7 +20,7 @@ class HomeProductsSection extends StatelessWidget {
     return Column(
       children: [
         // Products or shimmer
-        if (isLoading)
+        if (isLoading || products.isEmpty)
           const ProductsShimmer()
         else if (products.isEmpty)
           Center(

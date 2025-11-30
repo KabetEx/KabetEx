@@ -8,6 +8,7 @@ import 'package:kabetex/features/auth/widgets/error_BotttomSheet.dart';
 import 'package:kabetex/features/home/presentations/tabs_screen.dart';
 import 'package:kabetex/features/auth/data/auth_services.dart';
 import 'package:kabetex/common/slide_routing.dart';
+import 'package:kabetex/features/products/providers/user_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
@@ -53,6 +54,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           const SnackBar(content: Text('Login failed, check your credentials')),
         );
       }
+      await ref.refresh(futureProfileProvider.future);
     } catch (e) {
       String error = e.toString();
       if (e is SocketException) {
@@ -73,6 +75,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       );
     } finally {
       setState(() => isLogging = false);
+      await ref.refresh(futureProfileProvider.future);
     }
   }
 

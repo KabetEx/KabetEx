@@ -5,26 +5,12 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:kabetex/features/search/presentation/search_page.dart';
 import 'package:kabetex/features/products/providers/user_provider.dart';
 import 'package:kabetex/providers/theme_provider.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
-class AppTitleRow extends ConsumerStatefulWidget {
+class AppTitleRow extends ConsumerWidget {
   const AppTitleRow({super.key});
 
   @override
-  ConsumerState<AppTitleRow> createState() => _AppTitleRowState();
-}
-
-class _AppTitleRowState extends ConsumerState<AppTitleRow> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.refresh(futureProfileProvider);
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, ref) {
     final isDarkMode = ref.watch(isDarkModeProvider);
     final asyncProfile = ref.watch(futureProfileProvider);
 
@@ -88,7 +74,7 @@ class _AppTitleRowState extends ConsumerState<AppTitleRow> {
                       //inactive
                       inactiveColor: isDarkMode
                           ? Colors.white
-                          : Theme.of(context).colorScheme.secondaryContainer,
+                          : Theme.of(context).scaffoldBackgroundColor,
                       inactiveIcon: const Icon(
                         Icons.wb_sunny,
                         color: Colors.yellow,
@@ -107,7 +93,7 @@ class _AppTitleRowState extends ConsumerState<AppTitleRow> {
                       ),
                       activeColor: isDarkMode
                           ? const Color.fromARGB(255, 66, 60, 51)
-                          : Theme.of(context).colorScheme.primaryContainer,
+                          : Theme.of(context).scaffoldBackgroundColor,
 
                       onToggle: (val) async {
                         ref.read(isDarkModeProvider.notifier).state = val;
@@ -125,77 +111,94 @@ class _AppTitleRowState extends ConsumerState<AppTitleRow> {
 
           //2nd row
           Padding(
-            padding: const EdgeInsets.only(left: 8),
+            padding: const EdgeInsets.only(left: 8, top: 4, bottom: 4),
             child: Align(
               alignment: Alignment.centerLeft,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: 'Hello ',
-                          style: Theme.of(context).textTheme.bodyLarge!
-                              .copyWith(
-                                color: isDarkMode
-                                    ? Colors.deepOrange
-                                    : Colors.black,
-                                fontWeight: FontWeight.w500,
-                                fontSize: 20,
-                              ),
-                        ),
-                        asyncProfile.when(
-                          loading: () => const TextSpan(
-                            text: 'Loading...',
-                            style: TextStyle(
-                              fontStyle: FontStyle.italic,
-                              color: Colors.grey,
-                            ),
+                  SizedBox(
+                    height: 32,
+                    child: RichText(
+                      textAlign: TextAlign.center,
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: 'Hello ',
+                            style: Theme.of(context).textTheme.bodyLarge!
+                                .copyWith(
+                                  color: isDarkMode
+                                      ? Colors.deepOrange
+                                      : Colors.black,
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 20,
+                                  fontFamily: 'Roboto', // Clean and reliable
+                                ),
                           ),
-                          data: (data) {
-                            final user =
-                                Supabase.instance.client.auth.currentUser;
-                            if (data == null || user == null) {
+                          asyncProfile.when(
+                            loading: () => const TextSpan(
+                              text: '...',
+                              style: TextStyle(
+                                fontStyle: FontStyle.italic,
+                                color: Colors.grey,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            data: (data) {
+                              if (data == null || data.isEmpty) {
+                                return const TextSpan(
+                                  text: '...',
+                                  style: TextStyle(
+                                    fontStyle: FontStyle.italic,
+                                    color: Colors.grey,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                );
+                              }
+
+                              final fullName =
+                                  data['full_name']?.toString() ?? '';
+                              final email = data['email']?.toString();
+
+                              String displayName;
+                              if (fullName.trim().isNotEmpty) {
+                                displayName = fullName.trim().split(' ')[0];
+                              } else if (email != null && email.isNotEmpty) {
+                                displayName = email.split('@')[0];
+                              } else {
+                                displayName = 'Guest';
+                              }
+
                               return TextSpan(
-                                text: 'Guest',
+                                text: displayName,
                                 style: TextStyle(
-                                  fontWeight: FontWeight.bold,
+                                  fontWeight: FontWeight
+                                      .w600, // Slightly bolder than "Hello"
                                   fontSize: 20,
                                   color: isDarkMode
                                       ? Colors.deepOrange
                                       : Colors.black,
+                                  fontFamily: 'Poppins', // Warm and friendly
+                                  height: 1.1,
                                 ),
                               );
-                            }
-
-                            final fullName = data['full_name'];
-                            final firstName =
-                                fullName != null && fullName.isNotEmpty
-                                ? fullName.split(' ')[0]
-                                : 'Guest';
-
-                            return TextSpan(
-                              text: firstName ?? 'guest',
-                              style: Theme.of(context).textTheme.titleSmall!
-                                  .copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: isDarkMode
-                                        ? Colors.deepOrange
-                                        : Colors.black,
-                                  ),
-                            );
-                          },
-                          error: (e, st) => TextSpan(
-                            text: 'Error loading name $e',
-                            style: const TextStyle(
-                              color: Colors.red,
-                              fontStyle: FontStyle.italic,
+                            },
+                            error: (e, st) => const TextSpan(
+                              text: '...',
+                              style: TextStyle(
+                                color: Colors.grey,
+                                fontStyle: FontStyle.italic,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                   Text(
