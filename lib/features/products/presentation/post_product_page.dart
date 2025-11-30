@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/features/products/data/product.dart';
 import 'package:kabetex/features/auth/presentation/sign_up.dart';
 import 'package:kabetex/features/products/providers/user_provider.dart';
-import 'package:kabetex/features/products/widgets/product_image.dart';
+import 'package:kabetex/features/products/widgets/prod_details/product_image.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:kabetex/providers/categories/categories_provider.dart';
 import 'package:kabetex/providers/theme_provider.dart';

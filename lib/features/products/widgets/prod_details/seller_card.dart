@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/features/products/providers/seller_provider.dart';
-import 'package:kabetex/features/products/widgets/sellerCard_shimmer.dart';
+import 'package:kabetex/features/products/widgets/prod_details/sellerCard_shimmer.dart';
 
 class SellerCard extends ConsumerWidget {
   const SellerCard({super.key, required this.sellerId, required this.isDark});
