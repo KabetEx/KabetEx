@@ -54,14 +54,15 @@ class ProductService {
     String sellerId,
     String selectedReason,
   ) async {
-    if (user == null) return;
     try {
-      await supabase.from('reports').insert({
+      await supabase.from('product-reports').insert({
         'product_id': productId,
         'seller_id': sellerId,
         'reason': selectedReason,
-        'reporter_id': supabase.auth.currentUser!.id,
+        'reporter_id': user?.id ?? 'GUEST',
       });
+      print(selectedReason.toString());
+      print(user?.id.toString());
     } catch (e) {
       print('Error reporting: $e');
       rethrow;

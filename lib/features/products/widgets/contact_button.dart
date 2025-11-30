@@ -1,25 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kabetex/features/products/data/product.dart';
+import 'package:kabetex/features/products/providers/prod_details_provider.dart';
+import 'package:kabetex/features/products/providers/product_details_controller.dart';
 
-class ContactButton extends StatelessWidget {
+class ContactButton extends ConsumerWidget {
   const ContactButton({
     super.key,
     required this.isAvailable,
-    required this.isContacting,
-    required this.contactSeller,
+    required this.onpressed,
   });
 
   final bool isAvailable;
-  final bool isContacting;
-  final VoidCallback contactSeller;
+  final VoidCallback onpressed;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, ref) {
+    final isContacting = ref.watch(isContactingProvider);
+
     return Positioned(
       bottom: 16,
       left: 16,
       right: 16,
       child: ElevatedButton(
-        onPressed: isAvailable && !isContacting ? contactSeller : null,
+        onPressed: isAvailable && !isContacting ? onpressed : null,
         style: ElevatedButton.styleFrom(
           backgroundColor: isAvailable ? Colors.deepOrange : Colors.grey,
           elevation: 6,
