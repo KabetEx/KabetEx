@@ -75,7 +75,7 @@ class PostProductPageState extends ConsumerState<PostProductPage> {
           price: double.tryParse(_priceController.text)!,
           imageUrls: imageUrls,
           sellerId: user!.id,
-          sellerNumber: profile['phone_number'],
+          sellerNumber:sellerNumber,
         ),
       );
       ref.refresh(myProductsProvider); //refresh my products

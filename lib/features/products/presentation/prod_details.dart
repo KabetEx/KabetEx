@@ -1,26 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:kabetex/features/products/data/product.dart';
 import 'package:kabetex/features/products/data/product_services.dart';
 import 'package:kabetex/features/products/providers/all_products_provider.dart';
 import 'package:kabetex/features/products/providers/prod_details_provider.dart';
-import 'package:kabetex/features/products/providers/seller_provider.dart';
 import 'package:kabetex/features/products/widgets/contact_button.dart';
 import 'package:kabetex/features/products/widgets/image_carousel.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/features/products/widgets/more_from_seller.dart';
 import 'package:kabetex/features/products/widgets/price_row.dart';
-import 'package:kabetex/features/products/widgets/product_card.dart';
 import 'package:kabetex/features/products/widgets/report_product.dart';
 import 'package:kabetex/features/products/widgets/seller_card.dart';
-import 'package:kabetex/features/products/widgets/shimmer_grid.dart';
-import 'package:kabetex/features/products/widgets/trending_badge.dart';
 import 'package:kabetex/providers/cart/all_cart_products.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 import 'package:kabetex/features/cart/data/product_hive.dart';
-import 'package:shimmer/shimmer.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class ProdDetailsPage extends ConsumerStatefulWidget {
   const ProdDetailsPage({super.key, this.product, this.productId});
@@ -37,7 +30,6 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
   bool isLoading = false;
   bool isContacting = false;
 
-  final _productService = ProductService();
   final user = Supabase.instance.client.auth.currentUser;
 
   @override
@@ -63,7 +55,7 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
       setState(() {
         product = fetchedProduct;
       });
-      
+
     } catch (e) {
       ScaffoldMessenger.of(
         context,

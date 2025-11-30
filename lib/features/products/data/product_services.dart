@@ -104,7 +104,7 @@ class ProductService {
 
     try {
       //delete products record first
-      final res = await supabase
+      await supabase
           .from('products')
           .delete()
           .eq('id', productId) //which product to delete
