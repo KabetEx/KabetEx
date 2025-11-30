@@ -52,25 +52,27 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
 
   //navigation by cart
   Future<void> fetchProduct(String id) async {
+    if (!mounted) return;
     setState(() => isLoading = true);
+
     try {
       final fetchedProduct = await ProductService().getProductById(id);
+
       if (!mounted) return;
 
       setState(() {
         product = fetchedProduct;
-        isLoading = false;
       });
+      
     } catch (e) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Failed to load product')));
+    } finally {
+      if (mounted) {
+        setState(() => isLoading = false);
+      }
     }
-  }
-
-  bool isExisting() {
-    final cart = ref.watch(cartProvider);
-    return cart.any((p) => p.id == product!.id);
   }
 
   @override
@@ -114,7 +116,7 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
             ),
           ),
           //add to cart
-          AddToCart(product: product!, isExisting: isExisting()),
+          AddToCart(product: product!),
           ReportProduct(isDark: isDarkMode, product: product!),
           //popmenuButton
         ],
@@ -212,13 +214,15 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
 }
 
 class AddToCart extends ConsumerWidget {
-  const AddToCart({super.key, required this.product, required this.isExisting});
+  const AddToCart({super.key, required this.product});
 
   final Product product;
-  final bool isExisting;
 
   @override
   Widget build(BuildContext context, ref) {
+    final cart = ref.watch(cartProvider);
+    final isExisting = cart.any((p) => p.id == product.id);
+
     return IconButton(
       onPressed: () {
         if (isExisting) {

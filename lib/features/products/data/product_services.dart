@@ -61,10 +61,7 @@ class ProductService {
         'reason': selectedReason,
         'reporter_id': user?.id ?? 'GUEST',
       });
-      print(selectedReason.toString());
-      print(user?.id.toString());
     } catch (e) {
-      print('Error reporting: $e');
       rethrow;
     }
   }

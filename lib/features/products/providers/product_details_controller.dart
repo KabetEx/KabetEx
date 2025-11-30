@@ -157,8 +157,8 @@ class ProductDetailsController extends StateNotifier<AsyncValue<Product>> {
             TextButton(
               onPressed: selectedReason == null
                   ? null
-                  : () {
-                      reportProduct(selectedReason!, context);
+                  : () async {
+                     await reportProduct(selectedReason!, context);
                     },
               child: const Text('Submit'),
             ),
@@ -176,7 +176,6 @@ class ProductDetailsController extends StateNotifier<AsyncValue<Product>> {
         state.value!.sellerId,
         reason,
       );
-      if (!mounted) return;
 
       ScaffoldMessenger.of(
         context,
@@ -227,11 +226,10 @@ class ProductDetailsController extends StateNotifier<AsyncValue<Product>> {
         cleaned,
         "Hey! I found your product '${product.title}' on KabetEx and I'm interested.",
       );
-      ref.read(isContactingProvider.notifier).state = true;
     } catch (e) {
       print("Contact error: $e");
     } finally {
-      ref.read(isContactingProvider.notifier).state = true;
+      ref.read(isContactingProvider.notifier).state = false;
     }
   }
 
