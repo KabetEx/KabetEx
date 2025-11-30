@@ -63,6 +63,8 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
     } finally {
       if (mounted) {
         setState(() => isLoading = false);
+      } else{
+         setState(() => isLoading = false);
       }
     }
   }

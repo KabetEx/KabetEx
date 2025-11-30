@@ -64,7 +64,7 @@ class PostProductPageState extends ConsumerState<PostProductPage> {
           .eq('id', user!.id)
           .single();
 
-      final sellerNumber = profile['phoneNumber'];
+      final sellerNumber = profile['phone_number'];
       // 2. Create product in Supabase
       await productService.createProduct(
         Product(
