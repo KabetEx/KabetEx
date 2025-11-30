@@ -23,7 +23,6 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
   @override
   Widget build(BuildContext context) {
     final isDarkMode = ref.watch(isDarkModeProvider);
-    final authService = AuthService();
     final user = Supabase.instance.client.auth.currentUser;
 
     return Drawer(
@@ -275,10 +274,10 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
                           : Theme.of(context).colorScheme.onPrimaryContainer,
                     ),
               title: isSigningOut
-                  ? const SizedBox(
+                  ? SizedBox(
                       child: Center(
                         child: CircularProgressIndicator(
-                          color: Colors.white,
+                          color: isDarkMode ? Colors.white : Colors.black,
                           strokeWidth: 1,
                         ),
                       ),

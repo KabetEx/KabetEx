@@ -12,49 +12,40 @@ class CategoryCard extends ConsumerWidget {
   Widget build(BuildContext context, ref) {
     final isDark = ref.watch(isDarkModeProvider);
 
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Material(
-        color: Colors.transparent,
-        child: Ink(
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey.shade400, width: 1.4),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(12),
-            onTap: () {
-              Navigator.push(
-                context,
-                SlideRouting(page: SelectedCatPage(category: category)),
-              );
-            },
-            splashColor: Theme.of(context).colorScheme.primaryContainer,
-            child: SizedBox(
-              height: 100,
-              width: 100,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    category['icon'],
+    return Material(
+      color: Colors.transparent,
+      child: Ink(
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey.shade600, width: 1.4),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () {
+            Navigator.push(
+              context,
+              SlideRouting(page: SelectedCatPage(category: category)),
+            );
+          },
+          splashColor: Theme.of(context).colorScheme.onPrimary,
+          child: SizedBox(
+            height: 80,
+            width: 80,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.asset(category['path'], height: 60, fit: BoxFit.cover),
+                const SizedBox(height: 6),
+                Text(
+                  category['name'].toUpperCase(),
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                     color: isDark
                         ? Colors.white
                         : Theme.of(context).colorScheme.onPrimaryContainer,
-                    size: 32,
+                    fontWeight: FontWeight.w600,
                   ),
-                  const SizedBox(height: 6),
-                  Text(
-                    category['name'].toUpperCase(),
-                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      color: isDark
-                          ? Colors.white
-                          : Theme.of(context).colorScheme.onPrimaryContainer,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),

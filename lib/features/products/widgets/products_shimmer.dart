@@ -12,16 +12,18 @@ class ProductsShimmer extends StatelessWidget {
     return MasonryGridView.builder(
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
       shrinkWrap: true,
+      scrollDirection: Axis.vertical,
       physics: const BouncingScrollPhysics(),
       gridDelegate: const SliverSimpleGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
       ),
-      mainAxisSpacing: 12,
-      crossAxisSpacing: 12,
+      mainAxisSpacing: 8 ,
+      crossAxisSpacing: 8,
       itemCount: 4,
       itemBuilder: (context, index) {
         return Column(
           children: [
+            //image
             Shimmer.fromColors(
               baseColor: const Color.fromARGB(255, 163, 163, 163),
               highlightColor: const Color.fromARGB(255, 139, 139, 139),
@@ -36,6 +38,7 @@ class ProductsShimmer extends StatelessWidget {
                 ),
               ),
             ),
+            //content
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
               child: Column(

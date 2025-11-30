@@ -21,12 +21,6 @@ version: 1.0.0+1
 environment:
   sdk: ^3.9.2
 
-# Dependencies specify other packages that your package needs in order to work.
-# To automatically upgrade your package dependencies to the latest versions
-# consider running `flutter pub upgrade --major-versions`. Alternatively,
-# dependencies can be manually updated by changing the version numbers below to
-# the latest version available on pub.dev. To see which dependencies have newer
-# versions available, run `flutter pub outdated`.
 dependencies:
   flutter:
     sdk: flutter
@@ -76,6 +70,14 @@ flutter:
     - assets/images/hero2.jpeg
     - assets/images/placeholder.png
     - assets/images/avatar1.png
+
+    - assets/images/clothing.png
+    - assets/images/electronics.png
+    - assets/images/food.png
+    - assets/images/selfCare.png
+    - assets/images/services.png
+    - assets/images/lostNfound.png
+    - assets/images/stationery.png
 
 flutter_icons:
   android: true

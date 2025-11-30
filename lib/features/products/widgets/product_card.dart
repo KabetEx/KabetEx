@@ -94,7 +94,7 @@ class _ProductCardState extends ConsumerState<ProductCard> {
                     const SizedBox(height: 32), // space for button
                   ],
                 ),
-                
+
                 // Add to cart button
                 Positioned(
                   bottom: 4,

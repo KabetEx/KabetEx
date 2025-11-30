@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kabetex/common/slide_routing.dart';
+import 'package:kabetex/features/categories/presentations/selected_cat_page.dart';
 import 'package:kabetex/providers/categories/categories_provider.dart';
 import 'package:kabetex/providers/categories/selected_category.dart';
 import 'package:kabetex/providers/home/nav_bar.dart';
@@ -11,11 +13,10 @@ class MyCategoryGrid extends ConsumerWidget {
   @override
   Widget build(BuildContext context, ref) {
     final isDarkMode = ref.watch(isDarkModeProvider);
-    final selectedCategory = ref.watch(selectedCategoryProvider);
     final allCategories = ref.watch(allCategoriesProvider);
 
     return Padding(
-      padding: const EdgeInsets.only(left: 12, right: 12, top: 2, bottom: 16),
+      padding: const EdgeInsets.only(left: 18, right: 18, top: 2, bottom: 16),
       child: Column(
         children: [
           Align(
@@ -24,7 +25,10 @@ class MyCategoryGrid extends ConsumerWidget {
               onPressed: () {
                 ref.read(tabsProvider.notifier).state = 1; // Categories
               },
-              child: const Text("See all"),
+              child: Text(
+                "See all",
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
             ),
           ),
           GridView.builder(
@@ -32,78 +36,67 @@ class MyCategoryGrid extends ConsumerWidget {
             shrinkWrap: true,
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 3,
-              crossAxisSpacing: 2,
-              mainAxisSpacing: 2,
+              crossAxisSpacing: 8,
+              mainAxisSpacing: 8,
               childAspectRatio: 1.1,
             ),
             itemCount: allCategories.take(6).length,
             itemBuilder: (context, index) {
               final cat = allCategories[index];
-              return GestureDetector(
-                onTap: () {
-                  ref.read(selectedCategoryProvider.notifier).state =
-                      cat['name'];
-                },
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 500),
-                  curve: Curves.easeInOut,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    color:
-                        //if selected
-                        selectedCategory == cat['name']
-                        ? isDarkMode
-                              ? Colors.transparent
-                              : Colors.transparent
-                        :
-                          //if is not selected
-                          isDarkMode
-                        ? Colors.black
-                        : Colors.transparent,
-
-                    border: Border.all(
-                      color: selectedCategory == cat['name']
-                          ? Colors.deepOrange
-                          : Colors.grey,
-                      width: selectedCategory == cat['name'] ? 1.4 : 0.8,
+              return Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () async {
+                    await Navigator.push(
+                      context,
+                      SlideRouting(page: SelectedCatPage(category: cat)),
+                    );
+                  },
+                  splashColor: isDarkMode ? Colors.black : Colors.white,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: Colors.grey.withAlpha(50),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: Colors.grey.withAlpha(50),
+                        width: 0.5,
+                      ),
                     ),
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  alignment: Alignment.center,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        cat['icon'],
-                        color: isDarkMode
-                            ? Colors.white
-                            : selectedCategory == cat['name']
-                            ? Colors.deepOrange
-                            : Colors.black,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        cat['name'].toUpperCase() as String,
-                        style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                          color:
-                              //if selected
-                              selectedCategory == cat['name']
-                              ? isDarkMode
-                                    ? Colors.white
-                                    : Colors.deepOrange
-                              //not selected
-                              : isDarkMode
-                              ? Colors.white
-                              : Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 10,
-                          height: 1.5,
-                          fontFamily: 'poppins',
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                          child: FadeInImage(
+                            fadeInDuration: const Duration(milliseconds: 400),
+                            placeholder: const AssetImage(
+                              'assets/images/placeholder.png',
+                            ),
+                            image: AssetImage(cat['path']),
+                            fit: BoxFit.contain,
+                            height: 48,
+                          ),
                         ),
-                      ),
-                    ],
+
+                        const SizedBox(height: 8),
+                        Text(
+                          cat['name'].toUpperCase() as String,
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.bodySmall!
+                              .copyWith(
+                                color: isDarkMode
+                                    ? Colors.white
+                                    : Colors.deepOrange,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 10,
+                                height: 1.5,
+                                fontFamily: 'Lato',
+                              ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               );
@@ -114,5 +107,3 @@ class MyCategoryGrid extends ConsumerWidget {
     );
   }
 }
-
-        

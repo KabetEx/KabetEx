@@ -30,9 +30,10 @@ class _SelectedCatPageState extends ConsumerState<SelectedCatPage> {
         data: (products) {
           if (products.isEmpty) {
             return const Center(
-              child: Text('Ooops! No products in this category'),
+              child: Text('Ooops! No products in this category yet'),
             );
           }
+
           return MasonryGridView.builder(
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
             shrinkWrap: true,
@@ -48,7 +49,8 @@ class _SelectedCatPageState extends ConsumerState<SelectedCatPage> {
             },
           );
         },
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () =>
+            const Center(child: CircularProgressIndicator(color: Colors.grey)),
         error: (err, _) => Center(child: Text('Error: $err')),
       ),
     );
