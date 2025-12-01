@@ -7,10 +7,11 @@ class SuccessSnackBar {
     required bool isDark,
     void Function()? callback,
     String? label,
+    int? duration,
   }) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        duration: const Duration(seconds: 2),
+        duration: Duration(seconds: duration ?? 2),
         backgroundColor: const Color.fromARGB(220, 158, 158, 158),
         elevation: 8,
         behavior: SnackBarBehavior.floating,
@@ -52,10 +53,10 @@ class SuccessSnackBar {
 }
 
 class FailureSnackBar {
-  static void show(BuildContext context, String message) {
+  static void show(BuildContext context, String message, bool isDark) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        duration: const Duration(seconds: 1),
+        duration: const Duration(seconds: 16),
         backgroundColor: Colors.red.withAlpha(200),
         elevation: 8,
         behavior: SnackBarBehavior.floating,

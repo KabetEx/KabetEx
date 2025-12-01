@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kabetex/core/snackbars.dart';
 import 'package:kabetex/features/products/data/product.dart';
 import 'package:kabetex/features/products/data/product_services.dart';
 import 'package:kabetex/features/products/providers/all_products_provider.dart';
@@ -44,6 +45,8 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
 
   //navigation by cart
   Future<void> fetchProduct(String id) async {
+    final isDark = ref.watch(isDarkModeProvider);
+
     if (!mounted) return;
     setState(() => isLoading = true);
 
@@ -55,16 +58,13 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
       setState(() {
         product = fetchedProduct;
       });
-
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Failed to load product')));
+      FailureSnackBar.show(context, 'Failed to load product', isDark);
     } finally {
       if (mounted) {
         setState(() => isLoading = false);
-      } else{
-         setState(() => isLoading = false);
+      } else {
+        setState(() => isLoading = false);
       }
     }
   }
@@ -102,7 +102,10 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
             child: Chip(
               label: Text(
                 isAvailable ? 'Available' : 'Unavailable',
-                style: const TextStyle(fontSize: 12),
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               side: const BorderSide(color: Colors.transparent),
               backgroundColor: isAvailable ? Colors.green : Colors.grey[700],
@@ -124,9 +127,11 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    ProductGallery(
-                      images: product!.imageUrls,
-                      product: product!,
+                    RepaintBoundary(
+                      child: ProductGallery(
+                        images: product!.imageUrls,
+                        product: product!,
+                      ),
                     ),
                     const SizedBox(height: 16),
                     //title
@@ -145,12 +150,19 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
                     const SizedBox(height: 8),
 
                     //price category row
-                    PriceRow(product: product!, isDark: isDarkMode),
+                    RepaintBoundary(
+                      child: PriceRow(product: product!, isDark: isDarkMode),
+                    ),
 
                     const SizedBox(height: 16),
 
-                    SellerCard(isDark: isDarkMode, sellerId: product!.sellerId),
-                    const SizedBox(height: 8),
+                    RepaintBoundary(
+                      child: SellerCard(
+                        isDark: isDarkMode,
+                        sellerId: product!.sellerId,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
 
                     //stock
                     Padding(
@@ -166,7 +178,7 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
                               style: Theme.of(context).textTheme.bodyLarge!
                                   .copyWith(
                                     fontFamily: 'Roboto Slab',
-                                    fontSize: 18,
+                                    fontSize: 20,
                                     fontWeight: FontWeight.w500,
                                     color: sectionHeadingColor,
                                   ),
@@ -175,7 +187,9 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
                               text: product!.quantity.toString(),
                               style: TextStyle(
                                 fontSize: 16,
-                                color: Colors.grey[700],
+                                color: isDarkMode
+                                    ? Colors.grey[400]
+                                    : Colors.black,
                               ),
                             ),
                           ],
@@ -183,15 +197,22 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
                       ),
                     ),
 
-                    //description
                     const SizedBox(height: 16),
+
+                    //description
                     ProdDescription(
                       productDescription: product!.description,
                       isDark: isDarkMode,
                     ),
+                    const SizedBox(height: 16),
 
                     // MORE FROM SELLER section header
-                    MoreFromSeller(product: product!, isDark: isDarkMode),
+                    RepaintBoundary(
+                      child: MoreFromSeller(
+                        product: product!,
+                        isDark: isDarkMode,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -216,16 +237,17 @@ class AddToCart extends ConsumerWidget {
   Widget build(BuildContext context, ref) {
     final cart = ref.watch(cartProvider);
     final isExisting = cart.any((p) => p.id == product.id);
+    final isDark = ref.watch(isDarkModeProvider);
 
     return IconButton(
       onPressed: () {
         if (isExisting) {
           ref.read(cartProvider.notifier).remove(product.id!);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Item removed from cart'),
-              duration: Duration(seconds: 1),
-            ),
+          SuccessSnackBar.show(
+            context: context,
+            message: 'Item removed from cart',
+            isDark: isDark,
+            duration: 1,
           );
         } else {
           ref
@@ -239,11 +261,11 @@ class AddToCart extends ConsumerWidget {
                   category: product.category,
                 ),
               );
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Item added to cart'),
-              duration: Duration(seconds: 1),
-            ),
+          SuccessSnackBar.show(
+            context: context,
+            message: 'Item added from cart',
+            isDark: isDark,
+            duration: 1,
           );
         }
       },
@@ -252,7 +274,9 @@ class AddToCart extends ConsumerWidget {
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeInOut,
         child: Icon(
-          isExisting ? Icons.check_circle_sharp : Icons.shopping_cart_outlined,
+          isExisting
+              ? Icons.check_circle_outline_sharp
+              : Icons.shopping_cart_outlined,
           color: Colors.green,
         ),
       ),
@@ -271,38 +295,37 @@ class ProdDescription extends StatelessWidget {
   final bool isDark;
   @override
   Widget build(BuildContext context) {
-    final descColor = isDark ? Colors.white70 : Colors.grey[800];
-    final sectionHeadingColor = isDark ? Colors.white : Colors.black87;
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Text(
-            'Description',
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Description",
             style: TextStyle(
-              fontFamily: 'Roboto Slab',
               fontSize: 18,
-              fontWeight: FontWeight.w500,
-              color: sectionHeadingColor,
-              decorationThickness: 2,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.5,
+              color: isDark ? Colors.white : Colors.black,
             ),
           ),
-        ),
-        const SizedBox(height: 8),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Text(
-            productDescription,
-            style: TextStyle(
-              fontFamily: 'Inter',
-              fontSize: 17,
-              fontWeight: FontWeight.w400,
-              color: descColor,
-              height: 1.45,
+
+          const SizedBox(height: 10),
+
+          AnimatedOpacity(
+            duration: const Duration(milliseconds: 300),
+            opacity: 1,
+            child: Text(
+              productDescription,
+              style: TextStyle(
+                fontSize: 15.5,
+                height: 1.45,
+                color: isDark ? Colors.white.withAlpha(200) : Colors.black,
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

@@ -58,13 +58,18 @@ class _CartPageState extends ConsumerState<CartPage> {
                           message: 'All items removed from cart',
                         );
                       } else {
-                        FailureSnackBar.show(context, 'Nothing to remove 😊');
+                        FailureSnackBar.show(
+                          context,
+                          'Nothing to remove 😊',
+                          isDarkMode,
+                        );
                       }
                     } catch (e) {
                       if (mounted) {
                         FailureSnackBar.show(
                           context,
                           'Failed to remove items from cart: $e',
+                          isDarkMode,
                         );
                       }
                     }

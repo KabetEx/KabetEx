@@ -50,7 +50,7 @@ class _ProductGalleryState extends ConsumerState<ProductGallery> {
                   width: double.infinity,
                   decoration: BoxDecoration(
                     image: DecorationImage(
-                      image: CachedNetworkImageProvider(widget.images[index]),
+                      image: CachedNetworkImageProvider(widget.images[index],),
                       fit: BoxFit.cover,
                     ),
                     boxShadow: [

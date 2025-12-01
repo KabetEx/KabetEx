@@ -27,6 +27,10 @@ class ProductService {
 
     return urls;
   }
+  //  create product
+  Future<void> createProduct(Product product) async {
+    await supabase.from('products').insert(product.toMap());
+  }
 
   //get seller's profile
   Future<Map<String, dynamic>?> getSellerprofile(String sellerId) async {
@@ -77,10 +81,6 @@ class ProductService {
     return res['seller_number'];
   }
 
-  //  create product
-  Future<void> createProduct(Product product) async {
-    await supabase.from('products').insert(product.toMap());
-  }
 
   //-----------------fetch my products----------------------------//
   Future<List<Product>?> getMyProducts(String sellerId) async {

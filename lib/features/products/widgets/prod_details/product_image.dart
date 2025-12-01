@@ -43,7 +43,7 @@ class _ProductImageState extends ConsumerState<ProductImage> {
       decoration: BoxDecoration(
         color: Colors.transparent,
         border: Border.all(
-          color: isDark ? Colors.grey : Colors.black,
+          color: isDark ? Colors.white : Colors.black,
           width: 0.75,
         ),
         borderRadius: BorderRadius.circular(8),

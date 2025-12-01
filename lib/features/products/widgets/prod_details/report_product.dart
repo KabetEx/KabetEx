@@ -16,20 +16,27 @@ class ReportProduct extends ConsumerWidget {
     );
 
     return PopupMenuButton<String>(
+      color: Colors.white,
       icon: Icon(Icons.more_vert, color: isDark ? Colors.white : Colors.black),
       onSelected: (value) {
         if (value == 'report') {
           controller.showReportDialog(context, product);
         }
       },
-      itemBuilder: (context) => const [
+      itemBuilder: (context) => [
         PopupMenuItem(
           value: 'report',
           child: Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.flag_outlined, size: 20),
-              SizedBox(width: 8),
-              Text('Report product'),
+              const Icon(Icons.flag_outlined, size: 20, color: Colors.black),
+              const SizedBox(width: 8),
+              Text(
+                'Report product',
+                style: Theme.of(
+                  context,
+                ).textTheme.labelLarge!.copyWith(color: Colors.black),
+              ),
             ],
           ),
         ),

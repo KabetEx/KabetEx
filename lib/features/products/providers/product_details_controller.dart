@@ -1,13 +1,16 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_launcher_icons/xml_templates.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kabetex/core/snackbars.dart';
 import 'package:kabetex/features/cart/data/product_hive.dart';
 import 'package:kabetex/features/products/data/product.dart';
 import 'package:kabetex/features/products/data/product_services.dart';
 import 'package:kabetex/features/products/providers/all_products_provider.dart';
 import 'package:kabetex/features/products/providers/seller_provider.dart';
 import 'package:kabetex/providers/cart/all_cart_products.dart';
+import 'package:kabetex/providers/theme_provider.dart';
 import 'package:riverpod/legacy.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -69,9 +72,11 @@ class ProductDetailsController extends StateNotifier<AsyncValue<Product>> {
             ),
           );
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Item added to cart')));
+      SuccessSnackBar.show(
+        context: context,
+        message: 'Item added to cart',
+        isDark: ref.watch(isDarkModeProvider),
+      );
     }
   }
 
@@ -81,18 +86,31 @@ class ProductDetailsController extends StateNotifier<AsyncValue<Product>> {
 
   void showReportDialog(BuildContext context, Product product) {
     String? selectedReason;
+    final isDark = ref.watch(isDarkModeProvider);
 
     showDialog(
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
-          title: const Text('Report Product'),
+          backgroundColor: isDark ? Colors.grey[800] : Colors.white,
+          title: Text(
+            'Report Product',
+            style: Theme.of(context).textTheme.labelLarge!.copyWith(
+              fontSize: 24,
+              color: isDark ? Colors.white : Colors.black,
+            ),
+          ),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Please select a reason:'),
+                Text(
+                  'Please select a reason:',
+                  style: Theme.of(context).textTheme.labelLarge!.copyWith(
+                    color: isDark ? Colors.white : Colors.black,
+                  ),
+                ),
                 const SizedBox(height: 12),
                 ...[
                   'Spam',
@@ -102,6 +120,7 @@ class ProductDetailsController extends StateNotifier<AsyncValue<Product>> {
                   'Other',
                 ].map(
                   (reason) => InkWell(
+                    focusColor: Colors.white,
                     onTap: () {
                       setState(() => selectedReason = reason);
                     },
@@ -154,13 +173,22 @@ class ProductDetailsController extends StateNotifier<AsyncValue<Product>> {
               onPressed: () => Navigator.pop(context),
               child: const Text('Cancel'),
             ),
-            TextButton(
+            ElevatedButton(
               onPressed: selectedReason == null
                   ? null
                   : () async {
-                     await reportProduct(selectedReason!, context);
+                      await reportProduct(selectedReason!, context);
                     },
-              child: const Text('Submit'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.deepOrange,
+              ),
+              child: Text(
+                'Submit',
+                style: Theme.of(context).textTheme.labelLarge!.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
             ),
           ],
         ),
@@ -170,6 +198,8 @@ class ProductDetailsController extends StateNotifier<AsyncValue<Product>> {
 
   //
   Future<void> reportProduct(String reason, BuildContext context) async {
+    final isDark = ref.watch(isDarkModeProvider);
+
     try {
       await ProductService().reportProduct(
         state.value!.id!,
@@ -177,13 +207,13 @@ class ProductDetailsController extends StateNotifier<AsyncValue<Product>> {
         reason,
       );
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Reported: $reason')));
+      SuccessSnackBar.show(
+        context: context,
+        message: 'Reported: $reason',
+        isDark: isDark,
+      );
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Failed to report: $e')));
+      FailureSnackBar.show(context, 'Failed to report: $e', isDark);
     } finally {
       Navigator.of(context).pop();
     }

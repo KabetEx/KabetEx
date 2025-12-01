@@ -9,7 +9,7 @@ class TrendingBadge extends StatelessWidget {
       // margin: const EdgeInsets.symmetric(vertical: 8),
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.greenAccent,
+        color: Colors.green,
         borderRadius: BorderRadius.circular(8),
       ),
       child: const Row(

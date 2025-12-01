@@ -5,7 +5,6 @@ import 'package:kabetex/features/products/providers/seller_provider.dart';
 import 'package:kabetex/features/products/widgets/product_card.dart';
 import 'package:kabetex/features/products/widgets/shimmer_grid.dart';
 
-
 class MoreFromSeller extends ConsumerWidget {
   const MoreFromSeller({
     super.key,
@@ -87,7 +86,7 @@ class MoreFromSeller extends ConsumerWidget {
               );
             }
             return SizedBox(
-              height: 300,
+              height: 265,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: ListView.builder(

@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kabetex/core/snackbars.dart';
 import 'package:kabetex/features/cart/data/product_hive.dart';
 import 'package:kabetex/providers/cart/all_cart_products.dart';
 import 'package:kabetex/common/slide_routing.dart';
@@ -28,7 +29,7 @@ class _ProductCardState extends ConsumerState<ProductCard> {
   @override
   void initState() {
     super.initState();
-    randomHeight = (200 + Random().nextInt(60)).toDouble();
+    randomHeight = (200 + Random().nextInt(50)).toDouble();
   }
 
   @override
@@ -105,20 +106,19 @@ class _ProductCardState extends ConsumerState<ProductCard> {
                         ref
                             .read(cartProvider.notifier)
                             .remove(widget.product.id!);
-                        ScaffoldMessenger.of(context).clearSnackBars();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Item removed from cart'),
-                            duration: Duration(seconds: 1),
-                          ),
+
+                        SuccessSnackBar.show(
+                          context: context,
+                          message: 'Item removed from cart',
+                          isDark: isDarkMode,
+                          duration: 1,
                         );
                       } else {
-                        ScaffoldMessenger.of(context).clearSnackBars();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Item added to cart'),
-                            duration: Duration(seconds: 1),
-                          ),
+                        SuccessSnackBar.show(
+                          context: context,
+                          message: 'Item added to cart',
+                          isDark: isDarkMode,
+                          duration: 1,
                         );
                         ref
                             .read(cartProvider.notifier)
