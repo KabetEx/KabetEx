@@ -54,6 +54,16 @@ class CartNotifier extends StateNotifier<List<ProductHive>> {
     state = _cartBox.values.toList();
   }
 
+  Future<bool> clear() async {
+    if (state.isNotEmpty) {
+      await _cartBox.clear();
+      state = const [];
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   bool exist(String productid) {
     for (final p in state) {
       if (p.id == productid) {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:kabetex/core/snackbars.dart';
 import 'package:kabetex/features/cart/widgets/cart_item.dart';
 import 'package:kabetex/features/products/presentation/prod_details.dart';
 import 'package:kabetex/providers/cart/all_cart_products.dart';
@@ -19,7 +20,6 @@ class _CartPageState extends ConsumerState<CartPage> {
     final cartProducts = ref.watch(cartProvider);
     final totalCart = ref.watch(cartProvider.notifier).totalAmount;
     final isDarkMode = ref.watch(isDarkModeProvider);
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
     final formattedTotal = NumberFormat.currency(
       locale: 'en_KE',
       symbol: 'KES ',
@@ -31,87 +31,152 @@ class _CartPageState extends ConsumerState<CartPage> {
       body: SafeArea(
         child: Column(
           children: [
-            Center(
-              child: Padding(
-                padding: const EdgeInsetsGeometry.symmetric(vertical: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Center(
                 child: Text(
                   'Your cart',
                   style: Theme.of(context).appBarTheme.titleTextStyle,
                 ),
               ),
             ),
-            Expanded(
-              child: ListView.builder(
-                itemCount: cartProducts.length,
-                itemBuilder: (context, index) {
-                  return Dismissible(
-                    key: ValueKey(cartProducts[index].id),
-                    onDismissed: (direction) async {
-                      final deletedProduct = cartProducts[index];
 
-                      // Remove from Hive & Riverpod
-                      ref.read(cartProvider.notifier).remove(deletedProduct.id);
-
-                      await showDialog(
-                        context: context,
-
-                        builder: (context) => AlertDialog(
-                          title: Text(
-                            'Item removed',
-                            style: Theme.of(context).textTheme.bodyLarge!
-                                .copyWith(
-                                  color: isDarkMode
-                                      ? Colors.black
-                                      : Colors.white,
-                                ),
-                          ),
-                          content: Text(
-                            'Item removed from cart',
-                            style: Theme.of(context).textTheme.bodyMedium!
-                                .copyWith(
-                                  color: isDarkMode
-                                      ? Colors.black
-                                      : Colors.white,
-                                ),
-                          ),
-                          backgroundColor: isDarkMode
-                              ? Colors.grey
-                              : Colors.black,
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                ref
-                                    .read(cartProvider.notifier)
-                                    .add(deletedProduct);
-                                Navigator.of(context).pop();
-                              },
-                              child: const Text('Undo'),
-                            ),
-                            ElevatedButton(
-                              onPressed: () => Navigator.of(context).pop(),
-                              child: const Text('OK'),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                    child: InkWell(
-                      splashColor: Colors.grey,
-                      onTap: () {
-                        Navigator.push(
+            Align(
+              alignment: Alignment.centerRight,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: TextButton.icon(
+                  onPressed: () async {
+                    try {
+                      final cleared = await ref
+                          .read(cartProvider.notifier)
+                          .clear();
+                      if (cleared) {
+                        SuccessSnackBar.show(
+                          context: context,
+                          isDark: isDarkMode,
+                          message: 'All items removed from cart',
+                        );
+                      } else {
+                        FailureSnackBar.show(context, 'Nothing to remove 😊');
+                      }
+                    } catch (e) {
+                      if (mounted) {
+                        FailureSnackBar.show(
                           context,
-                          MaterialPageRoute(
-                            builder: (_) => ProdDetailsPage(
-                              productId: cartProducts[index].id, // pass just id
+                          'Failed to remove items from cart: $e',
+                        );
+                      }
+                    }
+                  },
+                  icon: Icon(
+                    Icons.delete_rounded,
+                    color: isDarkMode ? Colors.red : Colors.black,
+                  ),
+                  label: Text(
+                    'Delete all',
+                    style: Theme.of(context).textTheme.labelLarge!.copyWith(
+                      color: isDarkMode ? Colors.white : Colors.black,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Lato',
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              child: cartProducts.isEmpty
+                  ? Center(
+                      child: Text(
+                        'Your cart is empty 🥺',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w300,
+                          fontFamily: 'Lato',
+                          color: isDarkMode ? Colors.white : Colors.black,
+                        ),
+                      ),
+                    )
+                  : ListView.builder(
+                      itemCount: cartProducts.length,
+                      itemBuilder: (context, index) {
+                        return Dismissible(
+                          key: ValueKey(cartProducts[index].id),
+                          direction: DismissDirection.endToStart,
+                          onDismissed: (direction) async {
+                            final deletedProduct = cartProducts[index];
+
+                            if (mounted) {
+                              SuccessSnackBar.show(
+                                context: context,
+                                isDark: isDarkMode,
+                                message: 'Item removed from cart',
+                                label: 'Undo',
+                                callback: () {
+                                  ref
+                                      .read(cartProvider.notifier)
+                                      .add(deletedProduct);
+                                },
+                              );
+                            }
+
+                            // Remove from Hive & Riverpod
+                            ref
+                                .read(cartProvider.notifier)
+                                .remove(deletedProduct.id);
+                          },
+
+                          // 🔥 Custom slide background
+                          background: Container(
+                            margin: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 6,
+                            ),
+                            padding: const EdgeInsets.only(right: 20),
+                            decoration: BoxDecoration(
+                              color: Colors.red.shade600,
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            alignment: Alignment.centerRight,
+                            child: const Icon(
+                              Icons.delete_rounded,
+                              color: Colors.white,
+                              size: 28,
+                            ),
+                          ),
+
+                          // 🔥 Slide + Fade animation
+                          child: TweenAnimationBuilder<double>(
+                            duration: const Duration(milliseconds: 250),
+                            tween: Tween(begin: 0, end: 1),
+                            builder: (context, value, child) {
+                              return Opacity(
+                                opacity: value,
+                                child: Transform.translate(
+                                  offset: Offset(20 * (1 - value), 0),
+                                  child: child,
+                                ),
+                              );
+                            },
+                            child: InkWell(
+                              splashColor: Colors.grey,
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => ProdDetailsPage(
+                                      productId: cartProducts[index].id,
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: CartItem(product: cartProducts[index]),
                             ),
                           ),
                         );
                       },
-                      child: CartItem(product: cartProducts[index]),
                     ),
-                  );
-                },
-              ),
             ),
 
             //total
