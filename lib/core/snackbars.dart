@@ -56,7 +56,7 @@ class FailureSnackBar {
   static void show(BuildContext context, String message, bool isDark) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        duration: const Duration(seconds: 16),
+        duration: const Duration(seconds: 1),
         backgroundColor: Colors.red.withAlpha(200),
         elevation: 8,
         behavior: SnackBarBehavior.floating,

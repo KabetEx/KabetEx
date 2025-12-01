@@ -39,13 +39,14 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
     product = widget.product;
 
     if (product == null && widget.productId != null) {
+      print(widget.productId);
       fetchProduct(widget.productId!);
     }
   }
 
   //navigation by cart
   Future<void> fetchProduct(String id) async {
-    final isDark = ref.watch(isDarkModeProvider);
+    //final isDark = ref.watch(isDarkModeProvider);
 
     if (!mounted) return;
     setState(() => isLoading = true);
@@ -58,8 +59,14 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
       setState(() {
         product = fetchedProduct;
       });
+      print(product);
     } catch (e) {
-      FailureSnackBar.show(context, 'Failed to load product', isDark);
+      FailureSnackBar.show(
+        context,
+        'Failed to load product $e',
+        ref.watch(isDarkModeProvider),
+      );
+      print('$e');
     } finally {
       if (mounted) {
         setState(() => isLoading = false);
@@ -86,9 +93,7 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
       ref.read(productViewProvider(product!).notifier).increment();
     });
 
-    // 1. Get the controller state
-
-    // 2. Get access to the controller itself (the functions)
+    // 1. Get access to the controller itself (the functions)
     final controller = ref.read(
       productDetailsControllerProvider(product!).notifier,
     );
@@ -263,7 +268,7 @@ class AddToCart extends ConsumerWidget {
               );
           SuccessSnackBar.show(
             context: context,
-            message: 'Item added from cart',
+            message: 'Item added to cart',
             isDark: isDark,
             duration: 1,
           );

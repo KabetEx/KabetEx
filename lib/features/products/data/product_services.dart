@@ -156,8 +156,9 @@ class ProductService {
 
       // convert map to Product object
       return Product.fromMap(response);
+      
     } catch (e) {
-      print('Exception fetching product: $e');
+      print('Error fetching product: $e');
       return null;
     }
   }

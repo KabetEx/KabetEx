@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:kabetex/common/slide_routing.dart';
 import 'package:kabetex/core/snackbars.dart';
 import 'package:kabetex/features/cart/widgets/cart_item.dart';
 import 'package:kabetex/features/products/presentation/prod_details.dart';
@@ -169,8 +170,8 @@ class _CartPageState extends ConsumerState<CartPage> {
                               onTap: () {
                                 Navigator.push(
                                   context,
-                                  MaterialPageRoute(
-                                    builder: (_) => ProdDetailsPage(
+                                  SlideRouting(
+                                    page: ProdDetailsPage(
                                       productId: cartProducts[index].id,
                                     ),
                                   ),
