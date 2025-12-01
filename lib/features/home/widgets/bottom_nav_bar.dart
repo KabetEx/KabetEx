@@ -48,28 +48,30 @@ class MyBottomNav extends ConsumerWidget {
                 top: -6,
                 left: -6,
                 child: Container(
-                  height: 16,
-                  width: 16,
+                  height: 18,
+                  width: 18,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     color: Colors.green,
                     borderRadius: BorderRadius.circular(24),
                   ),
                   constraints: const BoxConstraints(
-                    minHeight: 16,
-                    minWidth: 16,
+                    minHeight: 18,
+                    minWidth: 18,
                   ),
 
                   child: Consumer(
                     builder: (context, ref, child) {
                       final cartLength = ref.watch(cartProvider);
-                      return Text(
-                        cartLength.length.toString(),
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
+                      return Center(
+                        child: Text(
+                          cartLength.length.toString(),
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       );
                     },

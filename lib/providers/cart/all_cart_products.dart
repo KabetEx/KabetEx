@@ -55,7 +55,7 @@ class CartNotifier extends StateNotifier<List<ProductHive>> {
   }
 
   Future<bool> clear() async {
-    if (state.isNotEmpty) {
+    if (_cartBox.isNotEmpty) {
       await _cartBox.clear();
       state = const [];
       return true;
