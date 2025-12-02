@@ -86,7 +86,7 @@ class SellerCard extends ConsumerWidget {
                                     size: 14,
                                     color: isVerified
                                         ? Colors.greenAccent[700]
-                                        : Colors.grey,
+                                        : Colors.grey[700],
                                   ),
                                   const SizedBox(width: 4),
                                   Text(
@@ -96,7 +96,7 @@ class SellerCard extends ConsumerWidget {
                                       fontWeight: FontWeight.w900,
                                       color: isVerified
                                           ? Colors.greenAccent[700]
-                                          : Colors.white54,
+                                          : Colors.grey[700],
                                     ),
                                   ),
                                 ],
