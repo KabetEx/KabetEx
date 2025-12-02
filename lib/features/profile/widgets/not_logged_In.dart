@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/features/auth/presentation/login.dart';
-import 'package:kabetex/features/auth/presentation/sign_up.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 
 class NotLoggedIn extends ConsumerWidget {
