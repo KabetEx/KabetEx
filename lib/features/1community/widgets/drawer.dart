@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kabetex/common/slide_routing.dart';
+import 'package:kabetex/features/settings/presentations/settings_page.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -16,7 +18,11 @@ class MyCommunityDrawer extends ConsumerWidget {
 
     return Drawer(
       child: DecoratedBox(
-        decoration: BoxDecoration(color: isDark ? Colors.black : Colors.white),
+        decoration: BoxDecoration(
+          color: isDark
+              ? Colors.black
+              : Theme.of(context).scaffoldBackgroundColor,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -134,7 +140,12 @@ class MyCommunityDrawer extends ConsumerWidget {
                           color: isDark ? Colors.white : Colors.black,
                         ),
                       ),
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          SlideRouting(page: const SettingsPage()),
+                        );
+                      },
                     ),
                   ),
                 ],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/features/1community/presentation/feedPage.dart';
+import 'package:kabetex/features/1community/presentation/tabsScreen.dart';
 import 'package:kabetex/features/home/presentations/home_products_section.dart';
 import 'package:kabetex/features/home/providers/nav_bar.dart';
 import 'package:kabetex/features/home/widgets/app_title_row.dart';
@@ -90,7 +91,7 @@ class _HomePageState extends ConsumerState<HomePage>
                           true;
 
                       // simulate fetch
-                      Future.delayed(const Duration(seconds: 3), () {
+                      Future.delayed(const Duration(seconds: 1), () {
                         ref.read(isCommunityLoadingProvider.notifier).state =
                             false;
                       });
@@ -160,7 +161,7 @@ class _HomePageState extends ConsumerState<HomePage>
                         if (isLoading) {
                           return const LoadingCommunityPage();
                         }
-                        return const Feedpage();
+                        return const CommunityTabsScreen();
                       },
                     ),
                   ],
