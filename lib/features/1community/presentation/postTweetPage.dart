@@ -6,10 +6,11 @@ class PostTweetPage extends ConsumerStatefulWidget {
   const PostTweetPage({super.key});
 
   @override
-  ConsumerState<PostTweetPage> createState() => _PostPageState();
+  ConsumerState<PostTweetPage> createState() => _PostTweetPageState();
 }
 
-class _PostPageState extends ConsumerState<PostTweetPage> {
+class _PostTweetPageState extends ConsumerState<PostTweetPage> {
+  
   final _formKey = GlobalKey<FormState>();
   final _controller = TextEditingController();
   String _audience = 'Everyone';
