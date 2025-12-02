@@ -26,7 +26,7 @@ class TabsScreen extends ConsumerWidget {
 
     return Scaffold(
       body: pages[currentIndex],
-      bottomNavigationBar: (currentIndex == 0 && homeTopTab == 0)
+      bottomNavigationBar: (homeTopTab == 0)
           ? MyBottomNav(
               isDarkMode: isDark,
               onTap: (index) {
