@@ -17,7 +17,7 @@ class ContactButton extends ConsumerWidget {
     final isContacting = ref.watch(isContactingProvider);
 
     return Positioned(
-      bottom: 16,
+      bottom: 32,
       left: 16,
       right: 16,
       child: ElevatedButton(

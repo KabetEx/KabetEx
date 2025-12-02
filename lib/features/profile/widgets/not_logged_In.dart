@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kabetex/features/auth/presentation/login.dart';
 import 'package:kabetex/features/auth/presentation/sign_up.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 
@@ -16,11 +17,12 @@ class NotLoggedIn extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
-            'You have to create \n an account to post',
+            'Not Logged in',
             style: Theme.of(context).textTheme.bodyLarge!.copyWith(
               color: isDark ? Colors.white : Colors.black,
               fontWeight: FontWeight.bold,
               fontSize: 18,
+              fontFamily: 'Lato',
             ),
           ),
           const SizedBox(height: 16),
@@ -37,11 +39,11 @@ class NotLoggedIn extends ConsumerWidget {
               onPressed: () {
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => const SignupPage()),
+                  MaterialPageRoute(builder: (context) => const LoginPage()),
                 );
               },
               child: const Text(
-                'Create an account',
+                'Log in',
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,

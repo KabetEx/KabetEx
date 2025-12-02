@@ -5,6 +5,7 @@ import 'package:kabetex/common/slide_routing.dart';
 import 'package:kabetex/core/snackbars.dart';
 import 'package:kabetex/features/cart/widgets/cart_item.dart';
 import 'package:kabetex/features/products/presentation/prod_details.dart';
+import 'package:kabetex/features/products/presentation/prod_details_shimmer.dart';
 import 'package:kabetex/providers/cart/all_cart_products.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 
@@ -170,12 +171,18 @@ class _CartPageState extends ConsumerState<CartPage> {
                               onTap: () {
                                 Navigator.push(
                                   context,
-                                  SlideRouting(
-                                    page: ProdDetailsPage(
+                                  MaterialPageRoute(
+                                    builder: (context) => ProdDetailsPage(
                                       productId: cartProducts[index].id,
                                     ),
                                   ),
                                 );
+                                // Navigator.push(
+                                //   context,
+                                //   SlideRouting(
+                                //     page: const ProdDetailsShimmer(),
+                                //   ),
+                                // );
                               },
                               child: CartItem(product: cartProducts[index]),
                             ),

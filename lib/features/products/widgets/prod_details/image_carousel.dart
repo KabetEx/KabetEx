@@ -22,88 +22,119 @@ class ProductGallery extends ConsumerStatefulWidget {
 
 class _ProductGalleryState extends ConsumerState<ProductGallery> {
   int _currentIndex = 0;
+  final bool _imagesReady = true;
+
+  @override
+  void initState() {
+    super.initState();
+    // _preloadImages();
+  }
+
+  // Future<void> _preloadImages() async {
+  //   await Future.wait(
+  //     widget.images.map((url) async {
+  //       try {
+  //         await precacheImage(CachedNetworkImageProvider(url), context);
+  //       } catch (e) {
+  //         debugPrint("❌ Failed: $url");
+  //       }
+  //     }),
+  //   );
+
+  //   setState(() => _imagesReady = true);
+  // }
 
   @override
   Widget build(BuildContext context) {
     final isDarkMode = ref.watch(isDarkModeProvider);
 
     return SizedBox(
+      height: 350,
       width: double.infinity,
-      child: Column(
-        children: [
-          CarouselSlider.builder(
-            itemCount: widget.images.length,
-            itemBuilder: (context, index, realIndex) {
-              return GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => FullscreenImagePage(
-                        images: widget.images,
-                        initialIndex: index,
+      child: _imagesReady
+          ? Column(
+              children: [
+                CarouselSlider.builder(
+                  itemCount: widget.images.length,
+                  itemBuilder: (context, index, realIndex) {
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => FullscreenImagePage(
+                              images: widget.images,
+                              initialIndex: index,
+                            ),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: CachedNetworkImageProvider(
+                              widget.images[index],
+                            ),
+                            fit: BoxFit.cover,
+                          ),
+                          boxShadow: [
+                            const BoxShadow(
+                              color: Colors.black26,
+                              blurRadius: 8,
+                              offset: Offset(0, 5),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  );
-                },
-                child: Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: CachedNetworkImageProvider(widget.images[index],),
-                      fit: BoxFit.cover,
-                    ),
-                    boxShadow: [
-                      const BoxShadow(
-                        color: Colors.black26,
-                        blurRadius: 8,
-                        offset: Offset(0, 5),
-                      ),
-                    ],
+                    );
+                  },
+                  options: CarouselOptions(
+                    height: 320, // Increased height
+                    enlargeCenterPage: true,
+                    autoPlay: false,
+                    initialPage: 0,
+                    enableInfiniteScroll: false,
+                    viewportFraction: 1, // makes images wider
+                    onPageChanged: (index, reason) {
+                      setState(() => _currentIndex = index);
+                    },
                   ),
                 ),
-              );
-            },
-            options: CarouselOptions(
-              height: 320, // Increased height
-              enlargeCenterPage: true,
-              autoPlay: false,
-              initialPage: 0,
-              enableInfiniteScroll: false,
-              viewportFraction: 1, // makes images wider
-              onPageChanged: (index, reason) {
-                setState(() => _currentIndex = index);
-              },
-            ),
-          ),
 
-          const SizedBox(height: 16),
+                const SizedBox(height: 16),
 
-          //child 2 => dot indicator
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(widget.images.length, (index) {
-              final bool isActive = _currentIndex == index;
-              return AnimatedContainer(
-                duration: const Duration(milliseconds: 250),
-                margin: const EdgeInsets.symmetric(horizontal: 4),
-                width: isActive ? 18 : 8, // wider active dot
-                height: 8,
-                decoration: BoxDecoration(
-                  color: isDarkMode
-                      ? isActive
+                //child 2 => dot indicator
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(widget.images.length, (index) {
+                    final bool isActive = _currentIndex == index;
+                    return AnimatedContainer(
+                      duration: const Duration(milliseconds: 250),
+                      margin: const EdgeInsets.symmetric(horizontal: 4),
+                      width: isActive ? 18 : 8, // wider active dot
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: isDarkMode
+                            ? isActive
+                                  ? Colors.deepOrange
+                                  : Colors.white
+                            : isActive
                             ? Colors.deepOrange
-                            : Colors.white
-                      : isActive
-                      ? Colors.deepOrange
-                      : Colors.grey,
-                  borderRadius: BorderRadius.circular(12),
+                            : Colors.grey,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    );
+                  }),
                 ),
-              );
-            }),
-          ),
-        ],
-      ),
+              ],
+            )
+          : const Center(
+              child: CircularProgressIndicator(
+                color: Colors.black,
+                strokeWidth: 1,
+              ),
+            ),
     );
   }
 }

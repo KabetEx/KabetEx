@@ -108,7 +108,15 @@ class PostProductPageState extends ConsumerState<PostProductPage> {
         backgroundColor: isDark
             ? Colors.black
             : const Color.fromARGB(255, 237, 228, 225),
-        appBar: AppBar(title: const Text('Upload'), centerTitle: true),
+        appBar: AppBar(
+          title: Text(
+            'Upload',
+            style: Theme.of(context).textTheme.titleLarge!.copyWith(
+              color: isDark ? Colors.white : Colors.black,
+            ),
+          ),
+          centerTitle: true,
+        ),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -116,14 +124,18 @@ class PostProductPageState extends ConsumerState<PostProductPage> {
             children: [
               Text(
                 'You need to have \n an account to post',
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyMedium!.copyWith(color: Colors.white),
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  color: isDark ? Colors.white : Colors.black,
+                ),
               ),
               const SizedBox(height: 8),
+
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.deepOrange,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
                 onPressed: () {
                   Navigator.pushReplacement(

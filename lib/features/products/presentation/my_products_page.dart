@@ -98,7 +98,7 @@ class MyProductsPage extends ConsumerWidget {
       body: authSync.when(
         data: (user) {
           if (user == null) {
-            return const Center(child: Text("You need an account"));
+            return const Center(child: Text("Not logged in!"));
           }
           return myProductsAsync.when(
             loading: () => const Center(child: CircularProgressIndicator()),

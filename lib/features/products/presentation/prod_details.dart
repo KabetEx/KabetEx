@@ -2,15 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:kabetex/core/snackbars.dart';
 import 'package:kabetex/features/products/data/product.dart';
 import 'package:kabetex/features/products/data/product_services.dart';
+import 'package:kabetex/features/products/presentation/prod_details_shimmer.dart';
 import 'package:kabetex/features/products/providers/all_products_provider.dart';
 import 'package:kabetex/features/products/providers/prod_details_provider.dart';
 import 'package:kabetex/features/products/widgets/prod_details/contact_button.dart';
 import 'package:kabetex/features/products/widgets/prod_details/image_carousel.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/features/products/widgets/prod_details/more_from_seller.dart';
 import 'package:kabetex/features/products/widgets/prod_details/price_row.dart';
 import 'package:kabetex/features/products/widgets/prod_details/report_product.dart';
 import 'package:kabetex/features/products/widgets/prod_details/seller_card.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/providers/cart/all_cart_products.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 import 'package:kabetex/features/cart/data/product_hive.dart';
@@ -29,7 +30,7 @@ class ProdDetailsPage extends ConsumerStatefulWidget {
 class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
   late Product? product;
   bool isLoading = false;
-  bool isContacting = false;
+  bool isLoaded = false;
 
   final user = Supabase.instance.client.auth.currentUser;
 
@@ -39,40 +40,34 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
     product = widget.product;
 
     if (product == null && widget.productId != null) {
-      print(widget.productId);
-      fetchProduct(widget.productId!);
+      _fetchProduct(widget.productId!);
+    } else {
+      // product was passed, show immediately
+      isLoaded = true;
     }
   }
 
-  //navigation by cart
-  Future<void> fetchProduct(String id) async {
-    //final isDark = ref.watch(isDarkModeProvider);
-
+  Future<void> _fetchProduct(String id) async {
     if (!mounted) return;
     setState(() => isLoading = true);
 
     try {
       final fetchedProduct = await ProductService().getProductById(id);
-
       if (!mounted) return;
 
-      setState(() {
-        product = fetchedProduct;
-      });
-      print(product);
+      setState(() => product = fetchedProduct);
+
+      // fade in after a small delay
+      await Future.delayed(const Duration(milliseconds: 50));
+      if (mounted) setState(() => isLoaded = true);
     } catch (e) {
       FailureSnackBar.show(
         context,
         'Failed to load product $e',
         ref.watch(isDarkModeProvider),
       );
-      print('$e');
     } finally {
-      if (mounted) {
-        setState(() => isLoading = false);
-      } else {
-        setState(() => isLoading = false);
-      }
+      if (mounted) setState(() => isLoading = false);
     }
   }
 
@@ -83,17 +78,19 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
     final titleColor = isDarkMode ? Colors.white : Colors.black87;
     final sectionHeadingColor = isDarkMode ? Colors.white : Colors.black87;
 
-    if (isLoading) return const Center(child: CircularProgressIndicator());
+    if (isLoading && product == null) {
+      return const ProdDetailsShimmer();
+    }
+
     if (product == null) return const Center(child: Text('Product not found'));
 
     final isAvailable = product!.isActive ?? true;
 
-    // Trigger increment once
+    // Trigger view increment
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(productViewProvider(product!).notifier).increment();
     });
 
-    // 1. Get access to the controller itself (the functions)
     final controller = ref.read(
       productDetailsControllerProvider(product!).notifier,
     );
@@ -117,108 +114,99 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
               labelStyle: const TextStyle(color: Colors.white),
             ),
           ),
-          //add to cart
           AddToCart(product: product!),
           ReportProduct(isDark: isDarkMode, product: product!),
-          //popmenuButton
         ],
       ),
       body: Stack(
         children: [
-          SafeArea(
-            child: SizedBox.expand(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.only(bottom: 90),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    RepaintBoundary(
-                      child: ProductGallery(
-                        images: product!.imageUrls,
-                        product: product!,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    //title
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: Text(
-                        product!.title,
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: 24,
-                          fontWeight: FontWeight.w600,
-                          color: titleColor,
+          AnimatedOpacity(
+            duration: const Duration(seconds: 1),
+            opacity: isLoaded ? 1.0 : 0.0,
+            curve: Curves.easeInOut,
+            child: SafeArea(
+              child: SizedBox.expand(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.only(bottom: 90),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      RepaintBoundary(
+                        child: ProductGallery(
+                          images: product!.imageUrls,
+                          product: product!,
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 8),
-
-                    //price category row
-                    RepaintBoundary(
-                      child: PriceRow(product: product!, isDark: isDarkMode),
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    RepaintBoundary(
-                      child: SellerCard(
-                        isDark: isDarkMode,
-                        sellerId: product!.sellerId,
+                      const SizedBox(height: 16),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Text(
+                          product!.title,
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 24,
+                            fontWeight: FontWeight.w600,
+                            color: titleColor,
+                          ),
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    //stock
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16.0,
-                        vertical: 8,
+                      const SizedBox(height: 8),
+                      RepaintBoundary(
+                        child: PriceRow(product: product!, isDark: isDarkMode),
                       ),
-                      child: RichText(
-                        text: TextSpan(
-                          children: [
-                            TextSpan(
-                              text: 'Stock: ',
-                              style: Theme.of(context).textTheme.bodyLarge!
-                                  .copyWith(
-                                    fontFamily: 'Roboto Slab',
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w500,
-                                    color: sectionHeadingColor,
-                                  ),
-                            ),
-                            TextSpan(
-                              text: product!.quantity.toString(),
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: isDarkMode
-                                    ? Colors.grey[400]
-                                    : Colors.black,
+                      const SizedBox(height: 16),
+                      RepaintBoundary(
+                        child: SellerCard(
+                          isDark: isDarkMode,
+                          sellerId: product!.sellerId,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16.0,
+                          vertical: 8,
+                        ),
+                        child: RichText(
+                          text: TextSpan(
+                            children: [
+                              TextSpan(
+                                text: 'Stock: ',
+                                style: Theme.of(context).textTheme.bodyLarge!
+                                    .copyWith(
+                                      fontFamily: 'Roboto Slab',
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w500,
+                                      color: sectionHeadingColor,
+                                    ),
                               ),
-                            ),
-                          ],
+                              TextSpan(
+                                text: product!.quantity.toString(),
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: isDarkMode
+                                      ? Colors.grey[400]
+                                      : Colors.black,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    //description
-                    ProdDescription(
-                      productDescription: product!.description,
-                      isDark: isDarkMode,
-                    ),
-                    const SizedBox(height: 16),
-
-                    // MORE FROM SELLER section header
-                    RepaintBoundary(
-                      child: MoreFromSeller(
-                        product: product!,
+                      const SizedBox(height: 16),
+                      ProdDescription(
+                        productDescription: product!.description,
                         isDark: isDarkMode,
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 16),
+                      RepaintBoundary(
+                        child: MoreFromSeller(
+                          product: product!,
+                          isDark: isDarkMode,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -298,6 +286,7 @@ class ProdDescription extends StatelessWidget {
 
   final String productDescription;
   final bool isDark;
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -314,9 +303,7 @@ class ProdDescription extends StatelessWidget {
               color: isDark ? Colors.white : Colors.black,
             ),
           ),
-
           const SizedBox(height: 10),
-
           AnimatedOpacity(
             duration: const Duration(milliseconds: 300),
             opacity: 1,
