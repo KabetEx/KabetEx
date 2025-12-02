@@ -25,7 +25,10 @@ class _PostPageState extends ConsumerState<PostTweetPage> {
     if (_formKey.currentState!.validate()) {
       final text = _controller.text.trim();
       // send to DB / Supabase
+      setState(() {
+        
       _controller.clear();
+      });
     }
   }
 

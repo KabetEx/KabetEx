@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/common/slide_routing.dart';
 import 'package:kabetex/features/1community/presentation/postTweetPage.dart';
+import 'package:kabetex/features/1community/widgets/drawer.dart';
 import 'package:kabetex/features/1community/widgets/post_widget.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 
@@ -21,14 +22,20 @@ class _FeedpageState extends ConsumerState<Feedpage> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 32.0),
-          child: Icon(
-            Icons.account_circle,
-            color: isDark ? Colors.white : Colors.black,
-            size: 32,
+        leading: Builder(
+          builder: (context) => GestureDetector(
+            onTap: () {
+              Scaffold.of(context).openDrawer();
+            },
+            child: const CircleAvatar(
+              radius: 24,
+              backgroundImage: NetworkImage(
+                'https://i.pravatar.cc/150?img=12', // placeholder
+              ),
+            ),
           ),
         ),
+
         title: Text(
           'KabetEx',
           style: TextStyle(
@@ -50,6 +57,7 @@ class _FeedpageState extends ConsumerState<Feedpage> {
           ),
         ],
       ),
+      drawer: const MyCommunityDrawer(),
       floatingActionButton: FloatingActionButton(
         onPressed: () =>
             Navigator.push(context, SlideRouting(page: const PostTweetPage())),
