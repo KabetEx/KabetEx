@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:kabetex/features/auth/presentation/login.dart';
 import 'package:kabetex/features/home/presentations/tabs_screen.dart';
 import 'package:kabetex/features/cart/data/product_hive.dart';
 import 'package:kabetex/providers/theme_provider.dart';
@@ -174,7 +173,7 @@ class MyApp extends ConsumerWidget {
           }
           if (user == null) {
             Future.delayed(Durations.medium3);
-            return const LoginPage();
+            return const TabsScreen();
           }
           Future.delayed(Durations.medium3);
           return const TabsScreen();

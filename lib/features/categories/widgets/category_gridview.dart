@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/common/slide_routing.dart';
 import 'package:kabetex/features/categories/presentations/selected_cat_page.dart';
 import 'package:kabetex/providers/categories/categories_provider.dart';
-import 'package:kabetex/providers/home/nav_bar.dart';
+import 'package:kabetex/features/home/providers/nav_bar.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 
 class MyCategoryGrid extends ConsumerWidget {

@@ -3,7 +3,7 @@ import 'package:kabetex/features/cart/presentations/cart_page.dart';
 import 'package:kabetex/features/categories/presentations/categories_page.dart';
 import 'package:kabetex/features/home/presentations/home_page.dart';
 import 'package:kabetex/features/profile/presentantion/profile_page.dart';
-import 'package:kabetex/providers/home/nav_bar.dart';
+import 'package:kabetex/features/home/providers/nav_bar.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 import 'package:kabetex/features/home/widgets/bottom_nav_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,6 +15,7 @@ class TabsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final currentIndex = ref.watch(tabsProvider);
     final isDark = ref.watch(isDarkModeProvider);
+    final homeTopTab = ref.watch(homeTopTabProvider);
 
     final pages = [
       const HomePage(),
@@ -25,12 +26,14 @@ class TabsScreen extends ConsumerWidget {
 
     return Scaffold(
       body: pages[currentIndex],
-      bottomNavigationBar: MyBottomNav(
-        isDarkMode: isDark,
-        onTap: (index) {
-          ref.read(tabsProvider.notifier).state = index;
-        },
-      ),
+      bottomNavigationBar: (currentIndex == 0 && homeTopTab == 0)
+          ? MyBottomNav(
+              isDarkMode: isDark,
+              onTap: (index) {
+                ref.read(tabsProvider.notifier).state = index;
+              },
+            )
+          : null, // hide if not on HomePage or if Community tab active
     );
   }
 }

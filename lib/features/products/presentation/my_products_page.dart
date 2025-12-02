@@ -5,7 +5,7 @@ import 'package:kabetex/features/products/data/product.dart';
 import 'package:kabetex/features/products/data/product_services.dart';
 import 'package:kabetex/features/products/presentation/edit_product.dart';
 import 'package:kabetex/features/products/providers/user_provider.dart';
-import 'package:kabetex/features/products/widgets/SellerProductTile.dart';
+import 'package:kabetex/features/products/widgets/sellerProductTile.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 
 class MyProductsPage extends ConsumerWidget {

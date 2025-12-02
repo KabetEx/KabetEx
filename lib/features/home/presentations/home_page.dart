@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kabetex/features/1community/presentation/feedPage.dart';
 import 'package:kabetex/features/home/presentations/home_products_section.dart';
+import 'package:kabetex/features/home/providers/nav_bar.dart';
 import 'package:kabetex/features/home/widgets/app_title_row.dart';
 import 'package:kabetex/features/categories/widgets/category_gridview.dart';
 import 'package:kabetex/features/home/widgets/hero_banner.dart';
@@ -23,8 +25,6 @@ class _HomePageState extends ConsumerState<HomePage>
   @override
   void initState() {
     super.initState();
-
-    // Load products once at start
     Future.microtask(() => ref.read(productsProvider.notifier).loadProducts());
 
     _scrollController.addListener(() {
@@ -52,48 +52,148 @@ class _HomePageState extends ConsumerState<HomePage>
     final notifier = ref.read(productsProvider.notifier);
 
     setState(() => isRefreshing = true);
-    // wait first for load b4 reload
+
     while (notifier.isLoading) {
       await Future.delayed(const Duration(milliseconds: 300));
     }
-    await ref.read(productsProvider.notifier).loadProducts();
+
+    await notifier.loadProducts();
     setState(() => isRefreshing = false);
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
+
     final isDark = ref.watch(isDarkModeProvider);
-    final productsState = ref.watch(productsProvider);
+    final products = ref.watch(productsProvider);
     final notifier = ref.read(productsProvider.notifier);
 
-    return Scaffold(
-      drawer: const Mydrawer(),
-      body: SafeArea(
-        child: RefreshIndicator(
-          backgroundColor: isDark ? Colors.black : Colors.white,
-          color: Colors.deepOrange,
-          onRefresh: _refreshProducts,
-          child: ListView(
-            controller: _scrollController,
-            physics: const ClampingScrollPhysics(),
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        drawer: const Mydrawer(),
+        body: SafeArea(
+          child: Column(
             children: [
-              const AppTitleRow(),
-              const SizedBox(height: 8),
-              const MyHeroBanner(),
-              const MyCategoryGrid(),
+              // TOP TAB BAR
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: // inside HomePage
+                TabBar(
+                  onTap: (index) {
+                    ref.read(homeTopTabProvider.notifier).state = index;
 
-              HomeProductsSection(
-                // Show shimmer during initial load OR refresh
-                isLoading:
-                    (notifier.isLoading && productsState.isEmpty) ||
-                    isRefreshing,
-                isLoadingMore: notifier.isLoading && productsState.isNotEmpty,
-                products: productsState,
+                    if (index == 1) {
+                      // Community tab
+                      ref.read(isCommunityLoadingProvider.notifier).state =
+                          true;
+
+                      // simulate fetch
+                      Future.delayed(const Duration(seconds: 3), () {
+                        ref.read(isCommunityLoadingProvider.notifier).state =
+                            false;
+                      });
+                    }
+                  },
+                  labelColor: Colors.black, // active tab text
+                  unselectedLabelColor: Colors.grey[600], // inactive tab text
+                  indicatorColor: Colors.deepOrange, // underline color
+                  indicatorWeight: 3, // thickness of underline
+                  indicatorPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                  ), // like X
+                  labelStyle: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700, // bold active tab
+                  ),
+                  unselectedLabelStyle: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500, // slightly lighter inactive
+                  ),
+                  splashFactory: NoSplash.splashFactory,
+                  overlayColor: WidgetStateProperty.all(
+                    Colors.transparent,
+                  ), // no ripple at all
+                  tabs: const [
+                    Tab(text: "Market"),
+                    Tab(text: "Community"),
+                  ],
+                ),
+              ),
+
+              // CONTENT AREA
+              Expanded(
+                child: TabBarView(
+                  children: [
+                    // ------------------ MARKET TAB ------------------
+                    RefreshIndicator(
+                      backgroundColor: isDark ? Colors.black : Colors.white,
+                      color: Colors.deepOrange,
+                      onRefresh: _refreshProducts,
+                      child: ListView(
+                        controller: _scrollController,
+                        physics: const ClampingScrollPhysics(),
+                        children: [
+                          const AppTitleRow(),
+                          const SizedBox(height: 8),
+                          const MyHeroBanner(),
+                          const MyCategoryGrid(),
+
+                          HomeProductsSection(
+                            isLoading:
+                                (notifier.isLoading && products.isEmpty) ||
+                                isRefreshing,
+                            isLoadingMore:
+                                notifier.isLoading && products.isNotEmpty,
+                            products: products,
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // ------------------ COMMUNITY TAB ------------------
+                    Consumer(
+                      builder: (context, ref, child) {
+                        final isLoading = ref.watch(isCommunityLoadingProvider);
+
+                        if (isLoading) {
+                          return const LoadingCommunityPage();
+                        }
+                        return const Feedpage();
+                      },
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class LoadingCommunityPage extends StatelessWidget {
+  const LoadingCommunityPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFFF6F00),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset('assets/images/kabetex.png', height: 250, width: 250),
+          Center(
+            child: Text(
+              'Loading Community...',
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge!.copyWith(color: Colors.white),
+            ),
+          ),
+        ],
       ),
     );
   }
