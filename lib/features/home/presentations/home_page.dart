@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kabetex/features/1community/presentation/feedPage.dart';
 import 'package:kabetex/features/1community/presentation/tabsScreen.dart';
 import 'package:kabetex/features/home/presentations/home_products_section.dart';
 import 'package:kabetex/features/home/providers/nav_bar.dart';
@@ -26,6 +25,7 @@ class _HomePageState extends ConsumerState<HomePage>
   @override
   void initState() {
     super.initState();
+    // Initial products load
     Future.microtask(() => ref.read(productsProvider.notifier).loadProducts());
 
     _scrollController.addListener(() {
@@ -51,7 +51,6 @@ class _HomePageState extends ConsumerState<HomePage>
 
   Future<void> _refreshProducts() async {
     final notifier = ref.read(productsProvider.notifier);
-
     setState(() => isRefreshing = true);
 
     while (notifier.isLoading) {
@@ -60,6 +59,22 @@ class _HomePageState extends ConsumerState<HomePage>
 
     await notifier.loadProducts();
     setState(() => isRefreshing = false);
+  }
+
+  void _handleTabTap(int index) async {
+    ref.read(homeTopTabProvider.notifier).state = index;
+
+    if (index == 0) {
+      ref.read(isLoadingMarketprovider.notifier).state = true;
+      Future.delayed(const Duration(milliseconds: 600), () {
+        ref.read(isLoadingMarketprovider.notifier).state = false;
+      });
+    } else if (index == 1) {
+      ref.read(isCommunityLoadingProvider.notifier).state = true;
+      Future.delayed(const Duration(seconds: 1), () {
+        ref.read(isCommunityLoadingProvider.notifier).state = false;
+      });
+    }
   }
 
   @override
@@ -80,42 +95,27 @@ class _HomePageState extends ConsumerState<HomePage>
               // TOP TAB BAR
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: // inside HomePage
-                TabBar(
-                  onTap: (index) {
-                    ref.read(homeTopTabProvider.notifier).state = index;
-
-                    if (index == 1) {
-                      // Community tab
-                      ref.read(isCommunityLoadingProvider.notifier).state =
-                          true;
-
-                      // simulate fetch
-                      Future.delayed(const Duration(seconds: 1), () {
-                        ref.read(isCommunityLoadingProvider.notifier).state =
-                            false;
-                      });
-                    }
-                  },
-                  labelColor: Colors.black, // active tab text
-                  unselectedLabelColor: Colors.grey[600], // inactive tab text
-                  indicatorColor: Colors.deepOrange, // underline color
-                  indicatorWeight: 3, // thickness of underline
-                  indicatorPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                  ), // like X
+                child: TabBar(
+                  onTap: _handleTabTap,
+                  dividerHeight: 1,
+                  dividerColor: isDark ? Colors.grey[900] : Colors.grey[500],
+                  labelColor: isDark ? Colors.white : Colors.black,
+                  unselectedLabelColor: Colors.grey[600],
+                  indicatorColor: Colors.deepOrange,
+                  indicatorWeight: 1,
+                  indicatorPadding: const EdgeInsets.symmetric(horizontal: 4),
                   labelStyle: const TextStyle(
                     fontSize: 16,
-                    fontWeight: FontWeight.w700, // bold active tab
+                    fontWeight: FontWeight.w700,
+                    fontFamily: 'Lato',
                   ),
                   unselectedLabelStyle: const TextStyle(
                     fontSize: 16,
-                    fontWeight: FontWeight.w500, // slightly lighter inactive
+                    fontWeight: FontWeight.w500,
+                    fontFamily: 'Lato',
                   ),
                   splashFactory: NoSplash.splashFactory,
-                  overlayColor: WidgetStateProperty.all(
-                    Colors.transparent,
-                  ), // no ripple at all
+                  overlayColor: WidgetStateProperty.all(Colors.transparent),
                   tabs: const [
                     Tab(text: "Market"),
                     Tab(text: "Community"),
@@ -140,7 +140,6 @@ class _HomePageState extends ConsumerState<HomePage>
                           const SizedBox(height: 8),
                           const MyHeroBanner(),
                           const MyCategoryGrid(),
-
                           HomeProductsSection(
                             isLoading:
                                 (notifier.isLoading && products.isEmpty) ||
@@ -156,11 +155,18 @@ class _HomePageState extends ConsumerState<HomePage>
                     // ------------------ COMMUNITY TAB ------------------
                     Consumer(
                       builder: (context, ref, child) {
-                        final isLoading = ref.watch(isCommunityLoadingProvider);
+                        final isLoadingComm = ref.watch(
+                          isCommunityLoadingProvider,
+                        );
+                        final isLoadingMkt = ref.watch(isLoadingMarketprovider);
 
-                        if (isLoading) {
-                          return const LoadingCommunityPage();
+                        if (isLoadingComm) {
+                          return LoadingPage(isDark: isDark);
                         }
+                        if (isLoadingMkt) {
+                          return LoadingPage(isDark: isDark);
+                        }
+
                         return const CommunityTabsScreen();
                       },
                     ),
@@ -175,27 +181,16 @@ class _HomePageState extends ConsumerState<HomePage>
   }
 }
 
-class LoadingCommunityPage extends StatelessWidget {
-  const LoadingCommunityPage({super.key});
+// ----------------- LOADING SCREENS -----------------
+class LoadingPage extends StatelessWidget {
+  const LoadingPage({super.key, required this.isDark});
 
+  final bool isDark;
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFFF6F00),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Image.asset('assets/images/kabetex.png', height: 250, width: 250),
-          Center(
-            child: Text(
-              'Loading Community...',
-              style: Theme.of(
-                context,
-              ).textTheme.bodyLarge!.copyWith(color: Colors.white),
-            ),
-          ),
-        ],
-      ),
+    return Container(
+      color: isDark ? Colors.black.withAlpha(180) : Colors.transparent,
+      child: const Center(child: CircularProgressIndicator()),
     );
   }
 }

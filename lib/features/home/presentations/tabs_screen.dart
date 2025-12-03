@@ -26,14 +26,14 @@ class TabsScreen extends ConsumerWidget {
 
     return Scaffold(
       body: pages[currentIndex],
-      bottomNavigationBar: (homeTopTab == 0)
+      bottomNavigationBar: homeTopTab == 0
           ? MyBottomNav(
               isDarkMode: isDark,
               onTap: (index) {
                 ref.read(tabsProvider.notifier).state = index;
               },
             )
-          : null, // hide if not on HomePage or if Community tab active
+          : null,
     );
   }
 }

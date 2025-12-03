@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/features/1community/presentation/feedPage.dart';
 import 'package:kabetex/features/1community/presentation/postTweetPage.dart';
 import 'package:kabetex/features/profile/presentantion/profile_page.dart';
-import 'package:kabetex/features/home/presentations/home_page.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 
 class CommunityTabsScreen extends ConsumerStatefulWidget {
