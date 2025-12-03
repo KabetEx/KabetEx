@@ -1,18 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:kabetex/features/1community/data/models/post.dart';
+import 'package:intl/intl.dart';
 
 class PostWidget extends StatelessWidget {
-  final String username;
-  final String timeAgo;
-  final String content;
-  final String profileUrl;
+  final Post post;
 
-  const PostWidget({
-    super.key,
-    required this.username,
-    required this.timeAgo,
-    required this.content,
-    required this.profileUrl,
-  });
+  const PostWidget({super.key, required this.post});
+
+  String _timeAgo(DateTime createdAt) {
+    final now = DateTime.now();
+    final difference = now.difference(createdAt);
+
+    if (difference.inSeconds < 60) {
+      return '${difference.inSeconds}s';
+    } else if (difference.inMinutes < 60) {
+      return '${difference.inMinutes}m';
+    } else if (difference.inHours < 24) {
+      return '${difference.inHours}h';
+    } else if (difference.inDays < 7) {
+      return '${difference.inDays}d';
+    } else {
+      return DateFormat('MMM d').format(createdAt); // fallback, e.g., Jan 5
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,11 +30,19 @@ class PostWidget extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color: isDark ? Colors.grey[800]! : Colors.grey[300]!,
+            width: 0.5,
+          ),
+        ),
+      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Profile Image
-          CircleAvatar(radius: 22, backgroundImage: NetworkImage(profileUrl)),
+          // Profile Image placeholder
+          const CircleAvatar(radius: 22, backgroundColor: Colors.grey),
           const SizedBox(width: 12),
 
           // Main Column
@@ -39,7 +57,7 @@ class PostWidget extends StatelessWidget {
                     Row(
                       children: [
                         Text(
-                          username,
+                          post.userFullname ?? '',
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
@@ -47,7 +65,7 @@ class PostWidget extends StatelessWidget {
                         ),
                         const SizedBox(width: 6),
                         Text(
-                          timeAgo,
+                          _timeAgo(post.createdAt!),
                           style: TextStyle(
                             fontSize: 13,
                             color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -73,7 +91,7 @@ class PostWidget extends StatelessWidget {
 
                 // Post content
                 Text(
-                  content,
+                  post.content,
                   style: TextStyle(
                     fontSize: 15,
                     color: isDark

@@ -1,20 +1,22 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kabetex/features/1community/providers/user_provider.dart';
 import 'package:kabetex/features/auth/widgets/error_BotttomSheet.dart';
 import 'package:kabetex/features/home/presentations/tabs_screen.dart';
 import 'package:kabetex/common/slide_routing.dart';
 import 'package:kabetex/features/auth/data/auth_services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class SignupPage extends StatefulWidget {
+class SignupPage extends ConsumerStatefulWidget {
   const SignupPage({super.key});
 
   @override
-  State<SignupPage> createState() => _SignupPageState();
+  ConsumerState<SignupPage> createState() => _SignupPageState();
 }
 
-class _SignupPageState extends State<SignupPage> {
+class _SignupPageState extends ConsumerState<SignupPage> {
   final authService = AuthService();
 
   final _formKey = GlobalKey<FormState>();
@@ -79,6 +81,8 @@ class _SignupPageState extends State<SignupPage> {
       setState(() {
         isSigningUp = false;
       });
+      ref.invalidate(currentUserProvider);
+      ref.refresh(currentUserProvider);
     }
   }
 

@@ -6,11 +6,25 @@ import 'package:kabetex/features/search/presentation/search_page.dart';
 import 'package:kabetex/features/products/providers/user_provider.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 
-class AppTitleRow extends ConsumerWidget {
+class AppTitleRow extends ConsumerStatefulWidget {
   const AppTitleRow({super.key});
 
   @override
-  Widget build(BuildContext context, ref) {
+  ConsumerState<AppTitleRow> createState() => _AppTitleRowState();
+}
+
+class _AppTitleRowState extends ConsumerState<AppTitleRow> {
+@override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.invalidate(futureProfileProvider);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final isDarkMode = ref.watch(isDarkModeProvider);
     final asyncProfile = ref.watch(futureProfileProvider);
 

@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kabetex/features/1community/providers/user_provider.dart';
 import 'package:kabetex/features/auth/presentation/sign_up.dart';
 import 'package:kabetex/features/auth/widgets/error_BotttomSheet.dart';
 import 'package:kabetex/features/home/presentations/tabs_screen.dart';
@@ -76,6 +77,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     } finally {
       setState(() => isLogging = false);
       await ref.refresh(futureProfileProvider.future);
+      ref.invalidate(currentUserProvider);
+      ref.refresh(currentUserProvider);
     }
   }
 

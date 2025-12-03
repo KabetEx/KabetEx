@@ -126,6 +126,7 @@ class _HomePageState extends ConsumerState<HomePage>
               // CONTENT AREA
               Expanded(
                 child: TabBarView(
+                  physics: const NeverScrollableScrollPhysics(),
                   children: [
                     // ------------------ MARKET TAB ------------------
                     RefreshIndicator(
