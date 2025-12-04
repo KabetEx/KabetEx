@@ -124,20 +124,26 @@ class PostWidget extends ConsumerWidget {
                               ),
                               btnLabel: 'Log in',
                             );
+                            return;
                           }
+
                           ref.read(feedProvider.notifier).toggleLike(post.id);
                         },
-                        icon: post.isLiked
-                            ? const Icon(
-                                Icons.favorite,
-                                size: 20,
-                                color: Colors.deepOrange,
-                              )
-                            : const Icon(
-                                Icons.favorite_border,
-                                size: 20,
-                                color: Colors.deepOrange,
-                              ),
+                        icon: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 300),
+                          transitionBuilder: (child, anim) =>
+                              ScaleTransition(scale: anim, child: child),
+                          child: Icon(
+                            key: ValueKey(post.isLiked),
+                            post.isLiked
+                                ? Icons.favorite
+                                : Icons.favorite_border,
+                            size: 20,
+                            color: post.isLiked
+                                ? Colors.deepOrange
+                                : Colors.white,
+                          ),
+                        ),
                         splashRadius: 20,
                       ),
                       Text(

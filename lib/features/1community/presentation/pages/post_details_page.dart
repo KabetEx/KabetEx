@@ -139,7 +139,7 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: isDark ? Colors.grey[900] : Colors.white54,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
         leading: IconButton(
@@ -153,99 +153,188 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// USER
-            Row(
-              children: [
-                const CircleAvatar(
-                  radius: 22,
-                  backgroundImage: NetworkImage(
-                    'https://i.pravatar.cc/150?img=12',
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Text(
-                  widget.post.userFullname ?? "",
-                  style: TextStyle(
-                    color: isDark ? Colors.white : Colors.black87,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
+            /// USER details row
+            const SizedBox(height: 16),
+
+            UserDetailsRow(post: widget.post, isDark: isDark),
 
             const SizedBox(height: 16),
 
             /// CONTENT
-            Text(
-              widget.post.content,
-              style: TextStyle(
-                fontSize: 18,
-                color: isDark ? Colors.white : Colors.black87,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4.0),
+              child: Text(
+                widget.post.content,
+                style: TextStyle(
+                  fontSize: 18,
+                  color: isDark ? Colors.white.withAlpha(220) : Colors.black87,
+                  fontFamily: 'Lato',
+                ),
               ),
             ),
 
             const SizedBox(height: 20),
 
             /// ACTIONS
-            Row(
-              children: [
-                IconButton(
-                  icon: Icon(
-                    postLiked ? Icons.favorite : Icons.favorite_border,
-                    size: 28,
-                    color: Colors.deepOrange,
-                  ),
-                  onPressed: () async {
-                    final user = Supabase.instance.client.auth.currentUser;
-                    if (user == null) {
-                      FailureSnackBar.show(
-                        context: context,
-                        message: 'Log in to like! ',
-                        isDark: isDark,
-                        onPressed: () => Navigator.push(
-                          context,
-                          SlideRouting(page: const LoginPage()),
-                        ),
-                        btnLabel: 'Log in',
-                      );
-                    }
-                    setState(() {
-                      postLiked = !postLiked;
-                      likeCount += postLiked ? 1 : -1;
-                    });
+            ActionsRow(
+              postLiked: postLiked,
+              likeCount: likeCount,
+              postId: widget.post.id,
+              onClickComment: _openCommentSheet,
+            ),
 
+            Divider(color: isDark ? Colors.grey[700] : Colors.black45),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class UserDetailsRow extends StatelessWidget {
+  const UserDetailsRow({super.key, required this.post, required this.isDark});
+
+  final Post post;
+  final bool isDark;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        const CircleAvatar(
+          radius: 22,
+          backgroundImage: NetworkImage('https://i.pravatar.cc/150?img=12'),
+        ),
+        const SizedBox(width: 10),
+        Text(
+          post.userFullname ?? "",
+          style: TextStyle(
+            color: isDark ? Colors.white : Colors.black87,
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class ActionsRow extends ConsumerStatefulWidget {
+  final bool postLiked;
+  final int likeCount;
+  final String postId;
+  final void Function(BuildContext context) onClickComment;
+
+  const ActionsRow({
+    super.key,
+    required this.postLiked,
+    required this.likeCount,
+    required this.postId,
+    required this.onClickComment,
+  });
+
+  @override
+  ConsumerState<ActionsRow> createState() => _ActionsRowState();
+}
+
+class _ActionsRowState extends ConsumerState<ActionsRow> {
+  late bool postLiked;
+  late int likeCount;
+  bool isLiking = false;
+
+  @override
+  void initState() {
+    super.initState();
+    postLiked = widget.postLiked;
+    likeCount = widget.likeCount;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = ref.watch(isDarkModeProvider);
+
+    return Row(
+      children: [
+        IconButton(
+          icon: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            transitionBuilder: (child, anim) =>
+                ScaleTransition(scale: anim, child: child),
+            child: Icon(
+              postLiked ? Icons.favorite : Icons.favorite_border,
+              key: ValueKey(postLiked),
+              size: 28,
+              color: postLiked ? Colors.red : Colors.white,
+            ),
+          ),
+          onPressed: !isLiking
+              ? () async {
+                  final user = Supabase.instance.client.auth.currentUser;
+                  if (user == null) {
+                    FailureSnackBar.show(
+                      context: context,
+                      message: 'Log in to like!',
+                      isDark: isDark,
+                      onPressed: () => Navigator.push(
+                        context,
+                        SlideRouting(page: const LoginPage()),
+                      ),
+                      btnLabel: 'Log in',
+                    );
+                    return;
+                  }
+                  if (isLiking) return;
+
+                  setState(() {
+                    postLiked = !postLiked;
+                    likeCount += postLiked ? 1 : -1;
+                    isLiking = true;
+                  });
+
+                  try {
                     final result = await ref
                         .read(feedProvider.notifier)
-                        .toggleLike(widget.post.id);
+                        .toggleLike(widget.postId);
 
                     setState(() {
                       postLiked = result['isLiked'];
                       likeCount = result['likeCount'];
+                      isLiking = false;
                     });
-                  },
-                ),
-
-                Text(
-                  likeCount.toString(),
-                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                    color: isDark ? Colors.grey : Colors.grey[900],
-                  ),
-                ),
-                const SizedBox(width: 12),
-                IconButton(
-                  icon: Icon(
-                    Icons.mode_comment_outlined,
-                    size: 26,
-                    color: isDark ? Colors.white : Colors.black87,
-                  ),
-                  onPressed: () => _openCommentSheet(context),
-                ),
-              ],
-            ),
-          ],
+                  } catch (e) {
+                    setState(() {
+                      postLiked = !postLiked;
+                      likeCount += postLiked ? 1 : -1;
+                    });
+                    FailureSnackBar.show(
+                      context: context,
+                      message: 'failed to like post',
+                      isDark: isDark,
+                    );
+                  } finally {
+                    isLiking = false; // unlock
+                  }
+                }
+              : null,
         ),
-      ),
+        Text(
+          likeCount.toString(),
+          style: Theme.of(context).textTheme.bodySmall!.copyWith(
+            color: isDark ? Colors.grey : Colors.grey[900],
+          ),
+        ),
+        const SizedBox(width: 12),
+        IconButton(
+          icon: Icon(
+            Icons.mode_comment_outlined,
+            size: 26,
+            color: isDark ? Colors.white : Colors.black87,
+          ),
+          onPressed: () {
+            widget.onClickComment(context);
+          },
+        ),
+      ],
     );
   }
 }
