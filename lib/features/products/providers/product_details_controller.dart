@@ -212,7 +212,7 @@ class ProductDetailsController extends StateNotifier<AsyncValue<Product>> {
         isDark: isDark,
       );
     } catch (e) {
-      FailureSnackBar.show(context, 'Failed to report: $e', isDark);
+      FailureSnackBar.show(context:  context,message:  'Failed to report: $e',isDark:  isDark);
     } finally {
       Navigator.of(context).pop();
     }

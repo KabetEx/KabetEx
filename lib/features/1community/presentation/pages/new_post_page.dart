@@ -43,7 +43,7 @@ class _PostTweetPageState extends ConsumerState<PostTweetPage> {
       await repo.createPost(
         userId: _user!.id,
         content: content,
-        full_name: userProfile!.name,
+        fullName: userProfile!.name,
       );
       SuccessSnackBar.show(
         context: context,
@@ -51,7 +51,7 @@ class _PostTweetPageState extends ConsumerState<PostTweetPage> {
         isDark: isDark,
       );
     } catch (e) {
-      FailureSnackBar.show(context, 'Error posting: $e', isDark);
+      FailureSnackBar.show(context:  context, message:  'Error posting: $e', isDark: isDark);
     }
 
     setState(() {

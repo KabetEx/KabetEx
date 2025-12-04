@@ -62,9 +62,9 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
       if (mounted) setState(() => isLoaded = true);
     } catch (e) {
       FailureSnackBar.show(
-        context,
-        'Failed to load product $e',
-        ref.watch(isDarkModeProvider),
+       context:  context,
+       message:  'Failed to load product $e',
+       isDark:  ref.watch(isDarkModeProvider),
       );
     } finally {
       if (mounted) setState(() => isLoading = false);

@@ -1,10 +1,13 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kabetex/common/slide_routing.dart';
 import 'package:kabetex/features/1community/presentation/widgets/post_widget.dart';
 import 'package:kabetex/features/1community/presentation/widgets/drawer.dart';
-import 'package:kabetex/features/1community/providers/post_provider.dart';
+import 'package:kabetex/features/1community/providers/feed_provider.dart';
 import 'package:kabetex/features/1community/providers/tabs_provider.dart';
 import 'package:kabetex/features/1community/providers/user_provider.dart';
+import 'package:kabetex/features/settings/presentations/settings_page.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 
 class FeedPage extends ConsumerStatefulWidget {
@@ -46,15 +49,11 @@ class _FeedPageState extends ConsumerState<FeedPage> {
   }
 
   Future<void> onRefresh() async {
-    ref.invalidate(communityPostsProvider);
     ref.invalidate(currentUserProvider);
-    await ref.read(
-      communityPostsProvider.future,
-    ); //wait until posts are refetched
 
-    await Future.delayed(
-      const Duration(milliseconds: 600),
-    ); //not remove the indicator instantly
+    await ref
+        .read(feedProvider.notifier)
+        .fetchPosts(); //wait until posts are refetched
   }
 
   @override
@@ -66,7 +65,8 @@ class _FeedPageState extends ConsumerState<FeedPage> {
   @override
   Widget build(BuildContext context) {
     final isDark = ref.watch(isDarkModeProvider);
-    final postsAsync = ref.watch(communityPostsProvider);
+    final feedState = ref.watch(feedProvider);
+    final posts = feedState.posts;
 
     return Scaffold(
       key: _scaffoldKey,
@@ -78,19 +78,21 @@ class _FeedPageState extends ConsumerState<FeedPage> {
           slivers: [
             SliverAppBar(
               pinned: true,
-              backgroundColor: Colors.black,
+              backgroundColor: isDark ? Colors.black : Colors.transparent,
               elevation: 4,
               expandedHeight: 60,
               leading: Padding(
-                padding: const EdgeInsets.only(left: 16.0, top: 16),
+                padding: const EdgeInsets.only(left: 16.0, top: 8, bottom: 8),
                 child: GestureDetector(
                   onTap: () => _scaffoldKey.currentState?.openDrawer(),
-                  child: const CircleAvatar(
-                    radius: 24,
-                    backgroundImage: NetworkImage(
-                      'https://i.pravatar.cc/150?img=12',
-                    ),
-                  ),
+                  child: const Icon(CupertinoIcons.bars, size: 38),
+                  //later ....
+                  // const CircleAvatar(
+                  //   radius: 24,
+                  //   backgroundImage: NetworkImage(
+                  //     'https://i.pravatar.cc/150?img=12',
+                  //   ),
+                  // ),
                 ),
               ),
               centerTitle: true,
@@ -117,35 +119,53 @@ class _FeedPageState extends ConsumerState<FeedPage> {
               ),
               actions: [
                 Padding(
-                  padding: const EdgeInsets.only(right: 16.0, top: 16),
-                  child: Icon(
-                    Icons.settings_outlined,
+                  padding: const EdgeInsets.only(
+                    right: 16.0,
+                    top: 8,
+                    bottom: 8,
+                  ),
+                  child: IconButton(
+                    icon: const Icon(Icons.settings_outlined, size: 32),
                     color: isDark ? Colors.white : Colors.black,
-                    size: 32,
+                    onPressed: () => Navigator.push(
+                      context,
+                      SlideRouting(page: const SettingsPage()),
+                    ),
                   ),
                 ),
               ],
             ),
 
-            postsAsync.when(
-              data: (posts) => SliverList(
+            // ✅ Conditional Sliver content
+            if (feedState.isLoading)
+              const SliverFillRemaining(
+                child: Center(child: CircularProgressIndicator()),
+              )
+            else if (feedState.error != null)
+              SliverFillRemaining(
+                child: Center(child: Text('Error: ${feedState.error}')),
+              )
+            else if (posts.isEmpty)
+              const SliverFillRemaining(
+                child: Center(child: Text('No posts yet 😢')),
+              )
+            else
+              SliverList(
                 delegate: SliverChildBuilderDelegate((context, index) {
+                  final post = posts[index];
                   return Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 12,
                       vertical: 6,
                     ),
-                    child: PostWidget(post: posts[index]),
+                    child: PostWidget(
+                      post: post,
+                      onLike: () =>
+                          ref.read(feedProvider.notifier).toggleLike(post.id),
+                    ),
                   );
                 }, childCount: posts.length),
               ),
-              loading: () => const SliverFillRemaining(
-                child: Center(child: CircularProgressIndicator()),
-              ),
-              error: (err, stack) => SliverFillRemaining(
-                child: Center(child: Text('Error: $err')),
-              ),
-            ),
           ],
         ),
       ),

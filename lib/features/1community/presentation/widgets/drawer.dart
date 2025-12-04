@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/common/slide_routing.dart';
 import 'package:kabetex/features/1community/providers/user_provider.dart';
 import 'package:kabetex/features/auth/presentation/login.dart';
+import 'package:kabetex/features/home/providers/nav_bar.dart';
 import 'package:kabetex/features/settings/presentations/settings_page.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -283,7 +284,6 @@ class _MyCommunityDrawerState extends ConsumerState<MyCommunityDrawer> {
                         )
                       : {
                           await supabase.auth.signOut(),
-                          ref.invalidate(currentUserProvider),
                           Navigator.pushAndRemoveUntil(
                             context,
                             MaterialPageRoute(
@@ -291,6 +291,8 @@ class _MyCommunityDrawerState extends ConsumerState<MyCommunityDrawer> {
                             ),
                             (route) => false,
                           ),
+                          ref.invalidate(currentUserProvider),
+                          ref.read(homeTopTabProvider.notifier).state = 0,
                         };
                 },
               ),

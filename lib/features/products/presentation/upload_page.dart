@@ -50,7 +50,11 @@ class PostProductPageState extends ConsumerState<PostProductPage> {
       return;
     }
     if (_pickedImages.isEmpty) {
-      FailureSnackBar.show(context, 'No images selected', isDark);
+      FailureSnackBar.show(
+        context: context,
+        message: 'No images selected',
+        isDark: isDark,
+      );
       return;
     }
 
@@ -92,7 +96,11 @@ class PostProductPageState extends ConsumerState<PostProductPage> {
 
       Navigator.pop(context); // go back after upload
     } catch (e) {
-      FailureSnackBar.show(context, 'Upload failed: $e', isDark);
+      FailureSnackBar.show(
+        context: context,
+        message: 'Upload failed: $e',
+        isDark: isDark,
+      );
     } finally {
       setState(() => isUploading = false);
     }
@@ -394,9 +402,9 @@ class _CategoryRowState extends State<CategoryRow> {
                 return 'Invalid quantity';
               } else if (quantity == null) {
                 FailureSnackBar.show(
-                  context,
-                  'Enter a valid quantity',
-                  widget.isDark,
+                  context: context,
+                  message: 'Enter a valid quantity',
+                  isDark: widget.isDark,
                 );
                 return 'Invalid quantity';
               }

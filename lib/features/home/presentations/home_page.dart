@@ -161,9 +161,9 @@ class _HomePageState extends ConsumerState<HomePage>
                         );
                         final isLoadingMkt = ref.watch(isLoadingMarketprovider);
 
-                        if (isLoadingComm) {
-                          return LoadingPage(isDark: isDark);
-                        }
+                        // if (isLoadingComm) {
+                        //   return LoadingPage(isDark: isDark);
+                        // }
                         if (isLoadingMkt) {
                           return LoadingPage(isDark: isDark);
                         }

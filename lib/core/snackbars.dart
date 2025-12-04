@@ -9,6 +9,7 @@ class SuccessSnackBar {
     String? label,
     int? duration,
   }) {
+    ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         duration: Duration(seconds: duration ?? 2),
@@ -53,7 +54,14 @@ class SuccessSnackBar {
 }
 
 class FailureSnackBar {
-  static void show(BuildContext context, String message, bool isDark) {
+  static void show({
+    required BuildContext context,
+    required String message,
+    required bool isDark,
+    String? btnLabel,
+    void Function()? onPressed,
+  }) {
+    ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         duration: const Duration(seconds: 1),
@@ -63,6 +71,14 @@ class FailureSnackBar {
         persist: false,
         margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        action: (onPressed != null)
+            ? SnackBarAction(
+                label: btnLabel!,
+                onPressed: onPressed,
+                backgroundColor: Colors.black,
+                textColor: Colors.white,
+              )
+            : null,
         content: Row(
           children: [
             const Icon(Icons.error_rounded, color: Colors.white, size: 22),
