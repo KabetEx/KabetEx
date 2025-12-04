@@ -72,6 +72,11 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                 TextField(
                   controller: controller,
                   maxLines: 5,
+                  autocorrect: true,
+                  autofocus: true,
+                  enableSuggestions: true,
+                  keyboardType: TextInputType.text,
+                  textCapitalization: TextCapitalization.sentences,
                   style: TextStyle(
                     color: isDark ? Colors.white : Colors.black87,
                   ),

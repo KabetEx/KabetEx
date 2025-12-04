@@ -26,6 +26,14 @@ class PostWidget extends ConsumerWidget {
     return DateFormat('MMM d').format(createdAt);
   }
 
+  Widget showPopup(BuildContext context) {
+    return PopupMenuButton(
+      itemBuilder: (context) {
+        return [const PopupMenuItem(child: Text('Report'))];
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -80,14 +88,19 @@ class PostWidget extends ConsumerWidget {
                           ),
                         ],
                       ),
-                      IconButton(
-                        onPressed: () {},
-                        icon: Icon(
-                          Icons.more_horiz,
-                          color: isDark ? Colors.white : Colors.black,
-                        ),
-                        splashRadius: 20,
-                        padding: EdgeInsets.zero,
+                      PopupMenuButton(
+                        icon: const Icon(Icons.more_horiz),
+                        onSelected: (value) {
+                          if (value == 'report') {
+                            debugPrint('Report clicked');
+                          }
+                        },
+                        itemBuilder: (context) => [
+                          const PopupMenuItem(
+                            value: 'report',
+                            child: Text('Report'),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -106,70 +119,87 @@ class PostWidget extends ConsumerWidget {
 
                   const SizedBox(height: 10),
 
-                  Row(
-                    children: [
-                      //like post
-                      IconButton(
-                        onPressed: () {
-                          final user =
-                              Supabase.instance.client.auth.currentUser;
-                          if (user == null) {
-                            FailureSnackBar.show(
-                              context: context,
-                              message: 'Log in to like! ',
-                              isDark: isDark,
-                              onPressed: () => Navigator.push(
-                                context,
-                                SlideRouting(page: const LoginPage()),
-                              ),
-                              btnLabel: 'Log in',
-                            );
-                            return;
-                          }
-
-                          ref.read(feedProvider.notifier).toggleLike(post.id);
-                        },
-                        icon: AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 300),
-                          transitionBuilder: (child, anim) =>
-                              ScaleTransition(scale: anim, child: child),
-                          child: Icon(
-                            key: ValueKey(post.isLiked),
-                            post.isLiked
-                                ? Icons.favorite
-                                : Icons.favorite_border,
-                            size: 20,
-                            color: post.isLiked
-                                ? Colors.deepOrange
-                                : Colors.white,
-                          ),
-                        ),
-                        splashRadius: 20,
-                      ),
-                      Text(
-                        post.likeCount.toString(),
-                        style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                          color: isDark ? Colors.grey : Colors.grey[900],
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      IconButton(
-                        onPressed: () {},
-                        icon: Icon(
-                          Icons.share_outlined,
-                          size: 20,
-                          color: isDark ? Colors.white : Colors.black,
-                        ),
-                        splashRadius: 20,
-                      ),
-                    ],
-                  ),
+                  //actions row
+                  PostWidgetActionsRow(post: post, isDark: isDark),
                 ],
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+}
+
+class PostWidgetActionsRow extends ConsumerWidget {
+  final Post post;
+  final bool isDark;
+
+  const PostWidgetActionsRow({
+    super.key,
+    required this.post,
+    required this.isDark,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Row(
+      children: [
+        // ❤️ Like button
+        IconButton(
+          onPressed: () async {
+            final user = Supabase.instance.client.auth.currentUser;
+            if (user == null) {
+              FailureSnackBar.show(
+                context: context,
+                message: 'Log in to like!',
+                isDark: isDark,
+                onPressed: () => Navigator.push(
+                  context,
+                  SlideRouting(page: const LoginPage()),
+                ),
+                btnLabel: 'Log in',
+              );
+              return;
+            }
+
+            ref.read(feedProvider.notifier).toggleLike(post.id);
+          },
+          icon: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 250),
+            transitionBuilder: (child, anim) =>
+                ScaleTransition(scale: anim, child: child),
+            child: Icon(
+              key: ValueKey(post.isLiked),
+              post.isLiked ? Icons.favorite : Icons.favorite_border,
+              size: 20,
+              color: post.isLiked ? Colors.deepOrange : Colors.white,
+            ),
+          ),
+          splashRadius: 20,
+        ),
+
+        // ❤️ Like count
+        Text(
+          post.likeCount.toString(),
+          style: Theme.of(context).textTheme.bodySmall!.copyWith(
+            color: isDark ? Colors.grey : Colors.grey[900],
+          ),
+        ),
+
+        const SizedBox(width: 8),
+
+        // 🔗 Share
+        IconButton(
+          onPressed: () {},
+          icon: Icon(
+            Icons.share_outlined,
+            size: 20,
+            color: isDark ? Colors.white : Colors.black,
+          ),
+          splashRadius: 20,
+        ),
+      ],
     );
   }
 }
