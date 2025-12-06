@@ -2,9 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/common/slide_routing.dart';
+import 'package:kabetex/features/1community/presentation/pages/profile_page.dart';
 import 'package:kabetex/features/1community/providers/user_provider.dart';
 import 'package:kabetex/features/auth/presentation/login.dart';
 import 'package:kabetex/features/home/providers/nav_bar.dart';
+import 'package:kabetex/features/profile/presentantion/profile_page.dart';
 import 'package:kabetex/features/settings/presentations/settings_page.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -144,7 +146,7 @@ class _MyCommunityDrawerState extends ConsumerState<MyCommunityDrawer> {
             const SizedBox(height: 10),
 
             // ------------------------------------------
-            // LIST TILES WITH X-LIKE PADDING
+            // LIST TILES
             // ------------------------------------------
             Expanded(
               child: ListView(
@@ -182,12 +184,12 @@ class _MyCommunityDrawerState extends ConsumerState<MyCommunityDrawer> {
                     child: ListTile(
                       contentPadding: EdgeInsets.zero,
                       leading: Icon(
-                        CupertinoIcons.doc_text,
+                        CupertinoIcons.person,
                         size: 26,
                         color: isDark ? Colors.white : Colors.black,
                       ),
                       title: Text(
-                        "My Posts",
+                        "Profile",
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 16,
@@ -195,7 +197,10 @@ class _MyCommunityDrawerState extends ConsumerState<MyCommunityDrawer> {
                         ),
                       ),
                       onTap: () {
-                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          SlideRouting(page: const CommunityProfilePage()),
+                        );
                       },
                     ),
                   ),
