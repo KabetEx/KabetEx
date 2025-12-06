@@ -2,11 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/common/slide_routing.dart';
+import 'package:kabetex/core/snackbars.dart';
 import 'package:kabetex/features/1community/presentation/pages/profile_page.dart';
 import 'package:kabetex/features/1community/providers/user_provider.dart';
 import 'package:kabetex/features/auth/presentation/login.dart';
 import 'package:kabetex/features/home/providers/nav_bar.dart';
-import 'package:kabetex/features/profile/presentantion/profile_page.dart';
 import 'package:kabetex/features/settings/presentations/settings_page.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -176,34 +176,59 @@ class _MyCommunityDrawerState extends ConsumerState<MyCommunityDrawer> {
                       },
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 32,
-                      vertical: 6,
-                    ),
-                    child: ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      leading: Icon(
-                        CupertinoIcons.person,
-                        size: 26,
-                        color: isDark ? Colors.white : Colors.black,
-                      ),
-                      title: Text(
-                        "Profile",
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 16,
-                          color: isDark ? Colors.white : Colors.black,
+
+                  //profile
+                  user == null
+                      ? const SizedBox.shrink()
+                      : Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 32,
+                            vertical: 6,
+                          ),
+                          child: ListTile(
+                            enabled: userProfileAsync.hasValue,
+                            contentPadding: EdgeInsets.zero,
+                            leading: Icon(
+                              CupertinoIcons.person,
+                              size: 26,
+                              color: isDark ? Colors.white : Colors.black,
+                            ),
+                            title: Text(
+                              "Profile",
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16,
+                                color: isDark ? Colors.white : Colors.black,
+                              ),
+                            ),
+                            onTap: () {
+                              userProfileAsync.when(
+                                data: (userProfile) {
+                                  Navigator.push(
+                                    context,
+                                    SlideRouting(
+                                      page: CommunityProfilePage(
+                                        userProfile: userProfile!,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                loading: () {
+                                  // Optional: show a snackbar or loading indicator
+                                  return const CircularProgressIndicator();
+                                },
+                                error: (error, stack) {
+                                  // Optional: show an error message
+                                  FailureSnackBar.show(
+                                    context: context,
+                                    message: 'Failure fetching profile',
+                                    isDark: isDark,
+                                  );
+                                },
+                              );
+                            },
+                          ),
                         ),
-                      ),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          SlideRouting(page: const CommunityProfilePage()),
-                        );
-                      },
-                    ),
-                  ),
                   Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 32,
@@ -239,10 +264,13 @@ class _MyCommunityDrawerState extends ConsumerState<MyCommunityDrawer> {
             // ------------------------------------------
             // LOGOUT + FOOTER
             // ------------------------------------------
-            Divider(
-              thickness: 0.7,
-              color: isDark ? Colors.grey[800] : Colors.grey[300],
-              height: 0,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Divider(
+                thickness: 0.7,
+                color: isDark ? Colors.grey[800] : Colors.grey[700],
+                height: 0,
+              ),
             ),
 
             Padding(
@@ -278,27 +306,24 @@ class _MyCommunityDrawerState extends ConsumerState<MyCommunityDrawer> {
                         ),
                       ),
                 onTap: () async {
-                  user == null
-                      ? Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute<void>(
-                            builder: (BuildContext context) =>
-                                const LoginPage(),
-                          ),
-                          (Route<dynamic> route) => false,
-                        )
-                      : {
-                          await supabase.auth.signOut(),
-                          Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const LoginPage(),
-                            ),
-                            (route) => false,
-                          ),
-                          ref.invalidate(currentUserProvider),
-                          ref.read(homeTopTabProvider.notifier).state = 0,
-                        };
+                  if (user == null) {
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute<void>(
+                        builder: (BuildContext context) => const LoginPage(),
+                      ),
+                      (Route<dynamic> route) => false,
+                    );
+                  } else {
+                    await supabase.auth.signOut();
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (_) => const LoginPage()),
+                      (route) => false,
+                    );
+                    ref.invalidate(currentUserProvider);
+                    ref.read(homeTopTabProvider.notifier).state = 0;
+                  }
                 },
               ),
             ),
