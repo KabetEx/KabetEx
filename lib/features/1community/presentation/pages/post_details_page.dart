@@ -298,7 +298,7 @@ class _ActionsRowState extends ConsumerState<ActionsRow> {
 
                   try {
                     final result = await ref
-                        .read(feedProvider.notifier)
+                        .read(feedProvider(null).notifier)
                         .toggleLike(widget.postId);
 
                     setState(() {

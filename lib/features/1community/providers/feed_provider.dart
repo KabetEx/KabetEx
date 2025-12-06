@@ -3,17 +3,23 @@ import 'package:kabetex/features/1community/data/models/post.dart';
 import 'package:kabetex/features/1community/providers/post_provider.dart';
 import 'package:kabetex/features/1community/providers/user_provider.dart';
 import 'package:riverpod/legacy.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 // Provider
-final feedProvider = StateNotifierProvider<FeedNotifier, FeedState>((ref) {
-  final repo = ref.read(communityRepoProvider);
-  final user = ref.watch(currentUserProvider).value;
-  // if (user == null) {
-  //   throw Exception('User not logged in');
-  // }
-
-  return FeedNotifier(repo: repo, userId: user?.id ?? '');
-});
+final feedProvider =
+    StateNotifierProvider.family<FeedNotifier, FeedState, String?>((
+      ref,
+      profileUserID,
+    ) {
+      final repo = ref.read(communityRepoProvider);
+      final user = ref.watch(currentUserProvider).value;
+      
+      return FeedNotifier(
+        repo: repo,
+        userId: user?.id ?? '',
+        profileUserID: profileUserID, //not null if needs to filter posts
+      );
+    });
 
 // State
 class FeedState {
@@ -35,21 +41,29 @@ class FeedState {
 // StateNotifier
 class FeedNotifier extends StateNotifier<FeedState> {
   final CommunityRepository repo;
-  final String userId;
+  final String userId; //to check if user liked a post
+  final String? profileUserID;
 
-  FeedNotifier({required this.repo, required this.userId})
+  FeedNotifier({required this.repo, required this.userId, this.profileUserID})
     : super(FeedState(posts: [])) {
-    fetchPosts();
+    fetchPosts(
+      profileUserID,
+    ); // my goal is to pass the profileUserID when the provider is used . if its null, it only fetches, otherwise it filters
   }
 
   // ------------------------
   // FETCH POSTS (with isLiked + likeCount)
   // ------------------------
-  Future<void> fetchPosts() async {
+  Future<void> fetchPosts(String? profileUserId) async {
+    final loggedInUserID = Supabase.instance.client.auth.currentUser?.id ?? '';
     state = state.copyWith(isLoading: true, error: null);
+
     try {
       //raw posts from db
-      final rawPosts = await repo.fetchPosts(userId);
+      final rawPosts = await repo.fetchPosts(
+        profileUserId: profileUserId,
+        currentUserId: loggedInUserID,
+      );
 
       // Enrich posts with more info such as isliked and likecount
       final enrichedPosts = await Future.wait(

@@ -11,9 +11,9 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class PostWidget extends ConsumerWidget {
   final Post post;
-  final VoidCallback? onLike; // optional callback if needed externally
+  final FeedNotifier feedNotifier; // optional callback if needed externally
 
-  const PostWidget({super.key, required this.post, this.onLike});
+  const PostWidget({super.key, required this.post, required this.feedNotifier});
 
   String _timeAgo(DateTime createdAt) {
     final now = DateTime.now();
@@ -120,7 +120,11 @@ class PostWidget extends ConsumerWidget {
                   const SizedBox(height: 10),
 
                   //actions row
-                  PostWidgetActionsRow(post: post, isDark: isDark),
+                  PostWidgetActionsRow(
+                    post: post,
+                    isDark: isDark,
+                    feedNotifier:feedNotifier,
+                  ),
                 ],
               ),
             ),
@@ -134,11 +138,13 @@ class PostWidget extends ConsumerWidget {
 class PostWidgetActionsRow extends ConsumerWidget {
   final Post post;
   final bool isDark;
+  final FeedNotifier feedNotifier;
 
   const PostWidgetActionsRow({
     super.key,
     required this.post,
     required this.isDark,
+    required this.feedNotifier,
   });
 
   @override
@@ -162,8 +168,9 @@ class PostWidgetActionsRow extends ConsumerWidget {
               );
               return;
             }
-
-            ref.read(feedProvider.notifier).toggleLike(post.id);
+            
+            feedNotifier.toggleLike(post.id);
+            print('Liked');
           },
           icon: AnimatedSwitcher(
             duration: const Duration(milliseconds: 250),

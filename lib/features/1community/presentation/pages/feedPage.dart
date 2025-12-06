@@ -52,8 +52,8 @@ class _FeedPageState extends ConsumerState<FeedPage> {
     ref.invalidate(currentUserProvider);
 
     await ref
-        .read(feedProvider.notifier)
-        .fetchPosts(); //wait until posts are refetched
+        .read(feedProvider(null).notifier)
+        .fetchPosts(null); //wait until posts are refetched
   }
 
   @override
@@ -65,7 +65,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
   @override
   Widget build(BuildContext context) {
     final isDark = ref.watch(isDarkModeProvider);
-    final feedState = ref.watch(feedProvider);
+    final feedState = ref.watch(feedProvider(null)); //dont filter
     final posts = feedState.posts;
 
     return Scaffold(
@@ -153,16 +153,14 @@ class _FeedPageState extends ConsumerState<FeedPage> {
               SliverList(
                 delegate: SliverChildBuilderDelegate((context, index) {
                   final post = posts[index];
+                  final feedNotifier = ref.read(feedProvider(null).notifier);
+
                   return Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 12,
                       vertical: 6,
                     ),
-                    child: PostWidget(
-                      post: post,
-                      onLike: () =>
-                          ref.read(feedProvider.notifier).toggleLike(post.id),
-                    ),
+                    child: PostWidget(post: post, feedNotifier: feedNotifier),
                   );
                 }, childCount: posts.length),
               ),

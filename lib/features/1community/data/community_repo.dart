@@ -6,49 +6,45 @@ class CommunityRepository {
 
   CommunityRepository({required this.client});
 
-  Future<Map<String, dynamic>?> getCurrentUserProfile() async {
-    final user = Supabase.instance.client.auth.currentUser;
-    if (user == null) return null;
-
-    final response = await client
-        .from('profiles')
-        .select()
-        .eq('id', user.id)
-        .maybeSingle();
-    print(response);
-
-    return response;
-  }
-
-  // Fetch all posts
-  Future<List<Post>> fetchPosts(String userId) async {
+  // Fetch all posts (and if user liked or not)
+  Future<List<Post>> fetchPosts({
+    String? profileUserId, // whose posts to show (optional) //if null show all
+    required String currentUserId,
+  }) async {
     try {
-      final response = await client
-          .from('community-posts')
-          .select()
-          .order('created_at', ascending: false);
+      // 1️⃣ Base query
+      var query = client.from('community-posts').select();
 
+      // 2️⃣ profileUserID is NOT null? filter
+      if (profileUserId != null && currentUserId.isNotEmpty) {
+        query = query.eq('user_id', currentUserId);
+      }
+
+      // 3️⃣ Order by creation date
+      final response = await query.order('created_at', ascending: false);
       final data = response as List<dynamic>;
 
-      List<Post> posts = [];
+      // 4️⃣ Enrich posts with like info
+      final posts = await Future.wait(
+        data.map((raw) async {
+          final postId = raw['id'] as String;
 
-      for (final raw in data) {
-        final postId = raw['id'] as String;
+          final isLiked = currentUserId.isEmpty
+              ? false
+              : await isPostLiked(postId, currentUserId);
+          final likeCount = await getLikeCount(postId);
 
-        final isLiked = userId.isEmpty
-            ? false
-            : await isPostLiked(postId, userId);
-        final likeCount = await getLikeCount(postId);
-
-        posts.add(
-          Post.fromMap({...raw, 'isLiked': isLiked, 'likeCount': likeCount}),
-        );
-      }
+          return Post.fromMap({
+            ...raw,
+            'isLiked': isLiked,
+            'likeCount': likeCount,
+          });
+        }),
+      );
 
       return posts;
     } catch (e) {
-      print('error fetching posts $e');
-      throw Exception('Failed to fetch $e');
+      throw Exception('Failed to fetch posts $e');
     }
   }
 

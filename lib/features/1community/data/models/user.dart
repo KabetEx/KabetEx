@@ -4,6 +4,7 @@ class UserProfile {
   final String pNumber;
   final String email;
   final String year;
+  DateTime? createdAt;
   final bool isVerified;
   final bool isActive;
 
@@ -15,6 +16,7 @@ class UserProfile {
     required this.pNumber,
     required this.email,
     required this.year,
+    required this.createdAt,
     required this.isActive,
     required this.isVerified,
     //required this.avatarUrl,
@@ -41,6 +43,9 @@ class UserProfile {
     year: map['year'] ?? '',
     isActive: map['isActive'] ?? true,
     isVerified: map['isVerified'] ?? false,
+    createdAt: map['created_at'] != null
+        ? DateTime.parse(map['created_at'])
+        : null,
     //avatarUrl: map['avatar_url'] ?? '',
   );
 }

@@ -6,6 +6,20 @@ class UserRepository {
 
   UserRepository({required this.client});
 
+  Future<Map<String, dynamic>?> getCurrentUserProfile() async {
+    final user = Supabase.instance.client.auth.currentUser;
+    if (user == null) return null;
+
+    final response = await client
+        .from('profiles')
+        .select()
+        .eq('id', user.id)
+        .maybeSingle();
+    print(response);
+
+    return response;
+  }
+
   // Get current user
   Future<UserProfile?> getCurrentUser() async {
     final user = client.auth.currentUser;
