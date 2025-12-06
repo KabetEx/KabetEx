@@ -189,8 +189,9 @@ class _PostTweetPageState extends ConsumerState<PostTweetPage> {
                                   )
                                   .toList(),
                               onChanged: (val) {
-                                if (val != null)
+                                if (val != null) {
                                   setState(() => _audience = val);
+                                }
                               },
                               icon: Icon(
                                 Icons.keyboard_arrow_down_rounded,
