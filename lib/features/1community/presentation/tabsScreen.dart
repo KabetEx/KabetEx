@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/features/1community/presentation/pages/feedPage.dart';
 import 'package:kabetex/features/1community/presentation/pages/new_post_page.dart';
+import 'package:kabetex/features/1community/presentation/pages/profile_page.dart';
 import 'package:kabetex/features/1community/providers/tabs_provider.dart';
-import 'package:kabetex/features/profile/presentantion/profile_page.dart';
+import 'package:kabetex/features/1community/providers/user_provider.dart';
 import 'package:kabetex/providers/theme_provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class CommunityTabsScreen extends ConsumerStatefulWidget {
   const CommunityTabsScreen({super.key});
@@ -16,12 +18,6 @@ class CommunityTabsScreen extends ConsumerStatefulWidget {
 
 class _CommunityTabsScreen extends ConsumerState<CommunityTabsScreen> {
   int _currentIndex = 0;
-
-  final List<Widget> _pages = [
-    const FeedPage(),
-    const SizedBox(), // placeholder for middle add button
-    const ProfilePage(),
-  ];
 
   void _onTabTapped(int index) {
     if (index == 1) {
@@ -39,9 +35,16 @@ class _CommunityTabsScreen extends ConsumerState<CommunityTabsScreen> {
   Widget build(BuildContext context) {
     final isDark = ref.watch(isDarkModeProvider);
     final showBars = ref.watch(bottomBarVisibleProvider);
+    final user = Supabase.instance.client.auth.currentUser;
+
+    final List<Widget> pages = [
+      const FeedPage(),
+      const SizedBox(), // placeholder for middle add button
+      CommunityProfilePage(userID: user?.id),
+    ];
 
     return Scaffold(
-      body: _pages[_currentIndex],
+      body: pages[_currentIndex],
       bottomNavigationBar: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
         height: showBars ? 60 : 0,

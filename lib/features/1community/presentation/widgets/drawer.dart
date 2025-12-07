@@ -25,7 +25,7 @@ class _MyCommunityDrawerState extends ConsumerState<MyCommunityDrawer> {
   @override
   Widget build(BuildContext context) {
     final isDark = ref.watch(isDarkModeProvider);
-    final userProfileAsync = ref.watch(userByIDProvider(user!.id));
+    final userProfileAsync = ref.watch(userByIDProvider(user?.id));
 
     return Drawer(
       child: DecoratedBox(
@@ -314,6 +314,12 @@ class _MyCommunityDrawerState extends ConsumerState<MyCommunityDrawer> {
                       ),
                       (Route<dynamic> route) => false,
                     );
+                    ref.invalidate(userByIDProvider); //curent user profile
+                    ref.invalidate(currentUserIdProvider); //current user ID
+                    await Future.delayed(Durations.medium2);
+
+                    ref.read(tabsProvider.notifier).state = 0;
+                    ref.read(homeTopTabProvider.notifier).state = 0;
                   } else {
                     await supabase.auth.signOut();
                     Navigator.pushAndRemoveUntil(
@@ -321,8 +327,11 @@ class _MyCommunityDrawerState extends ConsumerState<MyCommunityDrawer> {
                       MaterialPageRoute(builder: (_) => const LoginPage()),
                       (route) => false,
                     );
-                    ref.invalidate(userByIDProvider(user!.id));
+                    ref.invalidate(
+                      userByIDProvider(user!.id),
+                    ); //logged in user ID
                     ref.read(homeTopTabProvider.notifier).state = 0;
+                    ref.read(tabsProvider.notifier).state = 0;
                   }
                 },
               ),

@@ -13,7 +13,7 @@ import 'package:kabetex/features/1community/providers/user_provider.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 
 class CommunityProfilePage extends ConsumerStatefulWidget {
-  final String userID;
+  final String? userID;
 
   const CommunityProfilePage({super.key, required this.userID});
 
@@ -42,7 +42,7 @@ class _CommunityProfilePageState extends ConsumerState<CommunityProfilePage> {
     return userAsync.when(
       data: (userProfile) {
         if (userProfile == null) {
-          return const Scaffold(body: Center(child: Text('User not found')));
+          return const Scaffold(body: Center(child: Text('Not logged in!')));
         }
 
         final bool isOwner = userProfile.id == currentUserId;
