@@ -58,13 +58,14 @@ class FailureSnackBar {
     required BuildContext context,
     required String message,
     required bool isDark,
+    int? duration,
     String? btnLabel,
     void Function()? onPressed,
   }) {
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        duration: const Duration(seconds: 1),
+        duration: Duration(seconds: duration ?? 1),
         backgroundColor: Colors.red.withAlpha(200),
         elevation: 8,
         behavior: SnackBarBehavior.floating,

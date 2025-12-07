@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -85,21 +86,21 @@ class _MyCommunityDrawerState extends ConsumerState<MyCommunityDrawer> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const CircleAvatar(
-                            radius: 32,
-                            backgroundImage: NetworkImage(
-                              'https://i.pravatar.cc/150?img=3',
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-
                           userProfileAsync.when(
                             data: (user) {
                               return Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
+                                  CircleAvatar(
+                                    radius: 32,
+                                    backgroundImage: CachedNetworkImageProvider(
+                                      user!.avatarUrl,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12),
+
                                   Text(
-                                    user?.name ?? 'loading...',
+                                    user.name,
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 18,
@@ -112,7 +113,7 @@ class _MyCommunityDrawerState extends ConsumerState<MyCommunityDrawer> {
                                   const SizedBox(height: 4),
 
                                   Text(
-                                    "${user?.year ?? ' '},  BCom",
+                                    "${user.year},  BCom",
                                     style: TextStyle(
                                       fontSize: 14,
                                       color: isDark

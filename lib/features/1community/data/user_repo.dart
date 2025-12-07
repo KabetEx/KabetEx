@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../data/models/user.dart';
 
@@ -6,6 +8,39 @@ class UserRepository {
 
   UserRepository({required this.client});
 
+  final supabase = Supabase.instance.client;
+
+  // Upload avatar
+  Future<String> uploadAvatar(String userId, File file) async {
+    final filePath =
+        'avatars/$userId-${DateTime.now().millisecondsSinceEpoch}.jpg';
+
+    await supabase.storage
+        .from('profile-images')
+        .upload(filePath, file, fileOptions: const FileOptions(upsert: true));
+
+    final publicUrl = supabase.storage
+        .from('profile-images')
+        .getPublicUrl(filePath);
+    return publicUrl;
+  }
+
+  // Update user
+  Future<void> updateUser({
+    required String userId,
+    required String name,
+    required String? bio,
+    required String? avatarUrl,
+  }) async {
+    await supabase
+        .from('profiles')
+        .update({
+          'full_name': name,
+          'bio': bio,
+          if (avatarUrl != null) 'avatar_url': avatarUrl,
+        })
+        .eq('id', userId);
+  }
 
   // Get userProfile by ID
   Future<UserProfile?> getUserByID(String? userID) async {
@@ -21,10 +56,5 @@ class UserRepository {
 
     if (response == null) return null;
     return UserProfile.fromMap(response);
-  }
-
-  // Create or update user in DB
-  Future<void> updateInsert(UserProfile user) async {
-    await client.from('profiles').upsert(user.toMap());
   }
 }

@@ -43,15 +43,17 @@ class _FeedPageState extends ConsumerState<FeedPage> {
 
     // Refresh user profile when FeedPage opens
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.invalidate(userByIDProvider(null)); // mark for refresh
+      ref.invalidate(currentUserIdProvider); //supabase user ID
+      ref.invalidate(userByIDProvider); // mark for refresh
       ref.read(userByIDProvider(null).future); // optionally await new data
     });
   }
 
   Future<void> onRefresh() async {
     ref.invalidate(userByIDProvider);
+    ref.read(userByIDProvider(null).future);
 
-    await ref
+    ref
         .read(feedProvider(null).notifier)
         .fetchPosts(); //wait until posts are refetched
   }
@@ -160,7 +162,10 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                       horizontal: 12,
                       vertical: 6,
                     ),
-                    child: PostWidget(post: post, feedNotifier: feedNotifier),
+                    child: PostWidget(
+                      post: post,
+                      feedNotifier: feedNotifier,
+                    ),
                   );
                 }, childCount: posts.length),
               ),

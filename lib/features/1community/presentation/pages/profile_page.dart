@@ -6,11 +6,15 @@ import 'package:intl/intl.dart';
 import 'package:kabetex/common/slide_routing.dart';
 import 'package:kabetex/core/snackbars.dart';
 import 'package:kabetex/features/1community/data/models/user.dart';
+import 'package:kabetex/features/1community/presentation/pages/edit_profile_page.dart';
 import 'package:kabetex/features/1community/presentation/pages/new_post_page.dart';
 import 'package:kabetex/features/1community/presentation/widgets/post_widget.dart';
 import 'package:kabetex/features/1community/providers/feed_provider.dart';
 import 'package:kabetex/features/1community/providers/user_provider.dart';
+import 'package:kabetex/features/profile/presentantion/edit_profile.dart';
 import 'package:kabetex/providers/theme_provider.dart';
+import 'package:shimmer/shimmer.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class CommunityProfilePage extends ConsumerStatefulWidget {
   final String? userID;
@@ -23,6 +27,9 @@ class CommunityProfilePage extends ConsumerStatefulWidget {
 }
 
 class _CommunityProfilePageState extends ConsumerState<CommunityProfilePage> {
+  late final feedProviderWithID = feedProvider(widget.userID);
+  bool isRefreshing = false;
+
   @override
   Widget build(BuildContext context) {
     final isDark = ref.watch(isDarkModeProvider);
@@ -35,9 +42,9 @@ class _CommunityProfilePageState extends ConsumerState<CommunityProfilePage> {
     ); //fetching the profile
 
     final feedState = ref.watch(
-      feedProvider(widget.userID),
+      feedProviderWithID,
     ); //pass in the ID to filter posts
-    final feedNotifier = ref.read(feedProvider(widget.userID).notifier);
+    final feedNotifier = ref.read(feedProviderWithID.notifier);
 
     return userAsync.when(
       data: (userProfile) {
@@ -50,29 +57,37 @@ class _CommunityProfilePageState extends ConsumerState<CommunityProfilePage> {
         return Scaffold(
           body: RefreshIndicator(
             onRefresh: () async {
-              ref.refresh(feedProvider(widget.userID));
-              ref.refresh(currentUserIdProvider);
+              if (isRefreshing) return;
+
+              isRefreshing = true;
+              ref.invalidate(
+                userByIDProvider(widget.userID),
+              ); //refresh userprofile
+              ref.refresh(feedProvider(widget.userID)); //refresh posts
               await Future.delayed(const Duration(milliseconds: 300));
 
               SuccessSnackBar.show(
                 context: context,
-                message:
-                    ' filtering posts for ${widget.userID} logged in as : $currentUserId',
+                message: 'refreshing...',
                 isDark: isDark,
               );
+              isRefreshing = false;
             },
             child: CustomScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
               slivers: [
                 // AppBar
                 SliverAppBar(
-                  pinned: false,
+                  pinned: true,
                   floating: true,
                   snap: true,
                   backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                   title: Text(
-                    "Profile",
-                    style: Theme.of(context).textTheme.titleMedium,
+                    isOwner ? "My Profile" : userProfile.name,
+                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                      fontFamily: 'Lato',
+                      fontSize: 24,
+                    ),
                   ),
                   elevation: 0.5,
                   actions: [
@@ -93,6 +108,7 @@ class _CommunityProfilePageState extends ConsumerState<CommunityProfilePage> {
                     ),
                     child: ProfileHeader(
                       user: userProfile,
+                      userAsync: userAsync,
                       isOwner: isOwner,
                       isDark: isDark,
                     ),
@@ -108,7 +124,7 @@ class _CommunityProfilePageState extends ConsumerState<CommunityProfilePage> {
                   SliverFillRemaining(
                     child: Center(child: Text('Error: ${feedState.error}')),
                   )
-                else if (feedState.posts.isEmpty)
+                else if (feedState.posts.isEmpty && isOwner)
                   SliverFillRemaining(
                     child: Center(
                       child: TextButton.icon(
@@ -122,6 +138,10 @@ class _CommunityProfilePageState extends ConsumerState<CommunityProfilePage> {
                         label: const Text('Create your first Post!'),
                       ),
                     ),
+                  )
+                else if (feedState.posts.isEmpty && !isOwner)
+                  const SliverFillRemaining(
+                    child: Center(child: Text('No posts yet')),
                   )
                 else
                   SliverList(
@@ -145,15 +165,17 @@ class _CommunityProfilePageState extends ConsumerState<CommunityProfilePage> {
 
 // ================= Profile Header =================
 class ProfileHeader extends StatelessWidget {
+  final AsyncValue<UserProfile?> userAsync;
   final UserProfile user;
   final bool isOwner;
   final bool isDark;
 
   const ProfileHeader({
     super.key,
-    required this.user,
+    required this.userAsync,
     required this.isOwner,
     required this.isDark,
+    required this.user,
   });
 
   @override
@@ -162,10 +184,33 @@ class ProfileHeader extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            AvatarWidget(user: user),
+            AvatarWidget(userAsync: userAsync, isDark: isDark),
             const Spacer(),
-            if (isOwner) EditProfileButton(isDark: isDark),
+            Column(
+              children: [
+                if (isOwner) EditProfileButton(isDark: isDark, user: user),
+
+                if (!isOwner) ...[
+                  const ProfileMetrics(posts: 2, followers: 103, following: 23),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.deepOrange,
+                      padding: const EdgeInsets.symmetric(horizontal: 64),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    onPressed: () {},
+                    child: Text(
+                      'Follow',
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                  ),
+                ],
+              ],
+            ),
           ],
         ),
         const SizedBox(height: 16),
@@ -174,17 +219,25 @@ class ProfileHeader extends StatelessWidget {
           style: Theme.of(context).textTheme.bodyLarge!.copyWith(
             fontFamily: 'Lato',
             fontSize: 20,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w300,
           ),
         ),
         const SizedBox(height: 8),
+
         YearNJoinedDateColumn(user: user, isDark: isDark),
-        const SizedBox(height: 32),
+        const SizedBox(height: 8),
+
+        if (isOwner) ...[
+          const ProfileMetrics(posts: 3, followers: 12, following: 3),
+          const SizedBox(height: 16),
+        ],
+
         Divider(
           color: isDark ? Colors.grey[800] : Colors.grey[700],
           thickness: 0.7,
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 16),
+
         Text(
           isOwner ? 'My Posts' : 'Posts',
           style: Theme.of(context).textTheme.bodyLarge!.copyWith(
@@ -200,63 +253,168 @@ class ProfileHeader extends StatelessWidget {
   }
 }
 
-// ================= Avatar Widget =================
-class AvatarWidget extends StatelessWidget {
-  final UserProfile user;
+class ProfileMetrics extends StatelessWidget {
+  final int posts;
+  final int followers;
+  final int following;
 
-  const AvatarWidget({super.key, required this.user});
+  const ProfileMetrics({
+    super.key,
+    required this.posts,
+    required this.followers,
+    required this.following,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 70,
-      height: 70,
-      decoration: const BoxDecoration(
-        shape: BoxShape.circle,
-        image: DecorationImage(
-          image: CachedNetworkImageProvider('https://i.pravatar.cc/150?img=3'),
-          fit: BoxFit.cover,
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    Widget item(String count, String label, VoidCallback onTap) {
+      return GestureDetector(
+        onTap: onTap,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              count,
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: isDark ? Colors.white : Colors.black,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 13,
+                color: isDark ? Colors.white70 : Colors.black54,
+              ),
+            ),
+          ],
         ),
-        boxShadow: [
-          BoxShadow(color: Colors.black26, blurRadius: 6, offset: Offset(2, 4)),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          item(posts.toString(), "Posts", () {}),
+          const SizedBox(width: 8),
+          item(followers.toString(), "Followers", () {}),
+          const SizedBox(width: 8),
+          item(following.toString(), "Following", () {}),
         ],
       ),
     );
   }
 }
 
-// ================= Edit Profile Button =================
-class EditProfileButton extends StatelessWidget {
+// ================= Avatar Widget =================
+class AvatarWidget extends StatelessWidget {
+  final AsyncValue<UserProfile?> userAsync;
   final bool isDark;
 
-  const EditProfileButton({super.key, required this.isDark});
+  const AvatarWidget({
+    super.key,
+    required this.userAsync,
+    required this.isDark,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: isDark ? Colors.white10 : Colors.black12,
-        foregroundColor: isDark ? Colors.white : Colors.black,
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        elevation: 2,
-      ),
-      onPressed: () {
-        // Navigate to edit profile
+    return userAsync.when(
+      data: (data) {
+        final userProfile = data;
+
+        return CircleAvatar(
+          radius: 44,
+          backgroundColor: Colors.grey[300],
+          backgroundImage: userProfile!.avatarUrl.isNotEmpty
+              ? CachedNetworkImageProvider(userProfile.avatarUrl)
+              : null, // fallback if empty
+          child: userProfile.avatarUrl.isEmpty
+              ? const Icon(CupertinoIcons.person, color: Colors.white)
+              : null,
+        );
       },
-      child: Text(
-        'Edit Profile',
-        style: Theme.of(context).textTheme.labelSmall!.copyWith(
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
-          color: isDark ? Colors.white : Colors.black,
+      error: (error, stackTrace) => const CircleAvatar(
+        child: Icon(CupertinoIcons.profile_circled, color: Colors.white),
+      ),
+      loading: () => Shimmer.fromColors(
+        baseColor: Colors.grey[600]!,
+        highlightColor: isDark ? Colors.grey[100]! : Colors.grey[800]!,
+        child: const SizedBox(
+          height: 70,
+          width: 70,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white,
+            ),
+          ),
         ),
       ),
     );
   }
 }
 
-// ================= Year + Joined =================
+// ================= Edit Profile Button =================
+
+class EditProfileButton extends ConsumerWidget {
+  final bool isDark;
+  final UserProfile user;
+
+  const EditProfileButton({
+    super.key,
+    required this.isDark,
+    required this.user,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isLoading = ref.watch(editProfileProvider).isLoading;
+
+    return ElevatedButton(
+      onPressed: isLoading
+          ? null
+          : () {
+              Navigator.push(
+                context,
+                SlideRouting(page: CommunityEditProfilePage(user: user)),
+              );
+            },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: isDark ? Colors.white12 : Colors.black,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+        elevation: 3,
+        shadowColor: Colors.black26,
+      ),
+      child: isLoading
+          ? SizedBox(
+              height: 20,
+              width: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2.5,
+                color: isDark ? Colors.white : Colors.white,
+              ),
+            )
+          : Text(
+              'Edit Profile',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: isDark ? Colors.white : Colors.white,
+              ),
+            ),
+    );
+  }
+}
+
+// ================= Year + Joined + Bio =================
 class YearNJoinedDateColumn extends StatelessWidget {
   final UserProfile user;
   final bool isDark;
@@ -270,21 +428,22 @@ class YearNJoinedDateColumn extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Year row
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               CupertinoIcons.book,
-              color: isDark ? Colors.grey : Colors.white,
+              color: isDark ? Colors.grey : Colors.grey[900],
+              size: 20,
             ),
             const SizedBox(width: 8),
             Text(
               user.year,
               style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                color: isDark ? Colors.grey : Colors.white,
+                color: isDark ? Colors.grey : Colors.grey[900],
                 fontSize: 16,
                 fontWeight: FontWeight.w300,
               ),
@@ -292,24 +451,41 @@ class YearNJoinedDateColumn extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 4),
+
+        // Joined row
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               CupertinoIcons.calendar,
-              color: isDark ? Colors.grey : Colors.white,
+              color: isDark ? Colors.grey : Colors.grey[900],
+              size: 20,
             ),
             const SizedBox(width: 8),
             Text(
-              'Joined: ${DateFormat('MMM d yyyy').format(user.createdAt!)}',
+              'Joined: ${DateFormat('MMM d yyyy').format(user.createdAt ?? DateTime.now())}',
               style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                color: isDark ? Colors.grey : Colors.white,
+                color: isDark ? Colors.grey : Colors.grey[900],
                 fontSize: 16,
                 fontWeight: FontWeight.w100,
               ),
             ),
           ],
         ),
+
+        const SizedBox(height: 12),
+
+        // Modern Bio card
+        if (user.bio.isNotEmpty)
+          Text(
+            user.bio,
+            style: TextStyle(
+              fontSize: 15,
+              color: isDark ? Colors.grey[300] : Colors.grey[800],
+              fontStyle: FontStyle.italic,
+              height: 1.4,
+            ),
+          ),
       ],
     );
   }

@@ -1,10 +1,15 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kabetex/common/slide_routing.dart';
 import 'package:kabetex/core/snackbars.dart';
 import 'package:kabetex/features/1community/data/community_repo.dart';
+import 'package:kabetex/features/1community/presentation/pages/profile_page.dart';
 import 'package:kabetex/features/1community/providers/user_provider.dart';
 import 'package:kabetex/features/profile/widgets/not_logged_In.dart';
 import 'package:kabetex/providers/theme_provider.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class PostTweetPage extends ConsumerStatefulWidget {
@@ -16,9 +21,9 @@ class PostTweetPage extends ConsumerStatefulWidget {
 
 class _PostTweetPageState extends ConsumerState<PostTweetPage> {
   final repo = CommunityRepository(client: Supabase.instance.client);
-  final _user = Supabase.instance.client.auth.currentUser;
   final _formKey = GlobalKey<FormState>();
   final _controller = TextEditingController();
+
   String _audience = 'Everyone';
   bool _isPosting = false;
 
@@ -32,7 +37,8 @@ class _PostTweetPageState extends ConsumerState<PostTweetPage> {
 
   Future<void> _submitPost() async {
     final isDark = ref.watch(isDarkModeProvider);
-    final userProfile = await ref.watch(userByIDProvider(null).future);
+    final userID = ref.watch(currentUserIdProvider);
+    final userProfile = await ref.watch(userByIDProvider(userID).future);
 
     if (!_canPost) return;
     setState(() => _isPosting = true);
@@ -40,18 +46,20 @@ class _PostTweetPageState extends ConsumerState<PostTweetPage> {
     final content = _controller.text.trim();
 
     try {
-      await repo.createPost(
-        userId: _user!.id,
-        content: content,
-        fullName: userProfile!.name,
-      );
+      await repo.createPost(userProfile: userProfile!, content: content);
       SuccessSnackBar.show(
         context: context,
         message: 'Posted Successfully',
         isDark: isDark,
       );
     } catch (e) {
-      FailureSnackBar.show(context:  context, message:  'Error posting: $e', isDark: isDark);
+      FailureSnackBar.show(
+        context: context,
+        message:
+            'Error posting: $e, ${userProfile?.id ?? 'null id'} ${userProfile?.name ?? 'null name'}}',
+        isDark: isDark,
+        duration: 300,
+      );
     }
 
     setState(() {
@@ -63,6 +71,8 @@ class _PostTweetPageState extends ConsumerState<PostTweetPage> {
   @override
   Widget build(BuildContext context) {
     final isDark = ref.watch(isDarkModeProvider);
+    final userID = ref.watch(currentUserIdProvider);
+    final userProfileAsync = ref.watch(userByIDProvider(userID));
 
     return Scaffold(
       appBar: AppBar(
@@ -99,7 +109,7 @@ class _PostTweetPageState extends ConsumerState<PostTweetPage> {
           ),
         ],
       ),
-      body: _user == null
+      body: userID == null
           ? const NotLoggedIn()
           : SingleChildScrollView(
               child: Padding(
@@ -110,11 +120,59 @@ class _PostTweetPageState extends ConsumerState<PostTweetPage> {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const CircleAvatar(
-                          radius: 28,
-                          backgroundImage: NetworkImage(
-                            'https://i.pravatar.cc/150?img=12',
-                          ), // placeholder
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              SlideRouting(
+                                page: CommunityProfilePage(userID: userID),
+                              ),
+                            );
+                          },
+                          child: userProfileAsync.when(
+                            data: (data) {
+                              final userProfile = data;
+
+                              return CircleAvatar(
+                                radius: 22,
+                                backgroundColor: Colors.grey[300],
+                                backgroundImage:
+                                    userProfile!.avatarUrl.isNotEmpty
+                                    ? CachedNetworkImageProvider(
+                                        userProfile.avatarUrl,
+                                      )
+                                    : null, // fallback if empty
+                                child: userProfile.avatarUrl.isEmpty
+                                    ? const Icon(
+                                        CupertinoIcons.person,
+                                        color: Colors.white,
+                                      )
+                                    : null,
+                              );
+                            },
+                            error: (error, stackTrace) => const CircleAvatar(
+                              child: Icon(
+                                CupertinoIcons.profile_circled,
+                                color: Colors.white,
+                              ),
+                            ),
+                            loading: () => Shimmer.fromColors(
+                              baseColor: Colors.grey,
+                              highlightColor: isDark
+                                  ? Colors.grey[100]!
+                                  : Colors.grey[800]!,
+                              child: SizedBox(
+                                height: 48,
+                                width: 48,
+                                child: DecoratedBox(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(22),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
@@ -122,7 +180,7 @@ class _PostTweetPageState extends ConsumerState<PostTweetPage> {
                             key: _formKey,
                             controller: _controller,
                             autofocus: true,
-                            maxLines: null,
+                            maxLines: 3,
                             style: TextStyle(
                               color: isDark ? Colors.white : Colors.black,
                               fontSize: 16,

@@ -4,11 +4,11 @@ class UserProfile {
   final String pNumber;
   final String email;
   final String year;
+  final String bio;
+  final String avatarUrl;
   DateTime? createdAt;
   final bool isVerified;
   final bool isActive;
-
-  //final String avatarUrl;
 
   UserProfile({
     this.id,
@@ -16,10 +16,11 @@ class UserProfile {
     required this.pNumber,
     required this.email,
     required this.year,
+    required this.bio,
+    required this.avatarUrl,
     required this.createdAt,
     required this.isActive,
     required this.isVerified,
-    //required this.avatarUrl,
   });
 
   //sending
@@ -31,13 +32,15 @@ class UserProfile {
     'year': year,
     'isActive': isActive,
     'isVerified': isVerified,
-    //'avatar_url': avatarUrl,
+    'avatar_url': avatarUrl,
   };
 
   //from supabase
   factory UserProfile.fromMap(Map<String, dynamic> map) => UserProfile(
     id: map['id'],
+    avatarUrl: map['avatar_url'] ?? '',
     name: map['full_name'] ?? '',
+    bio: map['bio'] ?? '',
     pNumber: map['phone_number'] ?? '',
     email: map['email'] ?? '',
     year: map['year'] ?? '',
@@ -46,6 +49,5 @@ class UserProfile {
     createdAt: map['created_at'] != null
         ? DateTime.parse(map['created_at'])
         : null,
-    //avatarUrl: map['avatar_url'] ?? '',
   );
 }

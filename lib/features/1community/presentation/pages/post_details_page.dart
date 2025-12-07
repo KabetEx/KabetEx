@@ -1,8 +1,11 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/common/slide_routing.dart';
 import 'package:kabetex/core/snackbars.dart';
 import 'package:kabetex/features/1community/data/models/post.dart';
+import 'package:kabetex/features/1community/presentation/pages/profile_page.dart';
 import 'package:kabetex/features/1community/providers/feed_provider.dart';
 import 'package:kabetex/features/auth/presentation/login.dart';
 import 'package:kabetex/providers/theme_provider.dart';
@@ -206,9 +209,23 @@ class UserDetailsRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        const CircleAvatar(
-          radius: 22,
-          backgroundImage: NetworkImage('https://i.pravatar.cc/150?img=12'),
+        GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              SlideRouting(page: CommunityProfilePage(userID: post.userId)),
+            );
+          },
+          child: CircleAvatar(
+            radius: 22,
+            backgroundColor: Colors.grey[300],
+            backgroundImage: post.avatarUrl!.isNotEmpty
+                ? CachedNetworkImageProvider(post.avatarUrl!)
+                : null, // fallback if empty
+            child: post.avatarUrl!.isEmpty
+                ? const Icon(CupertinoIcons.person, color: Colors.white)
+                : null,
+          ),
         ),
         const SizedBox(width: 10),
         Text(

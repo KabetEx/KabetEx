@@ -1,3 +1,5 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/common/slide_routing.dart';
@@ -7,6 +9,7 @@ import 'package:intl/intl.dart';
 import 'package:kabetex/features/1community/presentation/pages/post_details_page.dart';
 import 'package:kabetex/features/1community/presentation/pages/profile_page.dart';
 import 'package:kabetex/features/1community/providers/feed_provider.dart';
+import 'package:kabetex/features/1community/providers/user_provider.dart';
 import 'package:kabetex/features/auth/presentation/login.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -27,17 +30,10 @@ class PostWidget extends ConsumerWidget {
     return DateFormat('MMM d').format(createdAt);
   }
 
-  Widget showPopup(BuildContext context) {
-    return PopupMenuButton(
-      itemBuilder: (context) {
-        return [const PopupMenuItem(child: Text('Report'))];
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final loggedInUser = ref.watch(currentUserIdProvider);
 
     return GestureDetector(
       onTap: () {
@@ -50,7 +46,7 @@ class PostWidget extends ConsumerWidget {
         decoration: BoxDecoration(
           border: Border(
             bottom: BorderSide(
-              color: isDark ? Colors.grey[800]! : Colors.grey[300]!,
+              color: isDark ? Colors.grey[800]! : Colors.grey[400]!,
               width: 0.5,
             ),
           ),
@@ -65,11 +61,18 @@ class PostWidget extends ConsumerWidget {
                   SlideRouting(page: CommunityProfilePage(userID: post.userId)),
                 );
               },
-              child: const CircleAvatar(
+              child: CircleAvatar(
                 radius: 22,
-                backgroundColor: Colors.grey,
+                backgroundColor: Colors.grey[300],
+                backgroundImage: post.avatarUrl!.isNotEmpty
+                    ? CachedNetworkImageProvider(post.avatarUrl!)
+                    : null, // fallback if empty
+                child: post.avatarUrl!.isEmpty
+                    ? const Icon(CupertinoIcons.person, color: Colors.white)
+                    : null,
               ),
             ),
+
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -102,17 +105,34 @@ class PostWidget extends ConsumerWidget {
                       ),
                       PopupMenuButton(
                         icon: const Icon(Icons.more_horiz),
+                        color: isDark ? Colors.grey : Colors.white,
                         onSelected: (value) {
                           if (value == 'report') {
                             debugPrint('Report clicked');
                           }
                         },
-                        itemBuilder: (context) => [
-                          const PopupMenuItem(
-                            value: 'report',
-                            child: Text('Report'),
-                          ),
-                        ],
+                        itemBuilder: (context) {
+                          final isOwner = post.userId == loggedInUser;
+                          if (isOwner) {
+                            return [
+                              const PopupMenuItem(
+                                value: 'edit',
+                                child: Text('Edit Post'),
+                              ),
+                              const PopupMenuItem(
+                                value: 'delete',
+                                child: Text('Delete Post'),
+                              ),
+                            ];
+                          } else {
+                            return [
+                              const PopupMenuItem(
+                                value: 'report',
+                                child: Text('Report Post'),
+                              ),
+                            ];
+                          }
+                        },
                       ),
                     ],
                   ),

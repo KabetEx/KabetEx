@@ -1,3 +1,4 @@
+import 'package:kabetex/features/1community/data/models/user.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../data/models/post.dart';
 
@@ -50,25 +51,23 @@ class CommunityRepository {
 
   // Create new post
   Future<Post> createPost({
-    required String userId,
+    required UserProfile userProfile,
     required String content,
-    String? imageUrl,
-    required String fullName,
   }) async {
     try {
       final response = await client
           .from('community-posts')
           .insert({
-            'user_id': userId,
+            'user_id': userProfile.id,
             'content': content,
-            'full_name': fullName,
+            'full_name': userProfile.name,
+            'avatar_url': userProfile.avatarUrl,
           })
           .select()
           .single();
 
       return Post.fromMap(response);
     } catch (e) {
-      print('Failed to create post: $e');
       throw Exception('Failed to create post: $e');
     }
   }
