@@ -81,8 +81,8 @@ class _SignupPageState extends ConsumerState<SignupPage> {
       setState(() {
         isSigningUp = false;
       });
-      ref.invalidate(currentUserProvider);
-      ref.refresh(currentUserProvider);
+      ref.invalidate(userByIDProvider);
+      ref.refresh(userByIDProvider(null));
     }
   }
 

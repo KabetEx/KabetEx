@@ -32,7 +32,7 @@ class _PostTweetPageState extends ConsumerState<PostTweetPage> {
 
   Future<void> _submitPost() async {
     final isDark = ref.watch(isDarkModeProvider);
-    final userProfile = await ref.watch(currentUserProvider.future);
+    final userProfile = await ref.watch(userByIDProvider(null).future);
 
     if (!_canPost) return;
     setState(() => _isPosting = true);

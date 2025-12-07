@@ -25,7 +25,7 @@ class _MyCommunityDrawerState extends ConsumerState<MyCommunityDrawer> {
   @override
   Widget build(BuildContext context) {
     final isDark = ref.watch(isDarkModeProvider);
-    final userProfileAsync = ref.watch(currentUserProvider);
+    final userProfileAsync = ref.watch(userByIDProvider(user!.id));
 
     return Drawer(
       child: DecoratedBox(
@@ -208,7 +208,7 @@ class _MyCommunityDrawerState extends ConsumerState<MyCommunityDrawer> {
                                     context,
                                     SlideRouting(
                                       page: CommunityProfilePage(
-                                        userProfile: userProfile!,
+                                        userID: user!.id,
                                       ),
                                     ),
                                   );
@@ -321,7 +321,7 @@ class _MyCommunityDrawerState extends ConsumerState<MyCommunityDrawer> {
                       MaterialPageRoute(builder: (_) => const LoginPage()),
                       (route) => false,
                     );
-                    ref.invalidate(currentUserProvider);
+                    ref.invalidate(userByIDProvider(user!.id));
                     ref.read(homeTopTabProvider.notifier).state = 0;
                   }
                 },

@@ -1,9 +1,9 @@
+import 'package:flutter/rendering.dart';
 import 'package:kabetex/features/1community/data/community_repo.dart';
 import 'package:kabetex/features/1community/data/models/post.dart';
 import 'package:kabetex/features/1community/providers/post_provider.dart';
 import 'package:kabetex/features/1community/providers/user_provider.dart';
 import 'package:riverpod/legacy.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 // Provider
 final feedProvider =
@@ -12,11 +12,12 @@ final feedProvider =
       profileUserID,
     ) {
       final repo = ref.read(communityRepoProvider);
-      final user = ref.watch(currentUserProvider).value;
-      
+      final loggedInUserId =
+          ref.watch(currentUserIdProvider) ?? ''; //for like feature
+
       return FeedNotifier(
         repo: repo,
-        userId: user?.id ?? '',
+        currentUserID: loggedInUserId,
         profileUserID: profileUserID, //not null if needs to filter posts
       );
     });
@@ -41,36 +42,38 @@ class FeedState {
 // StateNotifier
 class FeedNotifier extends StateNotifier<FeedState> {
   final CommunityRepository repo;
-  final String userId; //to check if user liked a post
-  final String? profileUserID;
+  final String currentUserID; //to check if user liked a post
+  final String? profileUserID; //for filtering posts (nullable)
 
-  FeedNotifier({required this.repo, required this.userId, this.profileUserID})
-    : super(FeedState(posts: [])) {
-    fetchPosts(
-      profileUserID,
-    ); // my goal is to pass the profileUserID when the provider is used . if its null, it only fetches, otherwise it filters
+  //constructor
+  FeedNotifier({
+    required this.repo,
+    required this.currentUserID,
+    this.profileUserID, //for filtering
+  }) : super(FeedState(posts: [])) {
+    fetchPosts();
   }
 
   // ------------------------
   // FETCH POSTS (with isLiked + likeCount)
   // ------------------------
-  Future<void> fetchPosts(String? profileUserId) async {
-    final loggedInUserID = Supabase.instance.client.auth.currentUser?.id ?? '';
+  Future<void> fetchPosts() async {
     state = state.copyWith(isLoading: true, error: null);
+    debugPrint('Filtering posts for : ${profileUserID ?? 'Null profile ID'}');
 
     try {
       //raw posts from db
       final rawPosts = await repo.fetchPosts(
-        profileUserId: profileUserId,
-        currentUserId: loggedInUserID,
+        profileUserId: profileUserID, //nullable (for filtering)
+        currentUserId: currentUserID,
       );
 
       // Enrich posts with more info such as isliked and likecount
       final enrichedPosts = await Future.wait(
         rawPosts.map((post) async {
-          final isLiked = userId.isEmpty
+          final isLiked = currentUserID.isEmpty
               ? false
-              : await repo.isPostLiked(post.id, userId);
+              : await repo.isPostLiked(post.id, currentUserID);
           final likeCount = await repo.getLikeCount(post.id);
 
           return post.copyWith(isLiked: isLiked, likeCount: likeCount);
@@ -88,7 +91,7 @@ class FeedNotifier extends StateNotifier<FeedState> {
   // OPTIMISTIC UPDATE TOGGLE LIKE (instant animation)
   // ------------------------
   Future<Map<String, dynamic>> toggleLike(String postId) async {
-    if (userId.isEmpty) {
+    if (currentUserID.isEmpty) {
       // Guest users cannot like
       return {
         'isLiked': false,
@@ -120,7 +123,7 @@ class FeedNotifier extends StateNotifier<FeedState> {
       state = state.copyWith(posts: updatedPosts); //update state
 
       // 2 — Update DB in background
-      final result = await repo.toggleLike(postId, userId);
+      final result = await repo.toggleLike(postId, currentUserID);
 
       // 3 — Confirm DB truth
       final confirmed = optimistic.copyWith(

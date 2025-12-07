@@ -8,9 +8,17 @@ final repo = CommunityRepository(client: Supabase.instance.client);
 
 final userRepo = UserRepository(client: Supabase.instance.client);
 
-final currentUserProvider = FutureProvider<UserProfile?>((ref) async {
-  final supabaseUser = Supabase.instance.client.auth.currentUser;
-  if (supabaseUser == null) return null;
+final currentUserIdProvider = Provider<String?>((ref) {
+  return Supabase.instance.client.auth.currentUser?.id;
+});
 
-  return await userRepo.getCurrentUser();
+
+final userByIDProvider = FutureProvider.family<UserProfile?, String?>((
+  ref,
+  userID,
+) async {
+  // final supabaseUser = Supabase.instance.client.auth.currentUser;
+  // if (supabaseUser == null) return null;
+
+  return await userRepo.getUserByID(userID);
 });

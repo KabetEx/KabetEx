@@ -5,13 +5,14 @@ import 'package:kabetex/core/snackbars.dart';
 import 'package:kabetex/features/1community/data/models/post.dart';
 import 'package:intl/intl.dart';
 import 'package:kabetex/features/1community/presentation/pages/post_details_page.dart';
+import 'package:kabetex/features/1community/presentation/pages/profile_page.dart';
 import 'package:kabetex/features/1community/providers/feed_provider.dart';
 import 'package:kabetex/features/auth/presentation/login.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class PostWidget extends ConsumerWidget {
   final Post post;
-  final FeedNotifier feedNotifier; // optional callback if needed externally
+  final FeedNotifier feedNotifier; //for liking
 
   const PostWidget({super.key, required this.post, required this.feedNotifier});
 
@@ -57,7 +58,18 @@ class PostWidget extends ConsumerWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const CircleAvatar(radius: 22, backgroundColor: Colors.grey),
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  SlideRouting(page: CommunityProfilePage(userID: post.userId)),
+                );
+              },
+              child: const CircleAvatar(
+                radius: 22,
+                backgroundColor: Colors.grey,
+              ),
+            ),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -123,7 +135,7 @@ class PostWidget extends ConsumerWidget {
                   PostWidgetActionsRow(
                     post: post,
                     isDark: isDark,
-                    feedNotifier:feedNotifier,
+                    feedNotifier: feedNotifier,
                   ),
                 ],
               ),
@@ -168,7 +180,7 @@ class PostWidgetActionsRow extends ConsumerWidget {
               );
               return;
             }
-            
+
             feedNotifier.toggleLike(post.id);
             print('Liked');
           },
@@ -180,7 +192,13 @@ class PostWidgetActionsRow extends ConsumerWidget {
               key: ValueKey(post.isLiked),
               post.isLiked ? Icons.favorite : Icons.favorite_border,
               size: 20,
-              color: post.isLiked ? Colors.deepOrange : Colors.white,
+              color: isDark
+                  ? post.isLiked
+                        ? Colors.deepOrange
+                        : Colors.white
+                  : post.isLiked
+                  ? Colors.deepOrange
+                  : Colors.black,
             ),
           ),
           splashRadius: 20,

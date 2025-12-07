@@ -43,17 +43,17 @@ class _FeedPageState extends ConsumerState<FeedPage> {
 
     // Refresh user profile when FeedPage opens
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.invalidate(currentUserProvider); // mark for refresh
-      ref.read(currentUserProvider.future); // optionally await new data
+      ref.invalidate(userByIDProvider(null)); // mark for refresh
+      ref.read(userByIDProvider(null).future); // optionally await new data
     });
   }
 
   Future<void> onRefresh() async {
-    ref.invalidate(currentUserProvider);
+    ref.invalidate(userByIDProvider);
 
     await ref
         .read(feedProvider(null).notifier)
-        .fetchPosts(null); //wait until posts are refetched
+        .fetchPosts(); //wait until posts are refetched
   }
 
   @override

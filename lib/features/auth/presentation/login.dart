@@ -77,8 +77,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     } finally {
       setState(() => isLogging = false);
       await ref.refresh(futureProfileProvider.future);
-      ref.invalidate(currentUserProvider);
-      ref.refresh(currentUserProvider);
+      ref.invalidate(userByIDProvider);
+      ref.refresh(userByIDProvider(null));
+      ref.invalidate(currentUserIdProvider);
     }
   }
 

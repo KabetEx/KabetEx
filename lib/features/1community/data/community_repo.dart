@@ -16,8 +16,8 @@ class CommunityRepository {
       var query = client.from('community-posts').select();
 
       // 2️⃣ profileUserID is NOT null? filter
-      if (profileUserId != null && currentUserId.isNotEmpty) {
-        query = query.eq('user_id', currentUserId);
+      if (profileUserId != null) {
+        query = query.eq('user_id', profileUserId);
       }
 
       // 3️⃣ Order by creation date
