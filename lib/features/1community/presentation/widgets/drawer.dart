@@ -10,6 +10,7 @@ import 'package:kabetex/features/auth/presentation/login.dart';
 import 'package:kabetex/features/home/providers/nav_bar.dart';
 import 'package:kabetex/features/settings/presentations/settings_page.dart';
 import 'package:kabetex/providers/theme_provider.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class MyCommunityDrawer extends ConsumerStatefulWidget {
@@ -83,54 +84,96 @@ class _MyCommunityDrawerState extends ConsumerState<MyCommunityDrawer> {
                     height: 190,
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(20, 35, 20, 10),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          userProfileAsync.when(
-                            data: (user) {
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  CircleAvatar(
-                                    radius: 32,
-                                    backgroundImage: CachedNetworkImageProvider(
-                                      user!.avatarUrl,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 12),
+                      child: userProfileAsync.when(
+                        data: (user) {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              CircleAvatar(
+                                radius: 32,
+                                backgroundImage: CachedNetworkImageProvider(
+                                  user!.avatarUrl,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
 
-                                  Text(
-                                    user.name,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 18,
-                                      color: isDark
-                                          ? Colors.white
-                                          : Colors.black,
-                                    ),
-                                  ),
+                              Text(
+                                user.name,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                  color: isDark ? Colors.white : Colors.black,
+                                ),
+                              ),
 
-                                  const SizedBox(height: 4),
+                              const SizedBox(height: 4),
 
-                                  Text(
-                                    "${user.year},  BCom",
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: isDark
-                                          ? Colors.grey[400]
-                                          : Colors.grey[700],
-                                    ),
-                                  ),
-                                ],
-                              );
-                            },
-                            loading: () => const Center(
-                              child: CircularProgressIndicator(),
-                            ),
-                            error: (error, stackTrace) =>
-                                const Text('Error loading name'),
+                              Text(
+                                "${user.year},  BCom",
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: isDark
+                                      ? Colors.grey[400]
+                                      : Colors.grey[700],
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                        loading: () => Shimmer.fromColors(
+                          baseColor: isDark
+                              ? Colors.grey[800]!
+                              : Colors.grey[400]!,
+                          highlightColor: isDark
+                              ? Colors.grey[600]!
+                              : Colors.grey[400]!,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              //avatar
+                              Container(
+                                height: 60,
+                                width: 60,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: isDark
+                                      ? Colors.grey[600]!
+                                      : Colors.grey[400]!,
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+
+                              //name
+                              Container(
+                                height: 24,
+                                width: 140,
+                                decoration: BoxDecoration(
+                                  color: isDark
+                                      ? Colors.grey[600]!
+                                      : Colors.grey[400]!,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+
+                              //details
+                              Container(
+                                height: 24,
+                                width: 100,
+                                decoration: BoxDecoration(
+                                  color: isDark
+                                      ? Colors.grey[600]!
+                                      : Colors.grey[400]!,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
+                        ),
+                        error: (error, stackTrace) => const Center(
+                          child: Text('Error fetching details🥲'),
+                        ),
                       ),
                     ),
                   ),

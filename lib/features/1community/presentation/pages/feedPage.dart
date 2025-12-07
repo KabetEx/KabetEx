@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/common/slide_routing.dart';
+import 'package:kabetex/features/1community/presentation/pages/post_shimmer.dart';
 import 'package:kabetex/features/1community/presentation/widgets/post_widget.dart';
 import 'package:kabetex/features/1community/presentation/widgets/drawer.dart';
 import 'package:kabetex/features/1community/providers/feed_provider.dart';
@@ -140,8 +141,11 @@ class _FeedPageState extends ConsumerState<FeedPage> {
 
             // ✅ Conditional Sliver content
             if (feedState.isLoading)
-              const SliverFillRemaining(
-                child: Center(child: CircularProgressIndicator()),
+              SliverFillRemaining(
+                child: ListView.builder(
+                  itemCount: 4,
+                  itemBuilder: (context, index) => const PostWidgetShimmer(),
+                ),
               )
             else if (feedState.error != null)
               SliverFillRemaining(
@@ -162,10 +166,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                       horizontal: 12,
                       vertical: 6,
                     ),
-                    child: PostWidget(
-                      post: post,
-                      feedNotifier: feedNotifier,
-                    ),
+                    child: PostWidget(post: post, feedNotifier: feedNotifier),
                   );
                 }, childCount: posts.length),
               ),
