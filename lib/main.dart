@@ -63,18 +63,17 @@ class MyApp extends ConsumerWidget {
 
       //light mode
       theme: ThemeData().copyWith(
-        scaffoldBackgroundColor: const Color.fromARGB(255, 222, 216, 216),
+        scaffoldBackgroundColor: const Color.fromARGB(255, 252, 239, 235),
         canvasColor: const Color.fromARGB(255, 237, 228, 225),
         brightness: Brightness.light,
         colorScheme: kLightColorScheme,
         appBarTheme: const AppBarThemeData().copyWith(
           backgroundColor: const Color.fromARGB(255, 222, 216, 216),
-          centerTitle: true,
-          titleTextStyle: const TextStyle(
-            color: Colors.deepOrange,
-            fontWeight: FontWeight.bold,
-            fontSize: 32,
-            fontFamily: 'Poppins',
+          centerTitle: false,
+          titleTextStyle: GoogleFonts.robotoTextTheme().titleLarge!.copyWith(
+            fontSize: 28,
+            fontWeight: FontWeight.w400,
+            color: Colors.black,
           ),
           iconTheme: IconThemeData(
             color: isDarkMode
@@ -126,12 +125,12 @@ class MyApp extends ConsumerWidget {
           backgroundColor: Colors.black,
           foregroundColor: Colors.white,
           centerTitle: true,
-          titleTextStyle: const TextStyle(
-            color: Colors.deepOrange,
-            fontWeight: FontWeight.bold,
-            fontSize: 32,
-            fontFamily: 'Poppins',
-          ),
+          titleTextStyle: GoogleFonts.montserratTextTheme().titleLarge!
+              .copyWith(
+                fontSize: 28,
+                fontWeight: FontWeight.w400,
+                color: Colors.white,
+              ),
           iconTheme: IconThemeData(
             color: isDarkMode
                 ? const Color.fromARGB(255, 237, 228, 225)

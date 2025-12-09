@@ -32,10 +32,12 @@ class _CartPageState extends ConsumerState<CartPage> {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              child: Center(
+              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+              child: Align(
+                alignment: Alignment.centerLeft,
                 child: Text(
                   'Your cart',
+                  textAlign: TextAlign.left,
                   style: Theme.of(context).appBarTheme.titleTextStyle,
                 ),
               ),
@@ -59,17 +61,17 @@ class _CartPageState extends ConsumerState<CartPage> {
                         );
                       } else {
                         FailureSnackBar.show(
-                        context:   context,
-                        message:   'Nothing to remove 😊',
-                        isDark:   isDarkMode,
+                          context: context,
+                          message: 'Nothing to remove 😊',
+                          isDark: isDarkMode,
                         );
                       }
                     } catch (e) {
                       if (mounted) {
                         FailureSnackBar.show(
-                         context:  context,
-                         message:  'Failed to remove items from cart: $e',
-                        isDark:   isDarkMode,
+                          context: context,
+                          message: 'Failed to remove items from cart: $e',
+                          isDark: isDarkMode,
                         );
                       }
                     }

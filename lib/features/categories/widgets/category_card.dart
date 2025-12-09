@@ -29,10 +29,11 @@ class CategoryCard extends ConsumerWidget {
           },
           splashColor: Theme.of(context).colorScheme.onPrimary,
           child: SizedBox(
-            height: 80,
-            width: 80,
+            height: 64,
+            width: 64,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Image.asset(category['path'], height: 60, fit: BoxFit.cover),
                 const SizedBox(height: 6),

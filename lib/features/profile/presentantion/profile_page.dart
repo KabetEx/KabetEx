@@ -1,6 +1,9 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/common/slide_routing.dart';
+import 'package:kabetex/features/1community/providers/user_provider.dart';
 import 'package:kabetex/features/auth/data/auth_services.dart';
 import 'package:kabetex/features/auth/presentation/login.dart';
 import 'package:kabetex/features/profile/presentantion/change_password.dart';
@@ -82,7 +85,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     final isDark = ref.watch(isDarkModeProvider);
-    final asyncProfile = ref.watch(futureProfileProvider);
+    final userID = ref.watch(currentUserIdProvider);
+    final userProfileAsync = ref.watch(userByIDProvider(userID));
 
     // If not logged in, just return the NotLoggedIn widget
     if (!isLoggedIn) return const NotLoggedIn();
@@ -104,14 +108,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(
-                      Icons.account_circle_rounded,
-                      size: 80,
-                      color: Colors.grey,
-                    ),
-                    const SizedBox(height: 16),
-
-                    asyncProfile.when(
+                    userProfileAsync.when(
                       loading: () => const CircularProgressIndicator(),
                       error: (e, st) => Text(
                         'Error loading name',
@@ -121,13 +118,22 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                         ),
                       ),
                       data: (data) {
-                        if (data == null) return const Text('');
+                        final userProfile = data;
 
-                        final fullName = data['full_name'] ?? '';
-                        final bool isVerified = data['isVerified'] ?? false;
+                        if (userProfile == null) {
+                          return const Text('Not logged in');
+                        }
+                        final fullName = data!.name;
+                        final bool isVerified = data.isVerified;
 
                         return Column(
                           children: [
+                            CircleAvatar(
+                              radius: 48,
+                              backgroundImage: CachedNetworkImageProvider(
+                                data.avatarUrl,
+                              ),
+                            ),
                             Text(
                               fullName,
                               style: Theme.of(context).textTheme.bodyLarge!
@@ -164,7 +170,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                                     context,
                                     SlideRouting(
                                       page: PhoneVerificationPage(
-                                        phoneNumber: '+254113617517',
+                                        phoneNumber: data.pNumber,
                                         onVerified: onVerified,
                                       ),
                                     ),
@@ -189,119 +195,61 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               ),
             ),
 
+            _buildProfileCard(
+              isDark: isDark,
+              leadingIcon: CupertinoIcons.profile_circled,
+              trailingIcon: CupertinoIcons.right_chevron,
+              title: 'Edit profile',
+              onTap: () {
+                Navigator.push(
+                  context,
+                  SlideRouting(page: const EditProfilePage()),
+                );
+              },
+            ),
+
+            _buildProfileCard(
+              isDark: isDark,
+              leadingIcon: CupertinoIcons.padlock,
+              trailingIcon: CupertinoIcons.right_chevron,
+              title: 'Change password',
+              onTap: () {
+                Navigator.push(
+                  context,
+                  SlideRouting(page: const ChangePasswordPage()),
+                );
+              },
+            ),
+            _buildProfileCard(
+              isDark: isDark,
+              leadingIcon: CupertinoIcons.delete,
+              title: 'Delete account',
+              onTap: () async {
+                final confirmed = await showDeleteConfirmation(context);
+                if (confirmed == true) {
+                  setState(() => isDeleting = true);
+                  final success = await _authService.deleteUserFromSupabase();
+                  if (success) {
+                    await Supabase.instance.client.auth.signOut();
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (_) => const LoginPage()),
+                      (route) => false,
+                    );
+                    ref.read(tabsProvider.notifier).state = 0;
+                    setState(() => isDeleting = false);
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Failed to delete account.'),
+                      ),
+                    );
+                  }
+                }
+              },
+            ),
+
             // Edit profile tile
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: InkWell(
-                splashColor: Colors.grey,
-                child: ListTile(
-                  title: Text(
-                    'Edit profile',
-                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                      color: isDark ? Colors.white : Colors.black,
-                      fontSize: 16,
-                    ),
-                  ),
-                  leading: Icon(
-                    Icons.supervised_user_circle,
-                    color: isDark ? Colors.white : Colors.black,
-                    size: 32,
-                  ),
-                  trailing: Icon(
-                    Icons.arrow_forward_ios_outlined,
-                    color: isDark ? Colors.white : Colors.black,
-                  ),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      SlideRouting(page: const EditProfilePage()),
-                    );
-                  },
-                ),
-              ),
-            ),
-
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8),
-              child: InkWell(
-                splashColor: Colors.grey,
-                child: ListTile(
-                  title: Text(
-                    'Change password',
-                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                      color: isDark ? Colors.white : Colors.black,
-                      fontSize: 16,
-                    ),
-                  ),
-                  leading: Icon(
-                    Icons.password,
-                    color: isDark ? Colors.white : Colors.black,
-                    size: 32,
-                  ),
-                  trailing: Icon(
-                    Icons.arrow_forward_ios_outlined,
-                    color: isDark ? Colors.white : Colors.black,
-                  ),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      SlideRouting(page: const ChangePasswordPage()),
-                    );
-                  },
-                ),
-              ),
-            ),
-
-            // Delete account tile
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: InkWell(
-                splashColor: Colors.grey,
-                child: ListTile(
-                  title: Text(
-                    'Delete account',
-                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                      color: isDark ? Colors.white : Colors.black,
-                      fontSize: 16,
-                    ),
-                  ),
-                  leading: Icon(
-                    Icons.delete,
-                    color: isDark ? Colors.white : Colors.black,
-                    size: 32,
-                  ),
-                  trailing: Icon(
-                    Icons.arrow_forward_ios_outlined,
-                    color: isDark ? Colors.white : Colors.black,
-                  ),
-                  onTap: () async {
-                    final confirmed = await showDeleteConfirmation(context);
-                    if (confirmed == true) {
-                      setState(() => isDeleting = true);
-                      final success = await _authService
-                          .deleteUserFromSupabase();
-                      if (success) {
-                        await Supabase.instance.client.auth.signOut();
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(builder: (_) => const LoginPage()),
-                          (route) => false,
-                        );
-                        ref.read(tabsProvider.notifier).state = 0;
-                        setState(() => isDeleting = false);
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Failed to delete account.'),
-                          ),
-                        );
-                      }
-                    }
-                  },
-                ),
-              ),
-            ),
-
             const Spacer(),
 
             // Logout button at bottom
@@ -365,4 +313,55 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       ),
     );
   }
+}
+
+Widget _buildProfileCard({
+  required IconData leadingIcon,
+  required String title,
+  required VoidCallback onTap,
+  required bool isDark,
+  IconData? trailingIcon,
+  String? subtitle,
+}) {
+  return GestureDetector(
+    onTap: onTap,
+    child: Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8),
+      child: SizedBox(
+        height: 76,
+        child: Card(
+          elevation: 3,
+          color: isDark ? Colors.grey[900] : Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          shadowColor: isDark ? Colors.grey[600] : Colors.grey[900],
+          child: ListTile(
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 8,
+            ),
+            leading: Container(
+              height: 44,
+              width: 44,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.deepOrange[100],
+              ),
+              child: Icon(leadingIcon, color: Colors.deepOrangeAccent),
+            ),
+            title: Text(
+              title,
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontWeight: FontWeight.w500,
+                fontSize: 16,
+                color: isDark ? Colors.white : Colors.black,
+              ),
+            ),
+            subtitle: subtitle != null ? Text(subtitle) : null,
+            trailing: Icon(trailingIcon),
+          ),
+        ),
+      ),
+    ),
+  );
 }
