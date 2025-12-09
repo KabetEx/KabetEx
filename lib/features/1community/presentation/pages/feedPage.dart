@@ -95,7 +95,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                       if (user == null) {
                         return Icon(
                           CupertinoIcons.profile_circled,
-                          color: isDark ? Colors.white : Colors.grey[070],
+                          color: isDark ? Colors.white : Colors.grey[700],
                           size: 48,
                         );
                       }
