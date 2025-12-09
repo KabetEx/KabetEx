@@ -11,10 +11,8 @@ import 'package:kabetex/features/1community/presentation/pages/new_post_page.dar
 import 'package:kabetex/features/1community/presentation/widgets/post_widget.dart';
 import 'package:kabetex/features/1community/providers/feed_provider.dart';
 import 'package:kabetex/features/1community/providers/user_provider.dart';
-import 'package:kabetex/features/profile/presentantion/edit_profile.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class CommunityProfilePage extends ConsumerStatefulWidget {
   final String? userID;

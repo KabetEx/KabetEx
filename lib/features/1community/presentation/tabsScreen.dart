@@ -5,7 +5,6 @@ import 'package:kabetex/features/1community/presentation/pages/feedPage.dart';
 import 'package:kabetex/features/1community/presentation/pages/new_post_page.dart';
 import 'package:kabetex/features/1community/presentation/pages/profile_page.dart';
 import 'package:kabetex/features/1community/providers/tabs_provider.dart';
-import 'package:kabetex/features/1community/providers/user_provider.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
