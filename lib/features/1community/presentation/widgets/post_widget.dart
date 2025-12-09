@@ -63,12 +63,15 @@ class PostWidget extends ConsumerWidget {
               },
               child: CircleAvatar(
                 radius: 22,
-                backgroundColor: Colors.grey[300],
+                backgroundColor: isDark ? Colors.grey[300] : Colors.grey[700],
                 backgroundImage: post.avatarUrl!.isNotEmpty
                     ? CachedNetworkImageProvider(post.avatarUrl!)
                     : null, // fallback if empty
                 child: post.avatarUrl!.isEmpty
-                    ? const Icon(CupertinoIcons.person, color: Colors.white)
+                    ? Icon(
+                        CupertinoIcons.person,
+                        color: isDark ? Colors.grey[800] : Colors.white,
+                      )
                     : null,
               ),
             ),

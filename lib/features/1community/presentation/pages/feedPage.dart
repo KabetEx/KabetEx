@@ -70,6 +70,8 @@ class _FeedPageState extends ConsumerState<FeedPage> {
     final isDark = ref.watch(isDarkModeProvider);
     final feedState = ref.watch(feedProvider(null)); //dont filter
     final posts = feedState.posts;
+    final userID = ref.watch(currentUserIdProvider);
+    final userAsync = ref.watch(userByIDProvider(userID));
 
     return Scaffold(
       key: _scaffoldKey,
@@ -88,14 +90,37 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                 padding: const EdgeInsets.only(left: 16.0, top: 8, bottom: 8),
                 child: GestureDetector(
                   onTap: () => _scaffoldKey.currentState?.openDrawer(),
-                  child: const Icon(CupertinoIcons.bars, size: 38),
-                  //later ....
-                  // const CircleAvatar(
-                  //   radius: 24,
-                  //   backgroundImage: NetworkImage(
-                  //     'https://i.pravatar.cc/150?img=12',
-                  //   ),
-                  // ),
+                  child: userAsync.when(
+                    data: (user) {
+                      if (user == null) {
+                        return Icon(
+                          CupertinoIcons.profile_circled,
+                          color: isDark ? Colors.white : Colors.grey[070],
+                          size: 48,
+                        );
+                      }
+
+                      CircleAvatar(
+                        radius: 48,
+                        backgroundColor: Colors.deepOrange,
+                        backgroundImage: NetworkImage(user.avatarUrl),
+                      );
+                      return null;
+                    },
+                    error: (error, stackTrace) => const Icon(
+                      CupertinoIcons.profile_circled,
+                      color: Colors.white,
+                      size: 46,
+                    ),
+                    loading: () => Container(
+                      width: 50,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: isDark ? Colors.grey[800]! : Colors.grey[800]!,
+                      ),
+                    ),
+                  ),
                 ),
               ),
               centerTitle: true,
