@@ -27,14 +27,30 @@ class FeedState {
   final List<Post> posts;
   final bool isLoading;
   final String? error;
+  final bool hasMore;
+  final int page;
 
-  FeedState({required this.posts, this.isLoading = false, this.error});
+  FeedState({
+    required this.posts,
+    this.isLoading = false,
+    this.error,
+    this.hasMore = true,
+    this.page = 0,
+  });
 
-  FeedState copyWith({List<Post>? posts, bool? isLoading, String? error}) {
+  FeedState copyWith({
+    List<Post>? posts,
+    bool? isLoading,
+    String? error,
+    bool? hasMore,
+    int? page,
+  }) {
     return FeedState(
       posts: posts ?? this.posts,
       isLoading: isLoading ?? this.isLoading,
       error: error,
+      hasMore: hasMore ?? this.hasMore,
+      page: page ?? this.page,
     );
   }
 }
@@ -42,57 +58,99 @@ class FeedState {
 // StateNotifier
 class FeedNotifier extends StateNotifier<FeedState> {
   final CommunityRepository repo;
-  final String currentUserID; //to check if user liked a post
-  final String? profileUserID; //for filtering posts (nullable)
+  final String currentUserID;
+  final String? profileUserID;
 
-  //constructor
+  bool _loadingMore = false;
+
   FeedNotifier({
     required this.repo,
     required this.currentUserID,
-    this.profileUserID, //for filtering
+    this.profileUserID,
   }) : super(FeedState(posts: [])) {
     fetchPosts();
   }
 
-  // ------------------------
-  // FETCH POSTS (with isLiked + likeCount)
-  // ------------------------
-  Future<void> fetchPosts() async {
-    state = state.copyWith(isLoading: true, error: null);
-    debugPrint('Filtering posts for : ${profileUserID ?? 'Null profile ID'}');
+  // --------------------------
+  // PAGINATION: LOAD MORE
+  // --------------------------
+  Future<void> loadMore() async {
+    if (_loadingMore || !state.hasMore) return;
+
+    _loadingMore = true;
 
     try {
-      //raw posts from db
-      final rawPosts = await repo.fetchPosts(
-        profileUserId: profileUserID, //nullable (for filtering)
+      final nextPage = state.page + 1;
+
+      final raw = await repo.fetchPosts(
+        profileUserId: profileUserID,
         currentUserId: currentUserID,
+        page: nextPage,
+        limit: 3,
       );
 
-      // Enrich posts with more info such as isliked and likecount
+      final enriched = await Future.wait(
+        raw.map((post) async {
+          final isLiked = currentUserID.isEmpty
+              ? false
+              : await repo.isPostLiked(post.id, currentUserID);
+          final likeCount = await repo.getLikeCount(post.id);
+          return post.copyWith(isLiked: isLiked, likeCount: likeCount);
+        }),
+      );
+
+      state = state.copyWith(
+        posts: [...state.posts, ...enriched],
+        page: nextPage,
+        hasMore: enriched.length == 3,
+      );
+    } catch (_) {
+    } finally {
+      _loadingMore = false;
+    }
+  }
+
+  // --------------------------
+  // INITIAL FETCH
+  // --------------------------
+  Future<void> fetchPosts() async {
+    state = state.copyWith(isLoading: true, error: null, page: 0);
+
+    try {
+      final rawPosts = await repo.fetchPosts(
+        profileUserId: profileUserID,
+        currentUserId: currentUserID,
+        page: 0,
+        limit: 3,
+      );
+
       final enrichedPosts = await Future.wait(
         rawPosts.map((post) async {
           final isLiked = currentUserID.isEmpty
               ? false
               : await repo.isPostLiked(post.id, currentUserID);
           final likeCount = await repo.getLikeCount(post.id);
-
           return post.copyWith(isLiked: isLiked, likeCount: likeCount);
         }),
       );
 
-      //updating
-      state = state.copyWith(posts: enrichedPosts, isLoading: false);
+      state = state.copyWith(
+        posts: enrichedPosts,
+        isLoading: false,
+        hasMore: enrichedPosts.length == 3,
+        page: 0,
+      );
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
 
-  // ------------------------
-  // OPTIMISTIC UPDATE TOGGLE LIKE (instant animation)
-  // ------------------------
+  // --------------------------
+  // LIKE / UNLIKE
+  // (Optimistic update)
+  // --------------------------
   Future<Map<String, dynamic>> toggleLike(String postId) async {
     if (currentUserID.isEmpty) {
-      // Guest users cannot like
       return {
         'isLiked': false,
         'likeCount': state.posts.firstWhere((p) => p.id == postId).likeCount,
@@ -100,44 +158,34 @@ class FeedNotifier extends StateNotifier<FeedState> {
     }
 
     try {
-      final index = state.posts.indexWhere(
-        (p) => p.id == postId,
-      ); //index is pstn of post
-      //if not found (post not liked by user)
+      final index = state.posts.indexWhere((p) => p.id == postId);
       if (index == -1) return {'isLiked': false, 'likeCount': 0};
 
-      //---otherwise if post exists
-      final old =
-          state.posts[index]; //snapshot of the old post (Not optimised )
+      final old = state.posts[index];
 
-      // 1 — Optimistic update
+      // Optimistic update
       final optimistic = old.copyWith(
         isLiked: !old.isLiked,
-        likeCount: old.isLiked
-            ? old.likeCount - 1
-            : old.likeCount + 1, //like or unlike
+        likeCount: old.isLiked ? old.likeCount - 1 : old.likeCount + 1,
       );
 
-      final updatedPosts = [...state.posts];
-      updatedPosts[index] = optimistic; //mathch old post to new
-      state = state.copyWith(posts: updatedPosts); //update state
+      final updated = [...state.posts];
+      updated[index] = optimistic;
+      state = state.copyWith(posts: updated);
 
-      // 2 — Update DB in background
+      // Update DB
       final result = await repo.toggleLike(postId, currentUserID);
 
-      // 3 — Confirm DB truth
       final confirmed = optimistic.copyWith(
         isLiked: result['isLiked'],
         likeCount: result['likeCount'],
       );
 
-      updatedPosts[index] = confirmed;
-      state = state.copyWith(posts: updatedPosts);
+      updated[index] = confirmed;
+      state = state.copyWith(posts: updated);
 
-      // ✅ Return the latest like info
       return {'isLiked': confirmed.isLiked, 'likeCount': confirmed.likeCount};
     } catch (e) {
-      print('toggle like error: $e');
       return {'isLiked': false, 'likeCount': 0};
     }
   }

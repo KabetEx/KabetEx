@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,14 +10,18 @@ import 'package:kabetex/features/1community/providers/feed_provider.dart';
 import 'package:kabetex/features/1community/providers/user_provider.dart';
 import 'package:kabetex/features/auth/presentation/login.dart';
 import 'package:kabetex/utils/time_utils.dart';
-import 'package:shimmer/shimmer.dart';
+import 'package:kabetex/utils/user_avatar.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class PostWidget extends ConsumerWidget {
   final Post post;
-  final FeedNotifier feedNotifier; //for liking
+  // final FeedNotifier feedNotifier; //for liking
 
-  const PostWidget({super.key, required this.post, required this.feedNotifier});
+  const PostWidget({
+    super.key,
+    required this.post,
+    //  required this.feedNotifier
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -47,61 +50,13 @@ class PostWidget extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             //post avatar
-            userProfileAsync.when(
-              loading: () => Shimmer.fromColors(
-                baseColor: isDark ? Colors.grey[800]! : Colors.grey[400]!,
-                highlightColor: isDark ? Colors.grey[600]! : Colors.grey[400]!,
-                child: Container(
-                  height: 52,
-                  width: 52,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: isDark ? Colors.grey[600]! : Colors.grey[400]!,
-                  ),
-                ),
-              ),
-              error: (error, stackTrace) => CircleAvatar(
-                radius: 22,
-                backgroundColor: isDark
-                    ? Colors.grey[700]
-                    : Colors.grey[300], // Consistent background color
-                child: Icon(
-                  CupertinoIcons.person,
-                  color: isDark
-                      ? Colors.white
-                      : Colors.black, // Consistent icon color
-                ),
-              ),
-              data: (data) {
-                final userAvatar = data?.avatarUrl ?? '';
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      SlideRouting(
-                        page: CommunityProfilePage(
-                          userID: post.userId,
-                        ), // Navigate to profile page
-                      ),
-                    );
-                  },
-                  child: CircleAvatar(
-                    radius: 22,
-                    backgroundColor: isDark
-                        ? Colors.grey[700]
-                        : Colors.grey[300], // Consistent background color
-                    backgroundImage: userAvatar.isNotEmpty
-                        ? CachedNetworkImageProvider(userAvatar)
-                        : null, // fallback if empty
-                    child: userAvatar.isEmpty
-                        ? Icon(
-                            CupertinoIcons.person,
-                            color: isDark ? Colors.white : Colors.black,
-                          )
-                        : null,
-                  ),
+            GestureDetector(
+              onTap: () {
+                Navigator.of(context).push(
+                  SlideRouting(page: CommunityProfilePage(userID: postOwnerID)),
                 );
               },
+              child: UserAvatar(userAsync: userProfileAsync),
             ),
 
             const SizedBox(width: 12),
@@ -192,9 +147,7 @@ class PostWidget extends ConsumerWidget {
                   const SizedBox(height: 10),
 
                   //actions row
-                  PostWidgetActionsRow(
-                    post: post,
-                  ), // Removed redundant parameters
+                  PostWidgetActionsRow(post: post),
                 ],
               ),
             ),
@@ -205,8 +158,6 @@ class PostWidget extends ConsumerWidget {
   }
 }
 
-/// Converted to a ConsumerStatefulWidget to handle local state for liking.
-/// This provides optimistic UI updates and prevents rapid-tap issues.
 class PostWidgetActionsRow extends ConsumerStatefulWidget {
   final Post post;
 
@@ -220,8 +171,7 @@ class PostWidgetActionsRow extends ConsumerStatefulWidget {
 class _PostWidgetActionsRowState extends ConsumerState<PostWidgetActionsRow> {
   late bool _isLiked;
   late int _likeCount;
-  bool _isLiking =
-      false; // Prevents multiple taps while an operation is in progress.
+  bool _isLiking = false;
 
   @override
   void initState() {
@@ -251,74 +201,86 @@ class _PostWidgetActionsRowState extends ConsumerState<PostWidgetActionsRow> {
     return Row(
       children: [
         // ❤️ Like button
-        IconButton(
-          onPressed: _isLiking
-              ? null // Disable button while liking
-              : () async {
-                  if (user == null) {
-                    FailureSnackBar.show(
-                      context: context,
-                      message: 'Log in to like!',
-                      isDark: isDark,
-                      onPressed: () => Navigator.push(
-                        context,
-                        SlideRouting(page: const LoginPage()),
-                      ),
-                      btnLabel: 'Log in',
-                    );
-                    return;
-                  }
-
-                  setState(() {
-                    _isLiking = true;
-                    // Optimistic UI update
-                    _isLiked = !_isLiked;
-                    _likeCount += _isLiked ? 1 : -1;
-                  });
-
-                  try {
-                    // Access the notifier directly via ref and perform the action.
-                    final result = await ref
-                        .read(feedProvider(null).notifier)
-                        .toggleLike(widget.post.id);
-
-                    // Confirm the UI with the actual data from the database.
-                    if (mounted) {
-                      setState(() {
-                        _isLiked = result['isLiked'];
-                        _likeCount = result['likeCount'];
-                      });
+        Focus(
+          child: IconButton(
+            onPressed: _isLiking
+                ? null // Disable button while liking
+                : () async {
+                    if (user == null) {
+                      FailureSnackBar.show(
+                        context: context,
+                        message: 'Log in to like!',
+                        isDark: isDark,
+                        onPressed: () => Navigator.push(
+                          context,
+                          SlideRouting(page: const LoginPage()),
+                        ),
+                        btnLabel: 'Log in',
+                      );
+                      return;
                     }
-                  } catch (e) {
-                    // If something goes wrong, revert the optimistic update.
-                    if (mounted) {
-                      setState(() {
-                        _isLiked = !_isLiked;
-                        _likeCount += _isLiked ? 1 : -1;
-                      });
+
+                    setState(() {
+                      _isLiking = true;
+                      // Optimistic UI update
+                      _isLiked = !_isLiked;
+                      _likeCount += _isLiked ? 1 : -1;
+                    });
+
+                    try {
+                      // Access the notifier directly via ref and perform the action.
+                      final result = await ref
+                          .read(feedProvider(null).notifier)
+                          .toggleLike(widget.post.id);
+
+                      // Confirm the UI with the actual data from the database.
+                      if (mounted) {
+                        setState(() {
+                          _isLiked = result['isLiked'];
+                          _likeCount = result['likeCount'];
+                        });
+                      }
+                    } catch (e) {
+                      // If something goes wrong, revert the optimistic update.
+                      if (mounted) {
+                        setState(() {
+                          _isLiked = !_isLiked;
+                          _likeCount += _isLiked ? 1 : -1;
+                        });
+
+                        FailureSnackBar.show(
+                          context: context,
+                          isDark: isDark,
+                          message: 'failed to like post. Please try again',
+                        );
+                      }
+                    } finally {
+                      if (mounted) {
+                        setState(() {
+                          _isLiking = false; // Re-enable the button
+                        });
+                      }
                     }
-                  } finally {
-                    if (mounted) {
-                      setState(() {
-                        _isLiking = false; // Re-enable the button
-                      });
-                    }
-                  }
-                },
-          icon: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 250),
-            transitionBuilder: (child, anim) =>
-                ScaleTransition(scale: anim, child: child),
-            child: Icon(
-              key: ValueKey(_isLiked), // Use local state for the animation key
-              _isLiked ? Icons.favorite : Icons.favorite_border,
-              size: 20,
-              color: isDark
-                  ? (_isLiked ? Colors.deepOrange : Colors.white)
-                  : (_isLiked ? Colors.deepOrange : Colors.black),
+                  },
+            icon: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              transitionBuilder: (child, anim) =>
+                  ScaleTransition(scale: anim, child: child),
+              child: Icon(
+                _isLiked ? CupertinoIcons.heart_fill : CupertinoIcons.heart,
+                key: ValueKey(_isLiked),
+                size: 24,
+                color: isDark
+                    ? _isLiked
+                          ? Colors.red
+                          : Colors.white
+                    : _isLiked
+                    ? Colors.red
+                    : Colors.black,
+              ),
             ),
+            splashRadius: 20,
           ),
-          splashRadius: 20,
         ),
 
         // ❤️ Like count

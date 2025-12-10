@@ -1,17 +1,17 @@
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/common/slide_routing.dart';
 import 'package:kabetex/features/1community/data/models/user.dart';
 import 'package:kabetex/features/1community/presentation/pages/post_shimmer.dart';
-import 'package:kabetex/features/1community/presentation/widgets/post_widget.dart';
+import 'package:kabetex/features/1community/presentation/widgets/sliver_status_indicator.dart';
 import 'package:kabetex/features/1community/presentation/widgets/drawer.dart';
+import 'package:kabetex/features/1community/presentation/widgets/post_widget.dart';
 import 'package:kabetex/features/1community/providers/feed_provider.dart';
 import 'package:kabetex/features/1community/providers/tabs_provider.dart';
 import 'package:kabetex/features/1community/providers/user_provider.dart';
 import 'package:kabetex/features/settings/presentations/settings_page.dart';
 import 'package:kabetex/providers/theme_provider.dart';
+import 'package:kabetex/utils/user_avatar.dart';
 
 class FeedPage extends ConsumerStatefulWidget {
   const FeedPage({super.key});
@@ -29,6 +29,17 @@ class _FeedPageState extends ConsumerState<FeedPage> {
   void initState() {
     super.initState();
 
+    //--------------------SCROLL PAGINATION-------------------------------------
+    //-------------------- ------------------------------------------------------
+    _scrollController.addListener(() {
+      final position = _scrollController.position;
+
+      // When user hits 85% of the bottom -> load more
+      if (position.pixels >= position.maxScrollExtent * 0.85) {
+        ref.read(feedProvider(null).notifier).loadMore();
+      }
+    });
+
     _scrollController.addListener(() {
       final offset = _scrollController.offset;
       const sensitivity = 8;
@@ -43,25 +54,15 @@ class _FeedPageState extends ConsumerState<FeedPage> {
 
       _lastOffset = offset;
     });
-
-    // Refresh user profile when FeedPage opens
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final userID = ref.read(currentUserIdProvider);
-      ref.invalidate(currentUserIdProvider); //supabase user ID
-      ref.invalidate(userByIDProvider); // mark for refresh
-      ref.read(userByIDProvider(userID).future); // optionally await new data
-    });
   }
 
   Future<void> onRefresh() async {
     final userID = ref.read(currentUserIdProvider);
-
-    ref.invalidate(userByIDProvider);
-    ref.read(userByIDProvider(userID).future);
-
-    ref
-        .read(feedProvider(null).notifier)
-        .fetchPosts(); //wait until posts are refetched
+    // ref.refresh returns a Future, so we can await them.
+    await Future.wait([
+      ref.refresh(userByIDProvider(userID).future),
+      ref.refresh(feedProvider(null).notifier).fetchPosts(),
+    ]);
   }
 
   @override
@@ -98,30 +99,45 @@ class _FeedPageState extends ConsumerState<FeedPage> {
               SliverList(
                 delegate: SliverChildBuilderDelegate(
                   (context, index) => const PostWidgetShimmer(),
+                  childCount: 4,
                 ),
               )
-            else if (feedState.error != null)
-              SliverFillRemaining(
-                child: Center(child: Text('Error: ${feedState.error}')),
+            else if (feedState.error != null && posts.isEmpty)
+              SliverStatusIndicator.error(
+                message: 'Could not load feed',
+                onRetry: onRefresh,
               )
             else if (posts.isEmpty)
-              const SliverFillRemaining(
-                child: Center(child: Text('No posts yet 😢')),
-              )
+              const SliverStatusIndicator.empty(message: 'No posts yet 😢')
             else
-              SliverList(
-                delegate: SliverChildBuilderDelegate((context, index) {
-                  final post = posts[index];
-                  final feedNotifier = ref.read(feedProvider(null).notifier);
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      if (index == posts.length) {
+                        return const PostWidgetShimmer();
+                      }
 
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    child: PostWidget(post: post, feedNotifier: feedNotifier),
-                  );
-                }, childCount: posts.length),
+                      final post = posts[index];
+
+                      return TweenAnimationBuilder<double>(
+                        tween: Tween<double>(begin: 0, end: 1),
+                        duration: const Duration(milliseconds: 900),
+                        curve: Curves.easeIn,
+                        builder: (context, opacity, child) {
+                          return Opacity(opacity: opacity, child: child);
+                        },
+                        child: PostWidget(post: post, key: ValueKey(post.id)),
+                      );
+                    },
+                    childCount:
+                        feedState.posts.length + (feedState.hasMore ? 1 : 0),
+                  ),
+                ),
               ),
           ],
         ),
@@ -141,7 +157,6 @@ class MySliverAppBar extends ConsumerWidget {
   final bool isDark;
   final GlobalKey<ScaffoldState> scaffoldKey;
 
-  
   @override
   Widget build(BuildContext context, ref) {
     return SliverAppBar(
@@ -149,36 +164,18 @@ class MySliverAppBar extends ConsumerWidget {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       elevation: 4,
       toolbarHeight: 64,
-      leadingWidth: 36,
-      leading: GestureDetector(
-        onTap: () => scaffoldKey.currentState?.openDrawer(),
-        child: userAsync.when(
-          data: (user) {
-            if (user == null) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                child: Icon(
-                  CupertinoIcons.profile_circled,
-                  size: 48,
-                  color: Colors.grey[700],
-                ),
-              );
-            }
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12.0),
-              child: CircleAvatar(
-                radius: 24,
-                backgroundColor: Colors.deepOrange,
-                backgroundImage: CachedNetworkImageProvider(user.avatarUrl),
-              ),
-            );
-          },
-          loading: () =>
-              CircleAvatar(radius: 24, backgroundColor: Colors.grey[800]),
-          error: (_, __) => const Icon(
-            CupertinoIcons.profile_circled,
-            size: 48,
-            color: Colors.red,
+      leadingWidth: 64,
+      actionsPadding: const EdgeInsets.symmetric(horizontal: 12),
+      leading: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12.0),
+        child: GestureDetector(
+          onTap: () => scaffoldKey.currentState?.openDrawer(),
+          // Use the new reusable UserAvatar widget.
+          // The padding is now part of the AppBar's leadingWidth and internal padding.
+          child: Consumer(
+            builder: (context, ref, child) {
+              return UserAvatar(userAsync: userAsync, radius: 18);
+            },
           ),
         ),
       ),

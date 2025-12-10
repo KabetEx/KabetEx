@@ -11,7 +11,12 @@ class CommunityRepository {
   Future<List<Post>> fetchPosts({
     String? profileUserId, // whose posts to show (optional) //if null show all
     required String currentUserId,
+    int limit = 10,
+    required int page,
   }) async {
+    final start = page * limit;
+    final end = start + limit - 1;
+
     try {
       // 1️⃣ Base query
       var query = client.from('community-posts').select();
@@ -22,7 +27,9 @@ class CommunityRepository {
       }
 
       // 3️⃣ Order by creation date
-      final response = await query.order('created_at', ascending: false);
+      final response = await query
+          .order('created_at', ascending: false)
+          .range(start, end);
       final data = response as List<dynamic>;
 
       // 4️⃣ Enrich posts with like info

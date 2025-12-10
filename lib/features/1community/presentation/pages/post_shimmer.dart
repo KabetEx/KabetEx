@@ -19,8 +19,8 @@ class PostWidgetShimmer extends StatelessWidget {
           children: [
             // Avatar placeholder
             Container(
-              width: 50,
-              height: 50,
+              width: 52,
+              height: 52,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: isDark ? Colors.grey[800]! : Colors.grey[800]!,

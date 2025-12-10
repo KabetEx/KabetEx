@@ -12,6 +12,7 @@ import 'package:kabetex/features/1community/presentation/widgets/post_widget.dar
 import 'package:kabetex/features/1community/providers/feed_provider.dart';
 import 'package:kabetex/features/1community/providers/user_provider.dart';
 import 'package:kabetex/providers/theme_provider.dart';
+import 'package:kabetex/utils/user_avatar.dart';
 import 'package:shimmer/shimmer.dart';
 
 class CommunityProfilePage extends ConsumerStatefulWidget {
@@ -145,7 +146,7 @@ class _CommunityProfilePageState extends ConsumerState<CommunityProfilePage> {
                   SliverList(
                     delegate: SliverChildBuilderDelegate((context, index) {
                       final post = feedState.posts[index];
-                      return PostWidget(post: post, feedNotifier: feedNotifier);
+                      return PostWidget(post: post);
                     }, childCount: feedState.posts.length),
                   ),
                 const SliverToBoxAdapter(child: SizedBox(height: 24)),
@@ -323,39 +324,7 @@ class AvatarWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return userAsync.when(
-      data: (data) {
-        final userProfile = data;
-
-        return CircleAvatar(
-          radius: 44,
-          backgroundColor: Colors.grey[300],
-          backgroundImage: userProfile!.avatarUrl.isNotEmpty
-              ? CachedNetworkImageProvider(userProfile.avatarUrl)
-              : null, // fallback if empty
-          child: userProfile.avatarUrl.isEmpty
-              ? const Icon(CupertinoIcons.person, color: Colors.white)
-              : null,
-        );
-      },
-      error: (error, stackTrace) => const CircleAvatar(
-        child: Icon(CupertinoIcons.profile_circled, color: Colors.white),
-      ),
-      loading: () => Shimmer.fromColors(
-        baseColor: Colors.grey[600]!,
-        highlightColor: isDark ? Colors.grey[100]! : Colors.grey[800]!,
-        child: const SizedBox(
-          height: 70,
-          width: 70,
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white,
-            ),
-          ),
-        ),
-      ),
-    );
+    return UserAvatar(userAsync: userAsync);
   }
 }
 

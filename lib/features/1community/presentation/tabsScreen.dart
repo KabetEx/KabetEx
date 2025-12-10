@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kabetex/features/1community/presentation/pages/feedPage.dart';
+import 'package:kabetex/features/1community/presentation/pages/feed_page.dart';
 import 'package:kabetex/features/1community/presentation/pages/new_post_page.dart';
 import 'package:kabetex/features/1community/presentation/pages/profile_page.dart';
 import 'package:kabetex/features/1community/providers/tabs_provider.dart';

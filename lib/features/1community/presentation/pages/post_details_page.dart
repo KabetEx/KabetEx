@@ -1,14 +1,16 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/common/slide_routing.dart';
+import 'package:kabetex/features/1community/data/models/user.dart';
+import 'package:kabetex/features/1community/providers/user_provider.dart';
 import 'package:kabetex/utils/snackbars.dart';
 import 'package:kabetex/features/1community/data/models/post.dart';
 import 'package:kabetex/features/1community/presentation/pages/profile_page.dart';
 import 'package:kabetex/features/1community/providers/feed_provider.dart';
 import 'package:kabetex/features/auth/presentation/login.dart';
 import 'package:kabetex/providers/theme_provider.dart';
+import 'package:kabetex/utils/user_avatar.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class PostDetailPage extends ConsumerStatefulWidget {
@@ -144,6 +146,7 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
   @override
   Widget build(BuildContext context) {
     final isDark = ref.watch(isDarkModeProvider);
+    final userProfileAsync = ref.watch(userByIDProvider(widget.post.userId));
 
     return Scaffold(
       appBar: AppBar(
@@ -172,7 +175,11 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
             /// USER details row
             const SizedBox(height: 16),
 
-            UserDetailsRow(post: widget.post, isDark: isDark),
+            UserDetailsRow(
+              post: widget.post,
+              userProfileAsync: userProfileAsync,
+              isDark: isDark,
+            ),
 
             const SizedBox(height: 16),
 
@@ -208,8 +215,14 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
 }
 
 class UserDetailsRow extends StatelessWidget {
-  const UserDetailsRow({super.key, required this.post, required this.isDark});
+  const UserDetailsRow({
+    super.key,
+    required this.userProfileAsync,
+    required this.post,
+    required this.isDark,
+  });
 
+  final AsyncValue<UserProfile?> userProfileAsync;
   final Post post;
   final bool isDark;
 
@@ -224,16 +237,7 @@ class UserDetailsRow extends StatelessWidget {
               SlideRouting(page: CommunityProfilePage(userID: post.userId)),
             );
           },
-          child: CircleAvatar(
-            radius: 22,
-            backgroundColor: Colors.grey[300],
-            backgroundImage: post.avatarUrl!.isNotEmpty
-                ? CachedNetworkImageProvider(post.avatarUrl!)
-                : null, // fallback if empty
-            child: post.avatarUrl!.isEmpty
-                ? const Icon(CupertinoIcons.person, color: Colors.white)
-                : null,
-          ),
+          child: UserAvatar(userAsync: userProfileAsync),
         ),
         const SizedBox(width: 16),
 
