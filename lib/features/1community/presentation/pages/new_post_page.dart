@@ -83,6 +83,10 @@ class _PostTweetPageState extends ConsumerState<PostTweetPage> {
             fontWeight: FontWeight.bold,
           ),
         ),
+        leading: GestureDetector(
+          onTap: Navigator.of(context).pop,
+          child: const Icon(CupertinoIcons.xmark_circle_fill, size: 32),
+        ),
         backgroundColor: isDark ? Colors.black : Colors.white,
         elevation: 0,
         foregroundColor: isDark ? Colors.white : Colors.black,

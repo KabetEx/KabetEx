@@ -6,6 +6,7 @@ import 'package:kabetex/utils/snackbars.dart';
 import 'package:kabetex/features/1community/data/models/post.dart';
 import 'package:kabetex/features/1community/presentation/pages/post_details_page.dart';
 import 'package:kabetex/features/1community/presentation/pages/profile_page.dart';
+import 'package:kabetex/features/1community/providers/tabs_provider.dart';
 import 'package:kabetex/features/1community/providers/feed_provider.dart';
 import 'package:kabetex/features/1community/providers/user_provider.dart';
 import 'package:kabetex/features/auth/presentation/login.dart';
@@ -15,12 +16,10 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class PostWidget extends ConsumerWidget {
   final Post post;
-  // final FeedNotifier feedNotifier; //for liking
 
   const PostWidget({
     super.key,
     required this.post,
-    //  required this.feedNotifier
   });
 
   @override
@@ -29,6 +28,8 @@ class PostWidget extends ConsumerWidget {
     final loggedInUser = ref.watch(currentUserIdProvider);
     final postOwnerID = post.userId;
     final userProfileAsync = ref.watch(userByIDProvider(postOwnerID));
+
+    bool isOwner = loggedInUser == postOwnerID;
 
     return GestureDetector(
       onTap: () {
@@ -52,9 +53,15 @@ class PostWidget extends ConsumerWidget {
             //post avatar
             GestureDetector(
               onTap: () {
-                Navigator.of(context).push(
-                  SlideRouting(page: CommunityProfilePage(userID: postOwnerID)),
-                );
+                if (isOwner) {
+                  ref.read(communityTabsProvider.notifier).state = 2;
+                } else {
+                  Navigator.of(context).push(
+                    SlideRouting(
+                      page: CommunityProfilePage(userID: postOwnerID),
+                    ),
+                  );
+                }
               },
               child: UserAvatar(userAsync: userProfileAsync),
             ),
