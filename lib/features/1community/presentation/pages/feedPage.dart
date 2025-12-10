@@ -1,7 +1,9 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/common/slide_routing.dart';
+import 'package:kabetex/features/1community/data/models/user.dart';
 import 'package:kabetex/features/1community/presentation/pages/post_shimmer.dart';
 import 'package:kabetex/features/1community/presentation/widgets/post_widget.dart';
 import 'package:kabetex/features/1community/presentation/widgets/drawer.dart';
@@ -44,15 +46,18 @@ class _FeedPageState extends ConsumerState<FeedPage> {
 
     // Refresh user profile when FeedPage opens
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      final userID = ref.read(currentUserIdProvider);
       ref.invalidate(currentUserIdProvider); //supabase user ID
       ref.invalidate(userByIDProvider); // mark for refresh
-      ref.read(userByIDProvider(null).future); // optionally await new data
+      ref.read(userByIDProvider(userID).future); // optionally await new data
     });
   }
 
   Future<void> onRefresh() async {
+    final userID = ref.read(currentUserIdProvider);
+
     ref.invalidate(userByIDProvider);
-    ref.read(userByIDProvider(null).future);
+    ref.read(userByIDProvider(userID).future);
 
     ref
         .read(feedProvider(null).notifier)
@@ -68,10 +73,10 @@ class _FeedPageState extends ConsumerState<FeedPage> {
   @override
   Widget build(BuildContext context) {
     final isDark = ref.watch(isDarkModeProvider);
-    final feedState = ref.watch(feedProvider(null)); //dont filter
-    final posts = feedState.posts;
     final userID = ref.watch(currentUserIdProvider);
     final userAsync = ref.watch(userByIDProvider(userID));
+    final feedState = ref.watch(feedProvider(null)); //dont filter
+    final posts = feedState.posts;
 
     return Scaffold(
       key: _scaffoldKey,
@@ -80,96 +85,19 @@ class _FeedPageState extends ConsumerState<FeedPage> {
         onRefresh: onRefresh,
         child: CustomScrollView(
           controller: _scrollController,
+          physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
-            SliverAppBar(
-              pinned: true,
-              backgroundColor: isDark ? Colors.black : Colors.transparent,
-              elevation: 4,
-              expandedHeight: 60,
-              leading: Padding(
-                padding: const EdgeInsets.only(left: 16.0, top: 8, bottom: 8),
-                child: GestureDetector(
-                  onTap: () => _scaffoldKey.currentState?.openDrawer(),
-                  child: userAsync.when(
-                    data: (user) {
-                      if (user == null) {
-                        return Icon(
-                          CupertinoIcons.profile_circled,
-                          color: isDark ? Colors.white : Colors.grey[700],
-                          size: 48,
-                        );
-                      }
-
-                      CircleAvatar(
-                        radius: 48,
-                        backgroundColor: Colors.deepOrange,
-                        backgroundImage: NetworkImage(user.avatarUrl),
-                      );
-                      return null;
-                    },
-                    error: (error, stackTrace) => const Icon(
-                      CupertinoIcons.profile_circled,
-                      color: Colors.white,
-                      size: 46,
-                    ),
-                    loading: () => Container(
-                      width: 50,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: isDark ? Colors.grey[800]! : Colors.grey[800]!,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              centerTitle: true,
-              title: GestureDetector(
-                onTap: () {
-                  _scrollController.animateTo(
-                    0,
-                    duration: const Duration(milliseconds: 400),
-                    curve: Curves.easeOut,
-                  );
-                },
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 16.0),
-                  child: Text(
-                    "KabetEx",
-                    style: TextStyle(
-                      color: isDark ? Colors.white : Colors.black,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 24,
-                      letterSpacing: 1.2,
-                    ),
-                  ),
-                ),
-              ),
-              actions: [
-                Padding(
-                  padding: const EdgeInsets.only(
-                    right: 16.0,
-                    top: 8,
-                    bottom: 8,
-                  ),
-                  child: IconButton(
-                    icon: const Icon(Icons.settings_outlined, size: 32),
-                    color: isDark ? Colors.white : Colors.black,
-                    onPressed: () => Navigator.push(
-                      context,
-                      SlideRouting(page: const SettingsPage()),
-                    ),
-                  ),
-                ),
-              ],
+            MySliverAppBar(
+              scaffoldKey: _scaffoldKey,
+              isDark: isDark,
+              userAsync: userAsync,
             ),
 
             // ✅ Conditional Sliver content
             if (feedState.isLoading)
-              SliverFillRemaining(
-                child: ListView.builder(
-                  itemCount: 4,
-                  itemBuilder: (context, index) => const PostWidgetShimmer(),
+              SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) => const PostWidgetShimmer(),
                 ),
               )
             else if (feedState.error != null)
@@ -198,6 +126,80 @@ class _FeedPageState extends ConsumerState<FeedPage> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class MySliverAppBar extends ConsumerWidget {
+  const MySliverAppBar({
+    super.key,
+    required this.scaffoldKey,
+    required this.userAsync,
+    required this.isDark,
+  });
+  final AsyncValue<UserProfile?> userAsync;
+  final bool isDark;
+  final GlobalKey<ScaffoldState> scaffoldKey;
+
+  
+  @override
+  Widget build(BuildContext context, ref) {
+    return SliverAppBar(
+      pinned: true,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      elevation: 4,
+      toolbarHeight: 64,
+      leadingWidth: 36,
+      leading: GestureDetector(
+        onTap: () => scaffoldKey.currentState?.openDrawer(),
+        child: userAsync.when(
+          data: (user) {
+            if (user == null) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                child: Icon(
+                  CupertinoIcons.profile_circled,
+                  size: 48,
+                  color: Colors.grey[700],
+                ),
+              );
+            }
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+              child: CircleAvatar(
+                radius: 24,
+                backgroundColor: Colors.deepOrange,
+                backgroundImage: CachedNetworkImageProvider(user.avatarUrl),
+              ),
+            );
+          },
+          loading: () =>
+              CircleAvatar(radius: 24, backgroundColor: Colors.grey[800]),
+          error: (_, __) => const Icon(
+            CupertinoIcons.profile_circled,
+            size: 48,
+            color: Colors.red,
+          ),
+        ),
+      ),
+      centerTitle: true,
+      title: Text(
+        "KabetEx",
+        style: TextStyle(
+          color: isDark ? Colors.white : Colors.black,
+          fontWeight: FontWeight.bold,
+          fontSize: 24,
+          letterSpacing: 1.2,
+        ),
+      ),
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.settings_outlined, size: 40),
+          color: isDark ? Colors.white : Colors.grey[1000],
+          onPressed: () =>
+              Navigator.push(context, SlideRouting(page: const SettingsPage())),
+        ),
+      ],
     );
   }
 }

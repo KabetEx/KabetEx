@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -17,6 +18,17 @@ final userByIDProvider = FutureProvider.family<UserProfile?, String?>((
   ref,
   userID,
 ) async {
+  final link = ref.keepAlive(); // keeps cached value alive
+
+  // dispose after X minutes to free memory
+  final timer = Timer(const Duration(minutes: 10), () {
+    link.close();
+  });
+
+  ref.onDispose(() {
+    timer.cancel();
+  });
+
   return await userRepo.getUserByID(userID);
 });
 
@@ -42,12 +54,10 @@ class EditProfileNotifier extends StateNotifier<AsyncValue<void>> {
     state = const AsyncLoading();
 
     try {
-      
       //get url from supabase
       final url = await repo.uploadAvatar(userId, file);
       state = const AsyncData(null);
       return url;
-
     } catch (e) {
       state = AsyncError(e, StackTrace.current);
       return null;

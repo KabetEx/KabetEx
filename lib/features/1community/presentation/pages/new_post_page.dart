@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/common/slide_routing.dart';
-import 'package:kabetex/core/snackbars.dart';
+import 'package:kabetex/utils/snackbars.dart';
 import 'package:kabetex/features/1community/data/community_repo.dart';
 import 'package:kabetex/features/1community/presentation/pages/profile_page.dart';
 import 'package:kabetex/features/1community/providers/user_provider.dart';

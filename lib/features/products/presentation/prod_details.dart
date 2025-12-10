@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kabetex/core/snackbars.dart';
+import 'package:kabetex/utils/snackbars.dart';
 import 'package:kabetex/features/products/data/product.dart';
 import 'package:kabetex/features/products/data/product_services.dart';
 import 'package:kabetex/features/products/presentation/prod_details_shimmer.dart';

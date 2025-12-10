@@ -3,14 +3,15 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/common/slide_routing.dart';
-import 'package:kabetex/core/snackbars.dart';
+import 'package:kabetex/utils/snackbars.dart';
 import 'package:kabetex/features/1community/data/models/post.dart';
-import 'package:intl/intl.dart';
 import 'package:kabetex/features/1community/presentation/pages/post_details_page.dart';
 import 'package:kabetex/features/1community/presentation/pages/profile_page.dart';
 import 'package:kabetex/features/1community/providers/feed_provider.dart';
 import 'package:kabetex/features/1community/providers/user_provider.dart';
 import 'package:kabetex/features/auth/presentation/login.dart';
+import 'package:kabetex/utils/time_utils.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class PostWidget extends ConsumerWidget {
@@ -19,21 +20,12 @@ class PostWidget extends ConsumerWidget {
 
   const PostWidget({super.key, required this.post, required this.feedNotifier});
 
-  String _timeAgo(DateTime createdAt) {
-    final now = DateTime.now();
-    final difference = now.difference(createdAt);
-
-    if (difference.inSeconds < 60) return '${difference.inSeconds}s';
-    if (difference.inMinutes < 60) return '${difference.inMinutes}m';
-    if (difference.inHours < 24) return '${difference.inHours}h';
-    if (difference.inDays < 7) return '${difference.inDays}d';
-    return DateFormat('MMM d').format(createdAt);
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final loggedInUser = ref.watch(currentUserIdProvider);
+    final postOwnerID = post.userId;
+    final userProfileAsync = ref.watch(userByIDProvider(postOwnerID));
 
     return GestureDetector(
       onTap: () {
@@ -54,29 +46,66 @@ class PostWidget extends ConsumerWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  SlideRouting(page: CommunityProfilePage(userID: post.userId)),
+            //post avatar
+            userProfileAsync.when(
+              loading: () => Shimmer.fromColors(
+                baseColor: isDark ? Colors.grey[800]! : Colors.grey[400]!,
+                highlightColor: isDark ? Colors.grey[600]! : Colors.grey[400]!,
+                child: Container(
+                  height: 52,
+                  width: 52,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: isDark ? Colors.grey[600]! : Colors.grey[400]!,
+                  ),
+                ),
+              ),
+              error: (error, stackTrace) => CircleAvatar(
+                radius: 22,
+                backgroundColor: isDark
+                    ? Colors.grey[700]
+                    : Colors.grey[300], // Consistent background color
+                child: Icon(
+                  CupertinoIcons.person,
+                  color: isDark
+                      ? Colors.white
+                      : Colors.black, // Consistent icon color
+                ),
+              ),
+              data: (data) {
+                final userAvatar = data?.avatarUrl ?? '';
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      SlideRouting(
+                        page: CommunityProfilePage(
+                          userID: post.userId,
+                        ), // Navigate to profile page
+                      ),
+                    );
+                  },
+                  child: CircleAvatar(
+                    radius: 22,
+                    backgroundColor: isDark
+                        ? Colors.grey[700]
+                        : Colors.grey[300], // Consistent background color
+                    backgroundImage: userAvatar.isNotEmpty
+                        ? CachedNetworkImageProvider(userAvatar)
+                        : null, // fallback if empty
+                    child: userAvatar.isEmpty
+                        ? Icon(
+                            CupertinoIcons.person,
+                            color: isDark ? Colors.white : Colors.black,
+                          )
+                        : null,
+                  ),
                 );
               },
-              child: CircleAvatar(
-                radius: 22,
-                backgroundColor: isDark ? Colors.grey[300] : Colors.grey[700],
-                backgroundImage: post.avatarUrl!.isNotEmpty
-                    ? CachedNetworkImageProvider(post.avatarUrl!)
-                    : null, // fallback if empty
-                child: post.avatarUrl!.isEmpty
-                    ? Icon(
-                        CupertinoIcons.person,
-                        color: isDark ? Colors.grey[800] : Colors.white,
-                      )
-                    : null,
-              ),
             ),
 
             const SizedBox(width: 12),
+
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -96,7 +125,7 @@ class PostWidget extends ConsumerWidget {
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            _timeAgo(post.createdAt!),
+                            timeAgo(post.createdAt!),
                             style: TextStyle(
                               fontSize: 13,
                               color: isDark
@@ -111,14 +140,21 @@ class PostWidget extends ConsumerWidget {
                         color: isDark ? Colors.grey : Colors.white,
                         onSelected: (value) {
                           if (value == 'report') {
-                            debugPrint('Report clicked');
+                            debugPrint(
+                              'Report Post action for post ID: ${post.id}',
+                            );
+                            // TODO: Implement actual report functionality, e.g., showReportDialog(context, post.id);
                           }
+                          // TODO: Implement 'edit' and 'delete' actions
+                          // Example: if (value == 'edit') { Navigator.push(context, SlideRouting(page: EditPostPage(post: post))); }
+                          // Example: if (value == 'delete') { showDeleteConfirmationDialog(context, post.id); }
                         },
                         itemBuilder: (context) {
                           final isOwner = post.userId == loggedInUser;
                           if (isOwner) {
                             return [
                               const PopupMenuItem(
+                                // TODO: Implement edit functionality
                                 value: 'edit',
                                 child: Text('Edit Post'),
                               ),
@@ -130,6 +166,7 @@ class PostWidget extends ConsumerWidget {
                           } else {
                             return [
                               const PopupMenuItem(
+                                // TODO: Implement report functionality
                                 value: 'report',
                                 child: Text('Report Post'),
                               ),
@@ -157,9 +194,7 @@ class PostWidget extends ConsumerWidget {
                   //actions row
                   PostWidgetActionsRow(
                     post: post,
-                    isDark: isDark,
-                    feedNotifier: feedNotifier,
-                  ),
+                  ), // Removed redundant parameters
                 ],
               ),
             ),
@@ -170,58 +205,117 @@ class PostWidget extends ConsumerWidget {
   }
 }
 
-class PostWidgetActionsRow extends ConsumerWidget {
+/// Converted to a ConsumerStatefulWidget to handle local state for liking.
+/// This provides optimistic UI updates and prevents rapid-tap issues.
+class PostWidgetActionsRow extends ConsumerStatefulWidget {
   final Post post;
-  final bool isDark;
-  final FeedNotifier feedNotifier;
 
-  const PostWidgetActionsRow({
-    super.key,
-    required this.post,
-    required this.isDark,
-    required this.feedNotifier,
-  });
+  const PostWidgetActionsRow({super.key, required this.post});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<PostWidgetActionsRow> createState() =>
+      _PostWidgetActionsRowState();
+}
+
+class _PostWidgetActionsRowState extends ConsumerState<PostWidgetActionsRow> {
+  late bool _isLiked;
+  late int _likeCount;
+  bool _isLiking =
+      false; // Prevents multiple taps while an operation is in progress.
+
+  @override
+  void initState() {
+    super.initState();
+    _isLiked = widget.post.isLiked;
+    _likeCount = widget.post.likeCount;
+  }
+
+  /// Ensures the local state is updated if the parent widget rebuilds with a new post object.
+  @override
+  void didUpdateWidget(covariant PostWidgetActionsRow oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.post.isLiked != oldWidget.post.isLiked ||
+        widget.post.likeCount != oldWidget.post.likeCount) {
+      setState(() {
+        _isLiked = widget.post.isLiked;
+        _likeCount = widget.post.likeCount;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final user = Supabase.instance.client.auth.currentUser;
+
     return Row(
       children: [
         // ❤️ Like button
         IconButton(
-          onPressed: () async {
-            final user = Supabase.instance.client.auth.currentUser;
-            if (user == null) {
-              FailureSnackBar.show(
-                context: context,
-                message: 'Log in to like!',
-                isDark: isDark,
-                onPressed: () => Navigator.push(
-                  context,
-                  SlideRouting(page: const LoginPage()),
-                ),
-                btnLabel: 'Log in',
-              );
-              return;
-            }
+          onPressed: _isLiking
+              ? null // Disable button while liking
+              : () async {
+                  if (user == null) {
+                    FailureSnackBar.show(
+                      context: context,
+                      message: 'Log in to like!',
+                      isDark: isDark,
+                      onPressed: () => Navigator.push(
+                        context,
+                        SlideRouting(page: const LoginPage()),
+                      ),
+                      btnLabel: 'Log in',
+                    );
+                    return;
+                  }
 
-            feedNotifier.toggleLike(post.id);
-            print('Liked');
-          },
+                  setState(() {
+                    _isLiking = true;
+                    // Optimistic UI update
+                    _isLiked = !_isLiked;
+                    _likeCount += _isLiked ? 1 : -1;
+                  });
+
+                  try {
+                    // Access the notifier directly via ref and perform the action.
+                    final result = await ref
+                        .read(feedProvider(null).notifier)
+                        .toggleLike(widget.post.id);
+
+                    // Confirm the UI with the actual data from the database.
+                    if (mounted) {
+                      setState(() {
+                        _isLiked = result['isLiked'];
+                        _likeCount = result['likeCount'];
+                      });
+                    }
+                  } catch (e) {
+                    // If something goes wrong, revert the optimistic update.
+                    if (mounted) {
+                      setState(() {
+                        _isLiked = !_isLiked;
+                        _likeCount += _isLiked ? 1 : -1;
+                      });
+                    }
+                  } finally {
+                    if (mounted) {
+                      setState(() {
+                        _isLiking = false; // Re-enable the button
+                      });
+                    }
+                  }
+                },
           icon: AnimatedSwitcher(
             duration: const Duration(milliseconds: 250),
             transitionBuilder: (child, anim) =>
                 ScaleTransition(scale: anim, child: child),
             child: Icon(
-              key: ValueKey(post.isLiked),
-              post.isLiked ? Icons.favorite : Icons.favorite_border,
+              key: ValueKey(_isLiked), // Use local state for the animation key
+              _isLiked ? Icons.favorite : Icons.favorite_border,
               size: 20,
               color: isDark
-                  ? post.isLiked
-                        ? Colors.deepOrange
-                        : Colors.white
-                  : post.isLiked
-                  ? Colors.deepOrange
-                  : Colors.black,
+                  ? (_isLiked ? Colors.deepOrange : Colors.white)
+                  : (_isLiked ? Colors.deepOrange : Colors.black),
             ),
           ),
           splashRadius: 20,
@@ -229,7 +323,7 @@ class PostWidgetActionsRow extends ConsumerWidget {
 
         // ❤️ Like count
         Text(
-          post.likeCount.toString(),
+          _likeCount.toString(), // Use local state
           style: Theme.of(context).textTheme.bodySmall!.copyWith(
             color: isDark ? Colors.grey : Colors.grey[900],
           ),
@@ -239,7 +333,10 @@ class PostWidgetActionsRow extends ConsumerWidget {
 
         // 🔗 Share
         IconButton(
-          onPressed: () {},
+          onPressed: () {
+            // TODO: Implement share functionality, e.g., using the share_plus package
+            debugPrint('Share Post action for post ID: ${widget.post.id}');
+          },
           icon: Icon(
             Icons.share_outlined,
             size: 20,

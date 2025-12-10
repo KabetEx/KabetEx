@@ -2,7 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kabetex/core/snackbars.dart';
+import 'package:kabetex/utils/snackbars.dart';
 import 'package:kabetex/features/cart/data/product_hive.dart';
 import 'package:kabetex/providers/cart/all_cart_products.dart';
 import 'package:kabetex/common/slide_routing.dart';

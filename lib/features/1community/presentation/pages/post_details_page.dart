@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/common/slide_routing.dart';
-import 'package:kabetex/core/snackbars.dart';
+import 'package:kabetex/utils/snackbars.dart';
 import 'package:kabetex/features/1community/data/models/post.dart';
 import 'package:kabetex/features/1community/presentation/pages/profile_page.dart';
 import 'package:kabetex/features/1community/providers/feed_provider.dart';
@@ -147,8 +147,16 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: isDark ? Colors.grey[900] : Colors.white54,
-        elevation: 0,
+        title: Text(
+          'Post',
+          style: Theme.of(context).appBarTheme.titleTextStyle,
+        ),
+        centerTitle: false,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        elevation: 3,
+        shape: const RoundedRectangleBorder(
+          side: BorderSide(color: Colors.black, width: 0.3),
+        ),
         surfaceTintColor: Colors.transparent,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
@@ -227,14 +235,25 @@ class UserDetailsRow extends StatelessWidget {
                 : null,
           ),
         ),
-        const SizedBox(width: 10),
+        const SizedBox(width: 16),
+
         Text(
           post.userFullname ?? "",
           style: TextStyle(
+            fontFamily: 'Lato',
             color: isDark ? Colors.white : Colors.black87,
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
+            fontSize: 22,
+            height: 1.5,
+            fontWeight: FontWeight.w400,
           ),
+        ),
+
+        const Spacer(),
+
+        PopupMenuButton(
+          itemBuilder: (context) {
+            return [const PopupMenuItem(child: Text('Report'))];
+          },
         ),
       ],
     );
@@ -274,6 +293,7 @@ class _ActionsRowState extends ConsumerState<ActionsRow> {
   @override
   Widget build(BuildContext context) {
     final isDark = ref.watch(isDarkModeProvider);
+    final user = Supabase.instance.client.auth.currentUser;
 
     return Row(
       children: [
@@ -283,15 +303,20 @@ class _ActionsRowState extends ConsumerState<ActionsRow> {
             transitionBuilder: (child, anim) =>
                 ScaleTransition(scale: anim, child: child),
             child: Icon(
-              postLiked ? Icons.favorite : Icons.favorite_border,
+              postLiked ? CupertinoIcons.heart_fill : CupertinoIcons.heart,
               key: ValueKey(postLiked),
               size: 28,
-              color: postLiked ? Colors.red : Colors.white,
+              color: isDark
+                  ? postLiked
+                        ? Colors.red
+                        : Colors.white
+                  : postLiked
+                  ? Colors.red
+                  : Colors.black,
             ),
           ),
           onPressed: !isLiking
               ? () async {
-                  final user = Supabase.instance.client.auth.currentUser;
                   if (user == null) {
                     FailureSnackBar.show(
                       context: context,
@@ -305,6 +330,7 @@ class _ActionsRowState extends ConsumerState<ActionsRow> {
                     );
                     return;
                   }
+
                   if (isLiking) return;
 
                   setState(() {
@@ -330,7 +356,7 @@ class _ActionsRowState extends ConsumerState<ActionsRow> {
                     });
                     FailureSnackBar.show(
                       context: context,
-                      message: 'failed to like post',
+                      message: 'failed to like post. Please try again',
                       isDark: isDark,
                     );
                   } finally {
@@ -348,11 +374,24 @@ class _ActionsRowState extends ConsumerState<ActionsRow> {
         const SizedBox(width: 12),
         IconButton(
           icon: Icon(
-            Icons.mode_comment_outlined,
+            CupertinoIcons.text_bubble,
             size: 26,
             color: isDark ? Colors.white : Colors.black87,
           ),
           onPressed: () {
+            if (user == null) {
+              FailureSnackBar.show(
+                context: context,
+                message: 'Log in to like!',
+                isDark: isDark,
+                onPressed: () => Navigator.push(
+                  context,
+                  SlideRouting(page: const LoginPage()),
+                ),
+                btnLabel: 'Log in',
+              );
+              return;
+            }
             widget.onClickComment(context);
           },
         ),
