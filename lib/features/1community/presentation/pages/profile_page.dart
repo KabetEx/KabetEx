@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,7 +12,6 @@ import 'package:kabetex/features/1community/providers/feed_provider.dart';
 import 'package:kabetex/features/1community/providers/user_provider.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 import 'package:kabetex/utils/user_avatar.dart';
-import 'package:shimmer/shimmer.dart';
 
 class CommunityProfilePage extends ConsumerStatefulWidget {
   final String? userID;
@@ -43,7 +41,6 @@ class _CommunityProfilePageState extends ConsumerState<CommunityProfilePage> {
     final feedState = ref.watch(
       feedProviderWithID,
     ); //pass in the ID to filter posts
-    final feedNotifier = ref.read(feedProviderWithID.notifier);
 
     return userAsync.when(
       data: (userProfile) {
@@ -62,7 +59,7 @@ class _CommunityProfilePageState extends ConsumerState<CommunityProfilePage> {
               ref.invalidate(
                 userByIDProvider(widget.userID),
               ); //refresh userprofile
-              ref.refresh(feedProvider(widget.userID)); //refresh posts
+              ref.refresh(feedProvider(widget.userID)); //refresh user posts
               await Future.delayed(const Duration(milliseconds: 300));
 
               SuccessSnackBar.show(
@@ -80,11 +77,12 @@ class _CommunityProfilePageState extends ConsumerState<CommunityProfilePage> {
                   pinned: true,
                   floating: true,
                   snap: true,
-                  backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+                  centerTitle: false,
+                  backgroundColor: Colors.transparent,
                   title: Text(
                     isOwner ? "My Profile" : userProfile.name,
                     style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                      fontFamily: 'Lato',
+                      fontFamily: 'Poppins',
                       fontSize: 24,
                     ),
                   ),

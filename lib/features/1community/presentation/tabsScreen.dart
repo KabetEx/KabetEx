@@ -126,7 +126,7 @@ class _CommunityTabsScreen extends ConsumerState<CommunityTabsScreen> {
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
         onPressed: () => _onTabTapped(1),
-        backgroundColor: const Color(0xFFFF6F00),
+        backgroundColor: Colors.deepOrange,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         child: const Icon(Icons.add, color: Colors.white),
       ),

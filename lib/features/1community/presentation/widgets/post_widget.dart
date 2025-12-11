@@ -17,10 +17,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class PostWidget extends ConsumerWidget {
   final Post post;
 
-  const PostWidget({
-    super.key,
-    required this.post,
-  });
+  const PostWidget({super.key, required this.post});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -115,11 +112,6 @@ class PostWidget extends ConsumerWidget {
                           final isOwner = post.userId == loggedInUser;
                           if (isOwner) {
                             return [
-                              const PopupMenuItem(
-                                // TODO: Implement edit functionality
-                                value: 'edit',
-                                child: Text('Edit Post'),
-                              ),
                               const PopupMenuItem(
                                 value: 'delete',
                                 child: Text('Delete Post'),
