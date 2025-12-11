@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:kabetex/features/1community/presentation/pages/feed_page.dart';
-import 'package:kabetex/features/cart/presentations/cart_page.dart';
-import 'package:kabetex/features/categories/presentations/categories_page.dart';
 import 'package:kabetex/features/home/presentations/home_page.dart';
 import 'package:kabetex/features/profile/presentantion/profile_page.dart';
 import 'package:kabetex/features/home/providers/nav_bar.dart';

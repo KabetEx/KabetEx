@@ -8,7 +8,6 @@ import 'package:kabetex/features/contact_report/presentation/report_page.dart';
 import 'package:kabetex/features/products/presentation/upload_page.dart';
 import 'package:kabetex/features/products/presentation/my_products_page.dart';
 import 'package:kabetex/features/settings/presentations/settings_page.dart';
-import 'package:kabetex/features/products/providers/user_provider.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
