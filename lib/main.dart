@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -63,7 +65,7 @@ class MyApp extends ConsumerWidget {
 
       //light mode
       theme: ThemeData().copyWith(
-        scaffoldBackgroundColor: const Color.fromARGB(255, 252, 239, 235),
+        scaffoldBackgroundColor: const Color.fromARGB(255, 255, 245, 230),
         canvasColor: const Color.fromARGB(255, 237, 228, 225),
         brightness: Brightness.light,
         colorScheme: kLightColorScheme,
@@ -119,10 +121,10 @@ class MyApp extends ConsumerWidget {
 
       //darktheme
       darkTheme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: Colors.black,
+        scaffoldBackgroundColor: const Color(0xFF121212),
         canvasColor: Colors.black,
         appBarTheme: AppBarThemeData(
-          backgroundColor: Colors.black,
+          backgroundColor: Colors.transparent,
           foregroundColor: Colors.white,
           centerTitle: true,
           titleTextStyle: GoogleFonts.montserratTextTheme().titleLarge!
@@ -163,21 +165,7 @@ class MyApp extends ConsumerWidget {
           bodySmall: GoogleFonts.lato(fontSize: 14, color: Colors.white),
         ),
       ),
-      home: StreamBuilder<AuthState>(
-        stream: Supabase.instance.client.auth.onAuthStateChange,
-        builder: (context, snapshot) {
-          final user = Supabase.instance.client.auth.currentUser;
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (user == null) {
-            Future.delayed(Durations.medium3);
-            return const TabsScreen();
-          }
-          Future.delayed(Durations.medium3);
-          return const TabsScreen();
-        },
-      ),
+      home: const TabsScreen(),
     );
   }
 }

@@ -9,6 +9,7 @@ import 'package:kabetex/features/home/widgets/hero_banner.dart';
 import 'package:kabetex/features/home/widgets/drawer.dart';
 import 'package:kabetex/features/products/providers/all_products_provider.dart';
 import 'package:kabetex/providers/theme_provider.dart';
+import 'dart:math' as math;
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -82,6 +83,10 @@ class _HomePageState extends ConsumerState<HomePage>
     super.build(context);
 
     final isDark = ref.watch(isDarkModeProvider);
+    final double tabbarWidth = math.min(
+      560,
+      MediaQuery.of(context).size.width * 0.9,
+    );
     final products = ref.watch(productsProvider);
     final notifier = ref.read(productsProvider.notifier);
 
@@ -92,34 +97,81 @@ class _HomePageState extends ConsumerState<HomePage>
         body: SafeArea(
           child: Column(
             children: [
-              // TOP TAB BAR
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: TabBar(
-                  onTap: _handleTabTap,
-                  dividerHeight: 1,
-                  dividerColor: isDark ? Colors.grey[900] : Colors.grey[500],
-                  labelColor: isDark ? Colors.white : Colors.black,
-                  unselectedLabelColor: Colors.grey[600],
-                  indicatorColor: Colors.deepOrange,
-                  indicatorWeight: 1,
-                  indicatorPadding: const EdgeInsets.symmetric(horizontal: 4),
-                  labelStyle: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    fontFamily: 'Lato',
+              // TOP TAB BAR (centered, responsive width)
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: SizedBox(
+                    //width: tabbarWidth,
+                    height: 54,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: isDark ? Colors.grey[900] : Colors.grey[100],
+                        borderRadius: BorderRadius.circular(32),
+                      ),
+                      child: TabBar(
+                        onTap: _handleTabTap,
+                        indicatorSize: TabBarIndicatorSize
+                            .label, // <-- indicator adapts to text width
+                        dividerHeight: 0,
+                        dividerColor: Colors.transparent,
+                        labelColor: isDark ? Colors.white : Colors.black,
+                        unselectedLabelColor: Colors.grey[600],
+                        indicator: BoxDecoration(
+                          color: Colors.deepOrange,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        splashFactory: NoSplash.splashFactory,
+                        overlayColor: WidgetStateProperty.all(
+                          Colors.transparent,
+                        ),
+                        tabs: [
+                          Tab(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
+                              ),
+                              child: Center(
+                                child: Text(
+                                  "Market",
+                                  textAlign: TextAlign.center,
+                                  style: Theme.of(context).textTheme.bodyLarge!
+                                      .copyWith(
+                                        fontFamily: 'Poppins',
+                                        fontWeight: FontWeight.w400,
+                                      ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 024,
+                              vertical: 8,
+                            ),
+                            child: Tab(
+                              child: Center(
+                                child: Text(
+                                  "Community",
+                                  textAlign: TextAlign.center,
+                                  style: Theme.of(context).textTheme.bodyLarge!
+                                      .copyWith(
+                                        fontFamily: 'Poppins',
+                                        fontWeight: FontWeight.w400,
+                                      ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                  unselectedLabelStyle: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    fontFamily: 'Lato',
-                  ),
-                  splashFactory: NoSplash.splashFactory,
-                  overlayColor: WidgetStateProperty.all(Colors.transparent),
-                  tabs: const [
-                    Tab(text: "Market"),
-                    Tab(text: "Community"),
-                  ],
                 ),
               ),
 
@@ -156,9 +208,7 @@ class _HomePageState extends ConsumerState<HomePage>
                     // ------------------ COMMUNITY TAB ------------------
                     Consumer(
                       builder: (context, ref, child) {
-                        final isLoadingComm = ref.watch(
-                          isCommunityLoadingProvider,
-                        );
+                        // monitor community loading state elsewhere when needed
                         final isLoadingMkt = ref.watch(isLoadingMarketprovider);
 
                         // if (isLoadingComm) {

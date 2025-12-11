@@ -54,7 +54,9 @@ class MyCategoryGrid extends ConsumerWidget {
                   splashColor: isDarkMode ? Colors.black : Colors.white,
                   child: DecoratedBox(
                     decoration: BoxDecoration(
-                      color: Colors.grey.withAlpha(50),
+                      color: isDarkMode
+                          ? const Color(0xFF1E1E1E)
+                          : Colors.grey.withAlpha(50),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color: Colors.grey.withAlpha(50),

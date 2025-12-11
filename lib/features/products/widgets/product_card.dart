@@ -47,7 +47,9 @@ class _ProductCardState extends ConsumerState<ProductCard> {
           },
           child: Container(
             decoration: BoxDecoration(
-              color: isDarkMode ? Colors.grey[900] : Colors.grey[200],
+              color: isDarkMode
+                  ? const Color(0xFF1E1E1E)
+                  : Colors.grey.withAlpha(50),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Stack(

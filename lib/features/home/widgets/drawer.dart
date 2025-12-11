@@ -27,9 +27,7 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
     return Drawer(
       child: Container(
         decoration: BoxDecoration(
-          color: isDarkMode
-              ? Colors.black
-              : const Color.fromARGB(255, 237, 228, 225),
+          color: Theme.of(context).scaffoldBackgroundColor,
         ),
         child: Column(
           children: [
@@ -39,7 +37,7 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
                 decoration: BoxDecoration(
                   color: isDarkMode
                       ? const Color.fromARGB(255, 108, 103, 101)
-                      : Colors.deepOrange,
+                      : Colors.transparent,
                 ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -51,7 +49,9 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
                             text: 'KabetEx \n',
                             style: Theme.of(context).textTheme.titleMedium!
                                 .copyWith(
-                                  color: Colors.white,
+                                  color: isDarkMode
+                                      ? Colors.white
+                                      : Colors.black,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 32,
                                   fontFamily: 'poppins',
@@ -60,7 +60,12 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
                           TextSpan(
                             text: '-Where deals are made',
                             style: Theme.of(context).textTheme.bodyLarge!
-                                .copyWith(color: Colors.white, fontSize: 18),
+                                .copyWith(
+                                  color: isDarkMode
+                                      ? Colors.white
+                                      : Colors.black,
+                                  fontSize: 18,
+                                ),
                           ),
                         ],
                       ),
@@ -118,24 +123,8 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
             //seller's section
             const Divider(),
 
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12.0,
-                  vertical: 8,
-                ),
-                child: Text(
-                  'Seller\'s Section',
-                  style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                    fontSize: 15,
-                    color: isDarkMode
-                        ? Colors.white
-                        : Theme.of(context).primaryColor,
-                  ),
-                ),
-              ),
-            ),
+            sectionHeader(context, isDarkMode, 'Seller\'s Section'),
+
             ListTile(
               leading: Icon(
                 Icons.add_box_outlined,
@@ -197,24 +186,8 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
 
             //feedback section
             const Divider(),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12.0,
-                  vertical: 8,
-                ),
-                child: Text(
-                  'Feedback & support',
-                  style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                    fontSize: 15,
-                    color: isDarkMode
-                        ? Colors.white
-                        : Theme.of(context).primaryColor,
-                  ),
-                ),
-              ),
-            ),
+            sectionHeader(context, isDarkMode, 'Feedback & support'),
+
             ListTile(
               leading: Icon(
                 Icons.note_alt_outlined,
@@ -324,6 +297,24 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
               },
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Align sectionHeader(BuildContext context, bool isDarkMode, String title) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8),
+        child: Text(
+          title,
+          style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+            fontSize: 15,
+            color: isDarkMode
+                ? Colors.white
+                : Theme.of(context).colorScheme.primary,
+          ),
         ),
       ),
     );

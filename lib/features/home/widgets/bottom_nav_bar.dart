@@ -18,7 +18,7 @@ class MyBottomNav extends ConsumerWidget {
 
     return SalomonBottomBar(
       duration: const Duration(milliseconds: 1000),
-      backgroundColor: isDarkMode ? Colors.black : Colors.white,
+      backgroundColor: Colors.transparent,
       currentIndex: selectedIndex,
       onTap: (index) {
         ref.read(tabsProvider.notifier).state = index;
