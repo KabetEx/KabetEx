@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/features/1community/presentation/tabsScreen.dart';
+import 'package:kabetex/features/1community/providers/tabs_provider.dart';
 import 'package:kabetex/features/home/presentations/home_products_section.dart';
 import 'package:kabetex/features/home/providers/nav_bar.dart';
 import 'package:kabetex/features/home/widgets/app_title_row.dart';
@@ -23,12 +25,18 @@ class _HomePageState extends ConsumerState<HomePage>
   final ScrollController _scrollController = ScrollController();
   bool isRefreshing = false;
 
+  bool showTabBar() {
+    final showTabBar = ref.watch(bottomBarVisibleProvider);
+    return showTabBar;
+  }
+
   @override
   void initState() {
     super.initState();
     // Initial products load
     Future.microtask(() => ref.read(productsProvider.notifier).loadProducts());
 
+    //load more products
     _scrollController.addListener(() {
       final notifier = ref.read(productsProvider.notifier);
       if (_scrollController.position.pixels >=
@@ -37,6 +45,18 @@ class _HomePageState extends ConsumerState<HomePage>
           !notifier.isLoading &&
           !isRefreshing) {
         notifier.loadMore();
+      }
+
+      if (_scrollController.position.userScrollDirection ==
+          ScrollDirection.reverse) {
+        if (showTabBar()) {
+          ref.read(bottomBarVisibleProvider.notifier).state = false;
+        }
+      } else if (_scrollController.position.userScrollDirection ==
+          ScrollDirection.forward) {
+        if (!showTabBar()) {
+          ref.read(bottomBarVisibleProvider.notifier).state = true;
+        }
       }
     });
   }
@@ -76,6 +96,9 @@ class _HomePageState extends ConsumerState<HomePage>
         ref.read(isCommunityLoadingProvider.notifier).state = false;
       });
     }
+
+    // reset tabbar visibility when switching tabs
+    ref.read(bottomBarVisibleProvider.notifier).state = true;
   }
 
   @override
@@ -83,10 +106,6 @@ class _HomePageState extends ConsumerState<HomePage>
     super.build(context);
 
     final isDark = ref.watch(isDarkModeProvider);
-    final double tabbarWidth = math.min(
-      560,
-      MediaQuery.of(context).size.width * 0.9,
-    );
     final products = ref.watch(productsProvider);
     final notifier = ref.read(productsProvider.notifier);
 
@@ -97,85 +116,105 @@ class _HomePageState extends ConsumerState<HomePage>
         body: SafeArea(
           child: Column(
             children: [
-              // TOP TAB BAR (centered, responsive width)
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: SizedBox(
-                    //width: tabbarWidth,
-                    height: 54,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        color: isDark ? Colors.grey[900] : Colors.grey[100],
-                        borderRadius: BorderRadius.circular(32),
-                      ),
-                      child: TabBar(
-                        onTap: _handleTabTap,
-                        indicatorSize: TabBarIndicatorSize
-                            .label, // <-- indicator adapts to text width
-                        dividerHeight: 0,
-                        dividerColor: Colors.transparent,
-                        labelColor: isDark ? Colors.white : Colors.black,
-                        unselectedLabelColor: Colors.grey[600],
-                        indicator: BoxDecoration(
-                          color: Colors.deepOrange,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        splashFactory: NoSplash.splashFactory,
-                        overlayColor: WidgetStateProperty.all(
-                          Colors.transparent,
-                        ),
-                        tabs: [
-                          Tab(
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 8,
-                              ),
-                              child: Center(
-                                child: Text(
-                                  "Market",
-                                  textAlign: TextAlign.center,
-                                  style: Theme.of(context).textTheme.bodyLarge!
-                                      .copyWith(
-                                        fontFamily: 'Poppins',
-                                        fontWeight: FontWeight.w400,
-                                      ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Padding(
+              // ------------------ TABBAR ------------------
+              showTabBar()
+                  ? AnimatedSlide(
+                      offset: showTabBar()
+                          ? const Offset(0, 0)
+                          : const Offset(0, -1),
+                      duration: const Duration(milliseconds: 700),
+                      child: AnimatedOpacity(
+                        opacity: showTabBar() ? 1 : 0,
+                        duration: const Duration(milliseconds: 300),
+                        child: Center(
+                          child: Padding(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 024,
-                              vertical: 8,
+                              horizontal: 16.0,
                             ),
-                            child: Tab(
-                              child: Center(
-                                child: Text(
-                                  "Community",
-                                  textAlign: TextAlign.center,
-                                  style: Theme.of(context).textTheme.bodyLarge!
-                                      .copyWith(
-                                        fontFamily: 'Poppins',
-                                        fontWeight: FontWeight.w400,
+                            child: SizedBox(
+                              height: 54,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 8,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: isDark
+                                      ? Colors.grey[900]
+                                      : Colors.grey[100],
+                                  borderRadius: BorderRadius.circular(32),
+                                ),
+                                child: TabBar(
+                                  onTap: _handleTabTap,
+                                  indicatorSize: TabBarIndicatorSize.label,
+                                  dividerHeight: 0,
+                                  dividerColor: Colors.transparent,
+                                  labelColor: isDark
+                                      ? Colors.white
+                                      : Colors.black,
+                                  unselectedLabelColor: Colors.grey[600],
+                                  indicator: BoxDecoration(
+                                    color: Colors.deepOrange,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  splashFactory: NoSplash.splashFactory,
+                                  overlayColor: WidgetStateProperty.all(
+                                    Colors.transparent,
+                                  ),
+                                  tabs: [
+                                    Tab(
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 16,
+                                          vertical: 8,
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            "Market",
+                                            textAlign: TextAlign.center,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodyLarge!
+                                                .copyWith(
+                                                  fontFamily: 'Poppins',
+                                                  fontWeight: FontWeight.w400,
+                                                ),
+                                          ),
+                                        ),
                                       ),
+                                    ),
+                                    Tab(
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 16,
+                                          vertical: 8,
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            "Community",
+                                            textAlign: TextAlign.center,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodyLarge!
+                                                .copyWith(
+                                                  fontFamily: 'Poppins',
+                                                  fontWeight: FontWeight.w400,
+                                                ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
                           ),
-                        ],
+                        ),
                       ),
-                    ),
-                  ),
-                ),
-              ),
+                    )
+                  : const SizedBox.shrink(),
 
-              // CONTENT AREA
+              // ------------------ CONTENT AREA ------------------
               Expanded(
                 child: TabBarView(
                   physics: const NeverScrollableScrollPhysics(),
@@ -208,12 +247,8 @@ class _HomePageState extends ConsumerState<HomePage>
                     // ------------------ COMMUNITY TAB ------------------
                     Consumer(
                       builder: (context, ref, child) {
-                        // monitor community loading state elsewhere when needed
                         final isLoadingMkt = ref.watch(isLoadingMarketprovider);
 
-                        // if (isLoadingComm) {
-                        //   return LoadingPage(isDark: isDark);
-                        // }
                         if (isLoadingMkt) {
                           return LoadingPage(isDark: isDark);
                         }

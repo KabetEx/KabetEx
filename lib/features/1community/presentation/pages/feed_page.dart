@@ -160,7 +160,8 @@ class MySliverAppBar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, ref) {
     return SliverAppBar(
-      pinned: true,
+      pinned: false,
+      floating: true,
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       elevation: 4,
       toolbarHeight: 64,
