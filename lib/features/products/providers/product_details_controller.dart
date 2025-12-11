@@ -244,7 +244,7 @@ class ProductDetailsController extends StateNotifier<AsyncValue<Product>> {
 
       print(seller);
 
-      final number = seller?['phone_number'];
+      final number = seller?.pNumber;
       print('seller profile $number');
 
       if (number == null) {

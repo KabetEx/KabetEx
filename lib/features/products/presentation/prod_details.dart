@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:kabetex/utils/snackbars.dart';
 import 'package:kabetex/features/products/data/product.dart';
@@ -62,9 +63,9 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
       if (mounted) setState(() => isLoaded = true);
     } catch (e) {
       FailureSnackBar.show(
-       context:  context,
-       message:  'Failed to load product $e',
-       isDark:  ref.watch(isDarkModeProvider),
+        context: context,
+        message: 'Failed to load product $e',
+        isDark: ref.watch(isDarkModeProvider),
       );
     } finally {
       if (mounted) setState(() => isLoading = false);
@@ -131,6 +132,7 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      //PRODUCT IMAGES
                       RepaintBoundary(
                         child: ProductGallery(
                           images: product!.imageUrls,
@@ -138,6 +140,8 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
                         ),
                       ),
                       const SizedBox(height: 16),
+
+                      //PRODUCT TITLE
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16.0),
                         child: Text(
@@ -151,10 +155,14 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
                         ),
                       ),
                       const SizedBox(height: 8),
+
+                      //PRODUCT PRICE
                       RepaintBoundary(
                         child: PriceRow(product: product!, isDark: isDarkMode),
                       ),
                       const SizedBox(height: 16),
+
+                      //SELLER CARD
                       RepaintBoundary(
                         child: SellerCard(
                           isDark: isDarkMode,
@@ -162,6 +170,8 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
                         ),
                       ),
                       const SizedBox(height: 16),
+
+                      //STOCK
                       Padding(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 16.0,
@@ -194,11 +204,15 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
                         ),
                       ),
                       const SizedBox(height: 16),
+
+                      //PRODUCT DESCRIPTION
                       ProdDescription(
                         productDescription: product!.description,
                         isDark: isDarkMode,
                       ),
                       const SizedBox(height: 16),
+
+                      //MORE FROM SELLER
                       RepaintBoundary(
                         child: MoreFromSeller(
                           product: product!,
@@ -268,9 +282,10 @@ class AddToCart extends ConsumerWidget {
         curve: Curves.easeInOut,
         child: Icon(
           isExisting
-              ? Icons.check_circle_outline_sharp
-              : Icons.shopping_cart_outlined,
-          color: Colors.green,
+              ? CupertinoIcons.check_mark_circled_solid
+              : CupertinoIcons.cart_badge_plus,
+          size: 28,
+          color: Colors.deepOrange,
         ),
       ),
     );

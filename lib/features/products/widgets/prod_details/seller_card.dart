@@ -1,3 +1,5 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/features/products/providers/seller_provider.dart';
@@ -14,22 +16,18 @@ class SellerCard extends ConsumerWidget {
     final sellerAsync = ref.watch(sellerProfileProvider(sellerId));
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: sellerAsync.when(
         loading: () => SellerCardShimmer(isDark: isDark),
         error: (e, st) => Text('Error: $e'),
         data: (profile) {
-          if (profile == null) return const Text('Seller not found');
-
-          final isVerified = profile['isVerified'] ?? false;
-          final sellerName = profile['full_name'] ?? 'Guest';
-          final sellerNumber = profile['phone_number'] ?? '-';
+          final isVerified = profile?.isVerified ?? false;
+          final sellerName = profile?.name ?? 'Guest';
+          final sellerNumber = profile?.pNumber ?? '-';
 
           return Card(
             margin: const EdgeInsets.all(4),
-            elevation: 2,
-            shadowColor: Colors.black.withAlpha(200),
-            color: isDark ? Colors.grey[900] : Colors.grey[100],
+            color: isDark ? Colors.grey[900] : Colors.white,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),
@@ -39,15 +37,11 @@ class SellerCard extends ConsumerWidget {
                 children: [
                   CircleAvatar(
                     radius: 24,
-                    backgroundColor: isDark
-                        ? Colors.grey[800]
-                        : Colors.grey[200],
-                    child: const Icon(
-                      Icons.person,
-                      size: 24,
-                      color: Colors.grey,
+                    backgroundImage: CachedNetworkImageProvider(
+                      profile?.avatarUrl ?? '',
                     ),
                   ),
+
                   const SizedBox(width: 14),
 
                   // Text section
@@ -61,7 +55,8 @@ class SellerCard extends ConsumerWidget {
                               'Seller',
                               style: TextStyle(
                                 fontSize: 12,
-                                color: Colors.grey[500],
+                                color: isDark ? Colors.white : Colors.grey[900],
+                                fontWeight: FontWeight.w200,
                               ),
                             ),
                             const SizedBox(width: 6),
@@ -86,7 +81,7 @@ class SellerCard extends ConsumerWidget {
                                     size: 14,
                                     color: isVerified
                                         ? Colors.greenAccent[700]
-                                        : Colors.grey[700],
+                                        : Colors.grey[300],
                                   ),
                                   const SizedBox(width: 4),
                                   Text(
@@ -96,7 +91,7 @@ class SellerCard extends ConsumerWidget {
                                       fontWeight: FontWeight.w900,
                                       color: isVerified
                                           ? Colors.greenAccent[700]
-                                          : Colors.grey[700],
+                                          : Colors.grey[300],
                                     ),
                                   ),
                                 ],

@@ -36,18 +36,18 @@ class UserProfile {
   };
 
   //from supabase
-  factory UserProfile.fromMap(Map<String, dynamic> map) => UserProfile(
-    id: map['id'],
-    avatarUrl: map['avatar_url'] ?? '',
-    name: map['full_name'] ?? '',
-    bio: map['bio'] ?? '',
-    pNumber: map['phone_number'] ?? '',
-    email: map['email'] ?? '',
-    year: map['year'] ?? '',
-    isActive: map['isActive'] ?? true,
-    isVerified: map['isVerified'] ?? false,
-    createdAt: map['created_at'] != null
-        ? DateTime.parse(map['created_at'])
+  factory UserProfile.fromMap(Map<String, dynamic>? map) => UserProfile(
+    id: map?['id'] ?? '',
+    avatarUrl: map?['avatar_url'] ?? '',
+    name: map?['full_name'] ?? '',
+    bio: map?['bio'] ?? '',
+    pNumber: map?['phone_number'] ?? '',
+    email: map?['email'] ?? '',
+    year: map?['year'] ?? '',
+    isActive: map?['isActive'] ?? true,
+    isVerified: map?['isVerified'] ?? false,
+    createdAt: map?['created_at'] != null
+        ? DateTime.parse(map?['created_at'])
         : null,
   );
 }

@@ -24,7 +24,7 @@ class MoreFromSeller extends ConsumerWidget {
       children: [
         sellerProfile.when(
           data: (profile) {
-            String name = profile?['full_name'] ?? 'Guest';
+            String name = profile?.name ?? 'Seller';
             final firstName = name.split(' ').first;
 
             return Align(

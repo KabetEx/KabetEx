@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -50,7 +51,7 @@ class _ProductCardState extends ConsumerState<ProductCard> {
               color: isDarkMode
                   ? const Color(0xFF1E1E1E)
                   : Colors.grey.withAlpha(50),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(4),
             ),
             child: Stack(
               children: [
@@ -102,50 +103,64 @@ class _ProductCardState extends ConsumerState<ProductCard> {
                 Positioned(
                   bottom: 4,
                   right: 4,
-                  child: IconButton(
-                    onPressed: () {
-                      if (isExisting()) {
-                        ref
-                            .read(cartProvider.notifier)
-                            .remove(widget.product.id!);
+                  child: Container(
+                    height: 40,
+                    width: 40,
+                    decoration: BoxDecoration(
+                      color: isDarkMode
+                          ? Colors.grey.withAlpha(25)
+                          : Colors.grey.withAlpha(50),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: IconButton(
+                        onPressed: () {
+                          if (isExisting()) {
+                            ref
+                                .read(cartProvider.notifier)
+                                .remove(widget.product.id!);
 
-                        SuccessSnackBar.show(
-                          context: context,
-                          message: 'Item removed from cart',
-                          isDark: isDarkMode,
-                          duration: 1,
-                        );
-                      } else {
-                        SuccessSnackBar.show(
-                          context: context,
-                          message: 'Item added to cart',
-                          isDark: isDarkMode,
-                          duration: 1,
-                        );
-                        ref
-                            .read(cartProvider.notifier)
-                            .add(
-                              ProductHive(
-                                id: widget.product.id!,
-                                title: widget.product.title,
-                                price: widget.product.price,
-                                imageUrl: widget.product.imageUrls[0],
-                                category: widget.product.category,
-                              ),
+                            SuccessSnackBar.show(
+                              context: context,
+                              message: 'Item removed from cart',
+                              isDark: isDarkMode,
+                              duration: 1,
                             );
-                      }
-                    }, // handle add/remove cart
-                    icon: isExisting()
-                        ? Icon(
-                            Icons.check_circle_sharp,
-                            color: isDarkMode ? Colors.white : Colors.green,
-                          )
-                        : Icon(
-                            Icons.shopping_cart_outlined,
-                            color: isDarkMode
-                                ? Colors.white
-                                : const Color.fromARGB(255, 97, 97, 97),
-                          ),
+                          } else {
+                            SuccessSnackBar.show(
+                              context: context,
+                              message: 'Item added to cart',
+                              isDark: isDarkMode,
+                              duration: 1,
+                            );
+                            ref
+                                .read(cartProvider.notifier)
+                                .add(
+                                  ProductHive(
+                                    id: widget.product.id!,
+                                    title: widget.product.title,
+                                    price: widget.product.price,
+                                    imageUrl: widget.product.imageUrls[0],
+                                    category: widget.product.category,
+                                  ),
+                                );
+                          }
+                        }, // handle add/remove cart
+                        icon: isExisting()
+                            ? Icon(
+                                CupertinoIcons.check_mark_circled_solid,
+                                color: isDarkMode
+                                    ? Colors.grey[400]
+                                    : Colors.green,
+                              )
+                            : Icon(
+                                CupertinoIcons.cart_fill_badge_plus,
+                                color: isDarkMode
+                                    ? Colors.white
+                                    : const Color.fromARGB(255, 97, 97, 97),
+                              ),
+                      ),
+                    ),
                   ),
                 ),
               ],
