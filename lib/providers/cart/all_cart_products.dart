@@ -53,7 +53,7 @@ class CartNotifier extends StateNotifier<List<ProductHive>> {
 
     state = _cartBox.values.toList();
   }
-
+//clear cart
   Future<bool> clear() async {
     if (_cartBox.isNotEmpty) {
       await _cartBox.clear();

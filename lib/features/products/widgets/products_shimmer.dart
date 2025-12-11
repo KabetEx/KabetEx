@@ -17,16 +17,16 @@ class ProductsShimmer extends StatelessWidget {
       gridDelegate: const SliverSimpleGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
       ),
-      mainAxisSpacing: 8 ,
+      mainAxisSpacing: 8,
       crossAxisSpacing: 8,
-      itemCount: 4,
+      itemCount: 6,
       itemBuilder: (context, index) {
         return Column(
           children: [
             //image
             Shimmer.fromColors(
-              baseColor: const Color.fromARGB(255, 163, 163, 163),
-              highlightColor: const Color.fromARGB(255, 139, 139, 139),
+              baseColor: const Color.fromARGB(255, 92, 92, 92),
+              highlightColor: const Color.fromARGB(255, 138, 138, 138),
               child: Container(
                 height: height * 0.6,
                 width: double.infinity,
@@ -45,8 +45,8 @@ class ProductsShimmer extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Shimmer.fromColors(
-                    baseColor: Colors.grey[500]!,
-                    highlightColor: Colors.grey[350]!,
+                    baseColor: const Color.fromARGB(255, 127, 127, 127),
+                    highlightColor: const Color.fromARGB(255, 138, 138, 138),
                     child: Container(
                       height: 16,
                       width: 120,
@@ -59,7 +59,7 @@ class ProductsShimmer extends StatelessWidget {
                   const SizedBox(height: 4),
                   Shimmer.fromColors(
                     baseColor: Colors.grey[500]!,
-                    highlightColor: Colors.grey[350]!,
+                    highlightColor: const Color.fromARGB(255, 138, 138, 138),
                     child: Container(
                       height: 14,
                       width: 80,

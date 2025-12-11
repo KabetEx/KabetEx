@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/providers/cart/all_cart_products.dart';
@@ -33,57 +34,20 @@ class MyBottomNav extends ConsumerWidget {
           selectedColor: selectedColor,
           unselectedColor: unselectedColor,
         ),
-        SalomonBottomBarItem(
-          icon: const Icon(Icons.grid_view_outlined),
-          title: const Text('Categories'),
-          selectedColor: selectedColor,
-          unselectedColor: unselectedColor,
-        ),
-        SalomonBottomBarItem(
-          icon: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              const Icon(Icons.shopping_bag_outlined),
-              Positioned(
-                top: -6,
-                left: -6,
-                child: Container(
-                  height: 18,
-                  width: 18,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: Colors.green,
-                    borderRadius: BorderRadius.circular(24),
-                  ),
-                  constraints: const BoxConstraints(
-                    minHeight: 18,
-                    minWidth: 18,
-                  ),
 
-                  child: Consumer(
-                    builder: (context, ref, child) {
-                      final cartLength = ref.watch(cartProvider);
-                      return Center(
-                        child: Text(
-                          cartLength.length.toString(),
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ),
-            ],
+        SalomonBottomBarItem(
+          icon: const Icon(CupertinoIcons.group_solid, size: 24),
+          title: Text(
+            'Community',
+            style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+              fontWeight: FontWeight.w600,
+              height: 1.5,
+            ),
           ),
-          title: const Text('Cart'),
           selectedColor: selectedColor,
           unselectedColor: unselectedColor,
         ),
+
         SalomonBottomBarItem(
           icon: const Icon(Icons.account_circle_outlined),
           title: const Text('Profile'),

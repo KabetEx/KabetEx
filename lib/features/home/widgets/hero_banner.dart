@@ -7,14 +7,13 @@ class MyHeroBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 1),
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: CarouselSlider(
         options: CarouselOptions(
           height: 140,
-          autoPlay: true,
+          autoPlay: false,
           autoPlayInterval: const Duration(seconds: 5),
-
-          enlargeCenterPage: true,
+          enlargeCenterPage: false, //  show part of next slide
           viewportFraction: 0.9,
         ),
         items: ['assets/images/hero2.jpeg', 'assets/images/hero1.jpeg'].map((

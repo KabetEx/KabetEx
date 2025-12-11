@@ -1,234 +1,215 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_switch/flutter_switch.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:kabetex/features/cart/presentations/cart_page.dart';
 import 'package:kabetex/features/search/presentation/search_page.dart';
-import 'package:kabetex/features/products/providers/user_provider.dart';
+import 'package:kabetex/features/1community/providers/user_provider.dart';
+import 'package:kabetex/providers/cart/all_cart_products.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 
-class AppTitleRow extends ConsumerStatefulWidget {
-  const AppTitleRow({super.key});
+/// Floating app bar with menu, search, and cart only
+class AppTitleSliver extends ConsumerStatefulWidget {
+  const AppTitleSliver({super.key});
 
   @override
-  ConsumerState<AppTitleRow> createState() => _AppTitleRowState();
+  ConsumerState<AppTitleSliver> createState() => _AppTitleSliverState();
 }
 
-class _AppTitleRowState extends ConsumerState<AppTitleRow> {
-@override
-  void initState() {
-    super.initState();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.invalidate(futureProfileProvider);
-    });
-  }
-
+class _AppTitleSliverState extends ConsumerState<AppTitleSliver> {
   @override
   Widget build(BuildContext context) {
     final isDarkMode = ref.watch(isDarkModeProvider);
-    final asyncProfile = ref.watch(futureProfileProvider);
+    final cartItems = ref.watch(cartProvider).length;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 2),
-      child: Column(
-        children: [
-          //first row
-          Padding(
-            padding: const EdgeInsets.only(
-              top: 2,
-              right: 8,
-              left: 8,
-              bottom: 0,
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                //menu icon
-                Builder(
-                  builder: (context) {
-                    return GestureDetector(
-                      onTap: () {
-                        Scaffold.of(context).openDrawer();
-                      },
-                      child: Icon(
-                        Icons.menu_rounded,
-                        size: 35,
-                        color: isDarkMode ? Colors.white : Colors.black,
-                      ),
-                    );
-                  },
+    return SliverAppBar(
+      floating: true,
+      snap: true,
+      pinned: false,
+      backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+      expandedHeight: 64,
+      leadingWidth: 70,
+      automaticallyImplyLeading: false,
+      flexibleSpace: FlexibleSpaceBar(
+        collapseMode: CollapseMode.parallax,
+        background: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              //MENU BUTTON
+              CircleIconButton(
+                icon: Icon(
+                  CupertinoIcons.bars,
+                  size: 32,
+                  color: isDarkMode ? Colors.white : Colors.black,
                 ),
+                onTap: () => Scaffold.of(context).openDrawer(),
+                background: isDarkMode
+                    ? Colors.grey.withAlpha(30)
+                    : Colors.grey.withAlpha(100),
+              ),
 
-                const Spacer(),
-
-                //theme switch
-                Row(
-                  children: [
-                    //search Icon
-                    IconButton(
-                      icon: Icon(
-                        Icons.search_outlined,
-                        size: 28,
-                        color: isDarkMode ? Colors.white : Colors.black,
-                      ),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const SearchPage(),
-                          ),
-                        );
-                      },
-                    ),
-                    const SizedBox(width: 16),
-                    FlutterSwitch(
-                      value: isDarkMode,
-                      width: 60,
-                      height: 35,
-                      //inactive
-                      inactiveColor: isDarkMode
-                          ? Colors.white
-                          : Theme.of(context).scaffoldBackgroundColor,
-                      inactiveIcon: const Icon(
-                        Icons.wb_sunny,
-                        color: Colors.yellow,
-                      ),
-                      inactiveToggleColor: isDarkMode
-                          ? Colors.black
-                          : Colors.black,
-                      inactiveSwitchBorder: isDarkMode
-                          ? Border.all(color: Colors.grey, width: 1.5)
-                          : Border.all(color: Colors.grey, width: 1.5),
-
-                      //active
-                      activeIcon: const Icon(
-                        Icons.nightlight_round,
-                        color: Colors.black,
-                      ),
-                      activeColor: isDarkMode
-                          ? const Color.fromARGB(255, 66, 60, 51)
-                          : Theme.of(context).scaffoldBackgroundColor,
-
-                      onToggle: (val) async {
-                        ref.read(isDarkModeProvider.notifier).state = val;
-
-                        // persist to Hive
-                        final box = Hive.box('settings');
-                        await box.put('isDarkMode', val);
-                      },
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-
-          //2nd row
-          Padding(
-            padding: const EdgeInsets.only(left: 8, top: 4, bottom: 4),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
+              //SEARCH & CART BUTTONS
+              Row(
                 children: [
-                  SizedBox(
-                    height: 32,
-                    child: RichText(
-                      textAlign: TextAlign.center,
-                      text: TextSpan(
+                  CircleIconButton(
+                    icon: Icon(
+                      Icons.search_outlined,
+                      size: 28,
+                      color: isDarkMode ? Colors.white : Colors.black,
+                    ),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const SearchPage()),
+                      );
+                    },
+                    background: isDarkMode
+                        ? Colors.grey.withAlpha(30)
+                        : Colors.grey.withAlpha(100),
+                  ),
+                  const SizedBox(width: 16),
+                  GestureDetector(
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const CartPage()),
+                    ),
+                    child: Container(
+                      height: 44,
+                      width: 44,
+                      decoration: BoxDecoration(
+                        color: isDarkMode
+                            ? Colors.grey.withAlpha(30)
+                            : Colors.grey.withAlpha(100),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Stack(
+                        clipBehavior: Clip.none,
                         children: [
-                          TextSpan(
-                            text: 'Hello ',
-                            style: Theme.of(context).textTheme.bodyLarge!
-                                .copyWith(
-                                  color: isDarkMode
-                                      ? Colors.deepOrange
-                                      : Colors.black,
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 20,
-                                  fontFamily: 'Roboto', // Clean and reliable
-                                ),
-                          ),
-                          asyncProfile.when(
-                            loading: () => const TextSpan(
-                              text: '...',
-                              style: TextStyle(
-                                fontStyle: FontStyle.italic,
-                                color: Colors.grey,
-                                fontSize: 20,
-                                fontWeight: FontWeight.w500,
-                              ),
+                          Center(
+                            child: Icon(
+                              CupertinoIcons.cart,
+                              color: isDarkMode ? Colors.white : Colors.black,
                             ),
-                            data: (data) {
-                              if (data == null || data.isEmpty) {
-                                return const TextSpan(
-                                  text: '...',
-                                  style: TextStyle(
-                                    fontStyle: FontStyle.italic,
-                                    color: Colors.grey,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w500,
+                          ),
+                          if (cartItems > 0)
+                            Positioned(
+                              right: 0,
+                              top: -2,
+                              child: Container(
+                                height: 18,
+                                width: 18,
+                                decoration: BoxDecoration(
+                                  color: Colors.green[800],
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    cartItems.toString(),
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                );
-                              }
-
-                              final fullName =
-                                  data['full_name']?.toString() ?? '';
-                              final email = data['email']?.toString();
-
-                              String displayName;
-                              if (fullName.trim().isNotEmpty) {
-                                displayName = fullName.trim().split(' ')[0];
-                              } else if (email != null && email.isNotEmpty) {
-                                displayName = email.split('@')[0];
-                              } else {
-                                displayName = 'Guest';
-                              }
-
-                              return TextSpan(
-                                text: displayName,
-                                style: TextStyle(
-                                  fontWeight: FontWeight
-                                      .w600, // Slightly bolder than "Hello"
-                                  fontSize: 20,
-                                  color: isDarkMode
-                                      ? Colors.deepOrange
-                                      : Colors.black,
-                                  fontFamily: 'Poppins', // Warm and friendly
-                                  height: 1.1,
                                 ),
-                              );
-                            },
-                            error: (e, st) => const TextSpan(
-                              text: '...',
-                              style: TextStyle(
-                                color: Colors.grey,
-                                fontStyle: FontStyle.italic,
-                                fontSize: 20,
-                                fontWeight: FontWeight.w500,
                               ),
                             ),
-                          ),
                         ],
                       ),
                     ),
                   ),
-                  Text(
-                    'Lets shop!',
-                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
-                      color: isDarkMode ? Colors.grey : Colors.black,
-                      fontFamily: 'lato',
-                    ),
-                  ),
                 ],
               ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Greeting as a separate sliver
+class GreetingSliver extends ConsumerWidget {
+  const GreetingSliver({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDarkMode = ref.watch(isDarkModeProvider);
+    final userID = ref.watch(currentUserIdProvider);
+    final asyncProfile = ref.watch(userByIDProvider(userID));
+
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
+        child: asyncProfile.when(
+          loading: () => const Text(
+            "Hello ...",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w500,
+              color: Colors.grey,
             ),
           ),
-        ],
+          data: (data) {
+            final userName = data?.name.trim().split(' ')[0] ?? '...';
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Hello $userName",
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    color: isDarkMode ? Colors.deepOrange : Colors.black,
+                  ),
+                ),
+                Text(
+                  "Let's shop!",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w400,
+                    color: isDarkMode ? Colors.grey : Colors.black,
+                  ),
+                ),
+              ],
+            );
+          },
+          error: (_, __) => const Text(
+            "Hello ...",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w500,
+              color: Colors.grey,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class CircleIconButton extends StatelessWidget {
+  final Widget icon;
+  final VoidCallback onTap;
+  final Color background;
+
+  const CircleIconButton({
+    super.key,
+    required this.icon,
+    required this.onTap,
+    required this.background,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 44,
+        width: 44,
+        decoration: BoxDecoration(color: background, shape: BoxShape.circle),
+        child: Center(child: icon),
       ),
     );
   }

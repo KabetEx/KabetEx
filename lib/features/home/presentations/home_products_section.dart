@@ -33,7 +33,18 @@ class HomeProductsSection extends StatelessWidget {
             ),
           )
         else
-          MyProductsGridview(products: products),
+          FadeTransition(
+            opacity: Tween(begin: 0.0, end: 1.0).animate(
+              CurvedAnimation(
+                parent: AnimationController(
+                  duration: const Duration(milliseconds: 700),
+                  vsync: Scaffold.of(context),
+                )..forward(),
+                curve: Curves.easeInOut,
+              ),
+            ),
+            child: MyProductsGridview(products: products),
+          ),
 
         // Loading more indicator
         if (isLoadingMore)

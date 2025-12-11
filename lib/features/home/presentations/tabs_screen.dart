@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kabetex/features/1community/presentation/pages/feed_page.dart';
 import 'package:kabetex/features/cart/presentations/cart_page.dart';
 import 'package:kabetex/features/categories/presentations/categories_page.dart';
 import 'package:kabetex/features/home/presentations/home_page.dart';
@@ -17,12 +18,8 @@ class TabsScreen extends ConsumerWidget {
     final isDark = ref.watch(isDarkModeProvider);
     final homeTopTab = ref.watch(homeTopTabProvider);
 
-    final pages = [
-      const HomePage(),
-      const CategoriesPage(),
-      const CartPage(),
-      const ProfilePage(),
-    ];
+    //Common bottom nav bar
+    final pages = [const HomePage(), const FeedPage(), const ProfilePage()];
 
     return Scaffold(
       body: pages[currentIndex],
