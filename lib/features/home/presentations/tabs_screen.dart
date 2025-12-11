@@ -24,7 +24,8 @@ class TabsScreen extends ConsumerWidget {
     return Scaffold(
       body: pages[currentIndex],
       bottomNavigationBar: homeTopTab == 0
-          ? MyBottomNav(
+          ? GithubStyleBottomBar(
+              currentIndex: currentIndex,
               isDarkMode: isDark,
               onTap: (index) {
                 ref.read(tabsProvider.notifier).state = index;

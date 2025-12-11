@@ -69,14 +69,16 @@ class _AppTitleSliverState extends ConsumerState<AppTitleSliver> {
                         : Colors.grey.withAlpha(100),
                   ),
                   const SizedBox(width: 16),
+
+                  // CART BUTTON
                   GestureDetector(
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(builder: (_) => const CartPage()),
                     ),
                     child: Container(
-                      height: 44,
-                      width: 44,
+                      height: 50,
+                      width: 50,
                       decoration: BoxDecoration(
                         color: isDarkMode
                             ? Colors.grey.withAlpha(30)
@@ -243,11 +245,13 @@ class CircleIconButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
+      child: SizedBox(
         height: 44,
         width: 44,
-        decoration: BoxDecoration(color: background, shape: BoxShape.circle),
-        child: Center(child: icon),
+        child: Container(
+          decoration: BoxDecoration(color: background, shape: BoxShape.circle),
+          child: Center(child: icon),
+        ),
       ),
     );
   }

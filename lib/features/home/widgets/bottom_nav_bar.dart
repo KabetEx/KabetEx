@@ -1,60 +1,89 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kabetex/providers/cart/all_cart_products.dart';
-import 'package:kabetex/features/home/providers/nav_bar.dart';
-import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 
-class MyBottomNav extends ConsumerWidget {
-  const MyBottomNav({super.key, required this.isDarkMode, required this.onTap});
-
-  final bool isDarkMode;
+class GithubStyleBottomBar extends StatefulWidget {
   final Function(int) onTap;
+  final int currentIndex;
+  final bool isDarkMode;
+
+  const GithubStyleBottomBar({
+    super.key,
+    required this.onTap,
+    required this.currentIndex,
+    required this.isDarkMode,
+  });
 
   @override
-  Widget build(BuildContext context, ref) {
-    final selectedIndex = ref.watch(tabsProvider);
-    final selectedColor = isDarkMode ? Colors.deepOrange : Colors.deepOrange;
-    final unselectedColor = isDarkMode ? Colors.white : Colors.black;
+  State<GithubStyleBottomBar> createState() => _GithubStyleBottomBarState();
+}
 
-    return SalomonBottomBar(
-      duration: const Duration(milliseconds: 1000),
-      backgroundColor: Colors.transparent,
-      currentIndex: selectedIndex,
-      onTap: (index) {
-        ref.read(tabsProvider.notifier).state = index;
-        onTap(index); // pass the selectedIndex to parent widget
-      },
-      margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+class _GithubStyleBottomBarState extends State<GithubStyleBottomBar> {
+  final List<IconData> icons = [
+    CupertinoIcons.home,
+    CupertinoIcons.group_solid,
+    CupertinoIcons.profile_circled,
+  ];
 
-      items: [
-        SalomonBottomBarItem(
-          icon: const Icon(Icons.home_outlined, size: 24),
-          title: const Text('Home'),
-          selectedColor: selectedColor,
-          unselectedColor: unselectedColor,
-        ),
+  @override
+  Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
-        SalomonBottomBarItem(
-          icon: const Icon(CupertinoIcons.group_solid, size: 24),
-          title: Text(
-            'Community',
-            style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-              fontWeight: FontWeight.w600,
-              height: 1.5,
-            ),
-          ),
-          selectedColor: selectedColor,
-          unselectedColor: unselectedColor,
-        ),
+    return Container(
+      height: 86,
+      decoration: const BoxDecoration(color: Colors.transparent),
+      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: List.generate(icons.length, (index) {
+          final isSelected = widget.currentIndex == index;
+          return Column(
+            children: [
+              GestureDetector(
+                onTap: () => widget.onTap(index),
+                child: AnimatedContainer(
+                  width: 52,
+                  duration: const Duration(milliseconds: 250),
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: isDarkMode
+                        ? isSelected
+                              ? Colors.grey[900]
+                              : Colors.transparent
+                        : isSelected
+                        ? Colors.black12
+                        : Colors.transparent,
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                  child: Icon(
+                    icons[index],
+                    size: 24,
+                    color: isSelected
+                        ? Colors.deepOrange
+                        : (isDarkMode ? Colors.white70 : Colors.black54),
+                  ),
+                ),
+              ),
 
-        SalomonBottomBarItem(
-          icon: const Icon(Icons.account_circle_outlined),
-          title: const Text('Profile'),
-          selectedColor: selectedColor,
-          unselectedColor: unselectedColor,
-        ),
-      ],
+              //text indicator
+              const SizedBox(height: 4),
+              Text(
+                index == 0
+                    ? 'Home'
+                    : index == 1
+                    ? 'Community'
+                    : 'Profile',
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  fontSize: 12,
+                  color: isSelected
+                      ? Colors.deepOrange
+                      : (isDarkMode ? Colors.white70 : Colors.black54),
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                ),
+              ),
+            ],
+          );
+        }),
+      ),
     );
   }
 }
