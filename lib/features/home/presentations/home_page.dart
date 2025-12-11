@@ -99,10 +99,9 @@ class _HomePageState extends ConsumerState<HomePage>
               products.isEmpty && notifier.isLoading
                   ? const SliverToBoxAdapter(child: ProductsShimmer())
                   : SliverList(
-                      delegate: SliverChildBuilderDelegate((context, index) {
-                        final product = products[index];
+                      delegate: SliverChildBuilderDelegate((context, index) { 
                         return HomeProductsSection(
-                          products: [product],
+                          products: products,
                           isLoading: false,
                           isLoadingMore: false,
                         );

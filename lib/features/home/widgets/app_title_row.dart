@@ -6,6 +6,7 @@ import 'package:kabetex/features/search/presentation/search_page.dart';
 import 'package:kabetex/features/1community/providers/user_provider.dart';
 import 'package:kabetex/providers/cart/all_cart_products.dart';
 import 'package:kabetex/providers/theme_provider.dart';
+import 'package:shimmer/shimmer.dart';
 
 /// Floating app bar with menu, search, and cart only
 class AppTitleSliver extends ConsumerStatefulWidget {
@@ -25,8 +26,7 @@ class _AppTitleSliverState extends ConsumerState<AppTitleSliver> {
       floating: true,
       snap: true,
       pinned: false,
-      backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-      expandedHeight: 64,
+      backgroundColor: Colors.transparent,
       leadingWidth: 70,
       automaticallyImplyLeading: false,
       flexibleSpace: FlexibleSpaceBar(
@@ -142,45 +142,83 @@ class GreetingSliver extends ConsumerWidget {
     return SliverToBoxAdapter(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
-        child: asyncProfile.when(
-          loading: () => const Text(
-            "Hello ...",
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w500,
-              color: Colors.grey,
-            ),
-          ),
-          data: (data) {
-            final userName = data?.name.trim().split(' ')[0] ?? '...';
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Hello $userName",
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                    color: isDarkMode ? Colors.deepOrange : Colors.black,
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 700),
+            switchInCurve: Curves.easeInOut,
+            switchOutCurve: Curves.easeInOut,
+            child: asyncProfile.when(
+              loading: () {
+                return Shimmer.fromColors(
+                  key: const ValueKey('loading'),
+                  baseColor: isDarkMode ? Colors.grey[800]! : Colors.grey[300]!,
+                  highlightColor: isDarkMode
+                      ? Colors.grey[700]!
+                      : Colors.grey[100]!,
+                  child: SizedBox(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          height: 22,
+                          width: 200,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[300],
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Container(
+                          height: 22,
+                          width: 64,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[300],
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                      ],
+                    ),
                   ),
-                ),
-                Text(
-                  "Let's shop!",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w400,
-                    color: isDarkMode ? Colors.grey : Colors.black,
+                );
+              },
+              data: (data) {
+                final userName = data?.name.trim().split(' ')[0] ?? '...';
+                return SizedBox(
+                  child: Column(
+                    key: const ValueKey('data'),
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Hello $userName",
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                          color: isDarkMode ? Colors.deepOrange : Colors.black,
+                        ),
+                      ),
+                      Text(
+                        "Let's shop!",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w400,
+                          color: isDarkMode ? Colors.grey : Colors.black,
+                        ),
+                      ),
+                    ],
                   ),
+                );
+              },
+              error: (_, __) => const Text(
+                key: ValueKey('error'),
+                "Hello ...",
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey,
                 ),
-              ],
-            );
-          },
-          error: (_, __) => const Text(
-            "Hello ...",
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w500,
-              color: Colors.grey,
+              ),
             ),
           ),
         ),
