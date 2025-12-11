@@ -36,7 +36,7 @@ class _HomePageState extends ConsumerState<HomePage>
       final notifier = ref.read(productsProvider.notifier);
       if (_scrollController.position.pixels >=
               _scrollController.position.maxScrollExtent - 200 &&
-          notifier.hasMore &&
+      git    notifier.hasMore &&
           !notifier.isLoading &&
           !isRefreshing) {
         notifier.loadMore();

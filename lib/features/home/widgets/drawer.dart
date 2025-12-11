@@ -1,6 +1,8 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/common/slide_routing.dart';
+import 'package:kabetex/features/1community/providers/user_provider.dart';
 import 'package:kabetex/features/auth/presentation/login.dart';
 import 'package:kabetex/features/contact_report/presentation/report_page.dart';
 import 'package:kabetex/features/products/presentation/upload_page.dart';
@@ -16,6 +18,8 @@ class Mydrawer extends ConsumerStatefulWidget {
   @override
   ConsumerState<Mydrawer> createState() => _MydrawerState();
 }
+
+bool isSelected = false;
 
 class _MydrawerState extends ConsumerState<Mydrawer> {
   bool isSigningOut = false;
@@ -36,209 +40,177 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
               child: DrawerHeader(
                 decoration: BoxDecoration(
                   color: isDarkMode
-                      ? const Color.fromARGB(255, 108, 103, 101)
-                      : Colors.transparent,
+                      ? Colors.grey[900]
+                      : Theme.of(context).scaffoldBackgroundColor,
                 ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                child: Row(
                   children: [
-                    RichText(
-                      text: TextSpan(
-                        children: [
-                          TextSpan(
-                            text: 'KabetEx \n',
-                            style: Theme.of(context).textTheme.titleMedium!
-                                .copyWith(
-                                  color: isDarkMode
-                                      ? Colors.white
-                                      : Colors.black,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 32,
-                                  fontFamily: 'poppins',
-                                ),
-                          ),
-                          TextSpan(
-                            text: '-Where deals are made',
-                            style: Theme.of(context).textTheme.bodyLarge!
-                                .copyWith(
-                                  color: isDarkMode
-                                      ? Colors.white
-                                      : Colors.black,
-                                  fontSize: 18,
-                                ),
-                          ),
-                        ],
+                    const CircleAvatar(
+                      radius: 28,
+                      backgroundColor: Colors.deepOrange,
+                      child: Text(
+                        'K', // Could be user initial
+                        style: TextStyle(
+                          fontFamily: 'Oswalds',
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
                       ),
+                    ),
+                    const SizedBox(width: 12),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'KabetEx',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: isDarkMode ? Colors.white : Colors.black,
+                          ),
+                        ),
+                        Text(
+                          '- Where deals happen',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                            color: isDarkMode ? Colors.white70 : Colors.black54,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
             ),
 
-            //all user's section
-            //menu items
-            ListTile(
-              leading: Icon(
-                Icons.home_work_outlined,
-                color: isDarkMode ? Colors.white : Colors.black,
-              ),
-              title: Text(
-                'Home',
-                style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                  fontWeight: FontWeight.w500,
-                  fontSize: 18,
-                  color: isDarkMode ? Colors.white : Colors.black,
-                  fontFamily: 'Quicksand',
-                ),
-              ),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-
-            //settings
-            ListTile(
-              leading: Icon(
-                Icons.settings,
-                color: isDarkMode ? Colors.white : Colors.black,
-              ),
-              title: Text(
-                'Settings',
-                style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                  fontWeight: FontWeight.w500,
-                  fontSize: 18,
-                  color: isDarkMode ? Colors.white : Colors.black,
-                  fontFamily: 'Quicksand',
-                ),
-              ),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  SlideRouting(page: const SettingsPage()),
-                );
-              },
-            ),
-
-            //seller's section
-            const Divider(),
-
-            sectionHeader(context, isDarkMode, 'Seller\'s Section'),
-
-            ListTile(
-              leading: Icon(
-                Icons.add_box_outlined,
-                color: isDarkMode
-                    ? Colors.white
-                    : Theme.of(context).colorScheme.onPrimaryContainer,
-              ),
-              title: Text(
-                'Upload ',
-                style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                  fontWeight: FontWeight.w500,
-                  fontSize: 18,
-                  color: isDarkMode ? Colors.white : Colors.black,
-                  fontFamily: 'Quicksand',
-                ),
-              ),
-              onTap: () async {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) {
-                      return const PostProductPage();
+            //LIST TILES
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Column(
+                children: [
+                  //HOME tile
+                  MyListTile(
+                    leadingIcon: CupertinoIcons.home,
+                    text: 'Home',
+                    onTap: () async {
+                      setState(() {
+                        isSelected = true;
+                      });
+                      // Navigator.pop(context);
+                      await Future.delayed(Durations.medium4);
+                      setState(() {
+                        isSelected = false;
+                      });
                     },
+                    isDark: isDarkMode,
                   ),
-                );
-              },
-            ),
-            ListTile(
-              leading: Icon(
-                Icons.list_rounded,
-                color: isDarkMode
-                    ? Colors.white
-                    : Theme.of(context).colorScheme.onPrimaryContainer,
+
+                  //settings
+                  MyListTile(
+                    leadingIcon: CupertinoIcons.settings,
+                    text: 'Settings',
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        SlideRouting(page: const SettingsPage()),
+                      );
+                    },
+                    isDark: isDarkMode,
+                  ),
+
+                  //seller's section
+                  const Divider(),
+
+                  sectionHeader(context, isDarkMode, 'Seller\'s Section'),
+
+                  MyListTile(
+                    leadingIcon: CupertinoIcons.add,
+                    text: 'Upload',
+                    onTap: () async {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return const PostProductPage();
+                          },
+                        ),
+                      );
+                    },
+                    isDark: isDarkMode,
+                  ),
+
+                  MyListTile(
+                    leadingIcon: CupertinoIcons.list_bullet,
+                    text: 'My listings',
+                    onTap: () {
+                      Navigator.pop(context);
+                      Future.delayed(
+                        const Duration(microseconds: 500),
+                        () async {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return const MyProductsPage();
+                              },
+                            ),
+                          );
+                        },
+                      );
+                    },
+                    isDark: isDarkMode,
+                  ),
+
+                  //feedback section
+                  const Divider(),
+                  sectionHeader(context, isDarkMode, 'Feedback & support'),
+
+                  MyListTile(
+                    leadingIcon: CupertinoIcons.book,
+                    text: 'Report a problem',
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        SlideRouting(page: const ReportPage()),
+                      );
+                    },
+                    isDark: isDarkMode,
+                  ),
+
+                  MyListTile(
+                    leadingIcon: CupertinoIcons.phone,
+                    text: 'Contact Us',
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                    isDark: isDarkMode,
+                  ),
+                ],
               ),
-              title: Text(
-                'My listings',
-                style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                  fontWeight: FontWeight.w500,
-                  fontSize: 18,
-                  color: isDarkMode ? Colors.white : Colors.black,
-                  fontFamily: 'Quicksand',
-                ),
-              ),
-              onTap: () {
-                Navigator.pop(context);
-                Future.delayed(const Duration(microseconds: 500), () async {
-                  await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) {
-                        return const MyProductsPage();
-                      },
-                    ),
-                  );
-                });
-              },
             ),
 
-            //feedback section
-            const Divider(),
-            sectionHeader(context, isDarkMode, 'Feedback & support'),
-
-            ListTile(
-              leading: Icon(
-                Icons.note_alt_outlined,
-                color: isDarkMode
-                    ? Colors.white
-                    : Theme.of(context).colorScheme.onPrimaryContainer,
-              ),
-              title: Text(
-                'Report a problem',
-                style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                  fontWeight: FontWeight.w500,
-                  fontSize: 18,
-                  color: isDarkMode ? Colors.white : Colors.black,
-                  fontFamily: 'Quicksand',
-                ),
-              ),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(context, SlideRouting(page: const ReportPage()));
-              },
-            ),
-
-            ListTile(
-              leading: Icon(
-                Icons.contact_page_outlined,
-                color: isDarkMode
-                    ? Colors.white
-                    : Theme.of(context).colorScheme.onPrimaryContainer,
-              ),
-              title: Text(
-                'Contact us',
-                style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                  fontWeight: FontWeight.w500,
-                  fontSize: 18,
-                  color: isDarkMode ? Colors.white : Colors.black,
-                  fontFamily: 'Quicksand',
-                ),
-              ),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
             const Spacer(),
 
             //sign out
             const Divider(),
             ListTile(
               leading: user == null
-                  ? const Icon(Icons.supervised_user_circle_rounded)
+                  ? const Icon(
+                      CupertinoIcons.person_crop_circle_badge_plus,
+                      color: Colors.green,
+                    )
                   : Icon(
-                      Icons.logout_rounded,
+                      CupertinoIcons.arrow_left_circle,
                       color: isDarkMode
                           ? Colors.white
                           : Theme.of(context).colorScheme.onPrimaryContainer,
@@ -256,26 +228,28 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
                   ? Text(
                       'Log in',
                       style: Theme.of(context).textTheme.labelLarge!.copyWith(
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w500,
                         fontSize: 18,
                         color: Colors.green,
-                        fontFamily: 'roboto',
+                        fontFamily: 'Roboto',
                       ),
                     )
                   : Text(
-                      'SIGN OUT',
+                      'Sign Out',
                       style: Theme.of(context).textTheme.labelLarge!.copyWith(
                         fontWeight: FontWeight.w500,
                         fontSize: 18,
                         color: Colors.red,
-                        fontFamily: 'Quicksand',
+                        fontFamily: 'Roboto',
                       ),
                     ),
               onTap: () async {
                 //user is logged in - signout
                 if (user != null) {
                   setState(() => isSigningOut = true);
+
                   await Supabase.instance.client.auth.signOut();
+                  if (mounted) ref.invalidate(userByIDProvider(user.id));
 
                   if (!mounted) return; // safety check
 
@@ -283,16 +257,13 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
                   Navigator.pushAndRemoveUntil(
                     context,
                     MaterialPageRoute(builder: (_) => const LoginPage()),
-                    (route) => false, // remove all previous pages
+                    (route) => false,
                   );
-
-                  if (mounted) ref.invalidate(futureProfileProvider);
                 } else {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(builder: (context) => const LoginPage()),
                   );
-                  ref.invalidate(futureProfileProvider);
                 }
               },
             ),
@@ -302,7 +273,7 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
     );
   }
 
-  Align sectionHeader(BuildContext context, bool isDarkMode, String title) {
+  Widget sectionHeader(BuildContext context, bool isDarkMode, String title) {
     return Align(
       alignment: Alignment.centerLeft,
       child: Padding(
@@ -317,6 +288,37 @@ class _MydrawerState extends ConsumerState<Mydrawer> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class MyListTile extends StatelessWidget {
+  const MyListTile({
+    super.key,
+    required this.leadingIcon,
+    required this.text,
+    required this.onTap,
+    required this.isDark,
+  });
+  final IconData leadingIcon;
+  final String text;
+  final VoidCallback onTap;
+  final bool isDark;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: Icon(leadingIcon, color: isDark ? Colors.white38 : Colors.black),
+      title: Text(
+        text,
+        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+          fontWeight: isDark ? FontWeight.w200 : FontWeight.w400,
+          fontSize: 18,
+          color: isDark ? Colors.white : Colors.black,
+          fontFamily: 'Quicksand',
+        ),
+      ),
+      onTap: onTap,
     );
   }
 }

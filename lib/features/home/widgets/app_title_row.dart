@@ -18,6 +18,15 @@ class AppTitleSliver extends ConsumerStatefulWidget {
 
 class _AppTitleSliverState extends ConsumerState<AppTitleSliver> {
   @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.invalidate(userByIDProvider(ref.read(currentUserIdProvider)));
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final isDarkMode = ref.watch(isDarkModeProvider);
     final cartItems = ref.watch(cartProvider).length;
