@@ -71,7 +71,7 @@ class _GithubStyleBottomBarState extends State<GithubStyleBottomBar> {
                     ? 'Home'
                     : index == 1
                     ? 'Community'
-                    : 'Profile',
+                    : 'Account',
                 style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                   fontSize: 12,
                   color: isSelected

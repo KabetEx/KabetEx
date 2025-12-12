@@ -15,7 +15,7 @@ class _CommunitySettingsPageState extends ConsumerState<CommunitySettings> {
   @override
   Widget build(BuildContext context) {
     final isDarkMode = ref.watch(isDarkModeProvider);
-    
+
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
@@ -59,15 +59,20 @@ class _CommunitySettingsPageState extends ConsumerState<CommunitySettings> {
                 fontSize: 18,
               ),
             ),
-            trailing: Switch(
-              value: isDarkMode,
-              onChanged: (val) async {
-                ref.read(isDarkModeProvider.notifier).state = val;
-
-                // persist to Hive
-                final box = Hive.box('settings');
-                await box.put('isDarkMode', val);
-              },
+            trailing: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              transitionBuilder: (child, anim) =>
+                  ScaleTransition(scale: anim, child: child),
+              child: Switch(
+                key: ValueKey(isDarkMode),
+                
+                value: isDarkMode,
+                onChanged: (val) async {
+                  ref.read(isDarkModeProvider.notifier).state = val;
+                  final box = Hive.box('settings');
+                  await box.put('isDarkMode', val);
+                },
+              ),
             ),
           ),
         ],
