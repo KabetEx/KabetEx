@@ -11,10 +11,8 @@ import 'package:kabetex/features/home/presentations/tabs_screen.dart';
 import 'package:kabetex/features/auth/data/auth_services.dart';
 import 'package:kabetex/common/slide_routing.dart';
 import 'package:kabetex/features/home/providers/nav_bar.dart';
-import 'package:kabetex/features/products/providers/user_provider.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 import 'package:kabetex/utils/snackbars.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});

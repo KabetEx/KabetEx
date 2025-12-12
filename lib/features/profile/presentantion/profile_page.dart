@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/common/slide_routing.dart';
 import 'package:kabetex/features/auth/presentation/login.dart';
 import 'package:kabetex/features/auth/providers/auth_provider.dart';
-import 'package:kabetex/features/home/providers/nav_bar.dart';
 import 'package:kabetex/features/profile/presentantion/change_password.dart';
 import 'package:kabetex/features/profile/presentantion/edit_profile.dart';
 import 'package:kabetex/features/profile/presentantion/phone_verification.dart';
