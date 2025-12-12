@@ -10,10 +10,10 @@ class MyHeroBanner extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: CarouselSlider(
         options: CarouselOptions(
-          height: 140,
+          height: 120,
           autoPlay: false,
           autoPlayInterval: const Duration(seconds: 5),
-          enlargeCenterPage: false, //  show part of next slide
+          enlargeCenterPage: true, //  show part of next slide
           viewportFraction: 0.9,
         ),
         items: ['assets/images/hero2.jpeg', 'assets/images/hero1.jpeg'].map((

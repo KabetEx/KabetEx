@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kabetex/features/1community/presentation/tabsScreen.dart';
-import 'package:kabetex/features/1community/providers/tabs_provider.dart';
 import 'package:kabetex/features/home/presentations/home_products_section.dart';
-import 'package:kabetex/features/home/providers/nav_bar.dart';
 import 'package:kabetex/features/home/widgets/app_title_row.dart';
 import 'package:kabetex/features/categories/widgets/category_gridview.dart';
 import 'package:kabetex/features/home/widgets/hero_banner.dart';
