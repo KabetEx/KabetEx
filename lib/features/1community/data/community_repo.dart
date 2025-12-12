@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:kabetex/features/1community/data/models/user.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../data/models/post.dart';
@@ -6,6 +7,26 @@ class CommunityRepository {
   final SupabaseClient client;
 
   CommunityRepository({required this.client});
+  final user = Supabase.instance.client.auth.currentUser;
+
+  //report post
+  Future<void> submitReport(
+    String postId,
+    String reason,
+    String details,
+    BuildContext context,
+  ) async {
+    try {
+      await Supabase.instance.client.from('post-reports').insert({
+        'post_id': postId,
+        'reporter_id': user?.id,
+        'reason': reason,
+        'details': details,
+      });
+    } catch (e) {
+      throw Exception('Failed to submit report: $e');
+    }
+  }
 
   // Fetch all posts (and if user liked or not)
   Future<List<Post>> fetchPosts({

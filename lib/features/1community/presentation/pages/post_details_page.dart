@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/common/slide_routing.dart';
 import 'package:kabetex/features/1community/data/models/user.dart';
+import 'package:kabetex/features/1community/utils/functions.dart';
 import 'package:kabetex/features/auth/providers/user_provider.dart';
 import 'package:kabetex/utils/snackbars.dart';
 import 'package:kabetex/features/1community/data/models/post.dart';
@@ -256,7 +257,14 @@ class UserDetailsRow extends StatelessWidget {
 
         PopupMenuButton(
           itemBuilder: (context) {
-            return [const PopupMenuItem(child: Text('Report'))];
+            return [
+              PopupMenuItem(
+                child: const Text('Report'),
+                onTap: () {
+                  showReportDialog(context, post.id, isDark);
+                },
+              ),
+            ];
           },
         ),
       ],

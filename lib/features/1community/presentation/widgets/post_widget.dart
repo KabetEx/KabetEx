@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/common/slide_routing.dart';
+import 'package:kabetex/features/1community/utils/functions.dart';
+import 'package:kabetex/providers/theme_provider.dart';
 import 'package:kabetex/utils/snackbars.dart';
 import 'package:kabetex/features/1community/data/models/post.dart';
 import 'package:kabetex/features/1community/presentation/pages/post_details_page.dart';
@@ -96,20 +98,15 @@ class PostWidget extends ConsumerWidget {
                       ),
                       PopupMenuButton(
                         icon: const Icon(Icons.more_horiz),
-                        color: isDark ? Colors.grey : Colors.white,
+                        color: isDark ? Colors.grey[900] : Colors.grey[100],
                         onSelected: (value) {
                           if (value == 'report') {
-                            debugPrint(
-                              'Report Post action for post ID: ${post.id}',
-                            );
-                            // TODO: Implement actual report functionality, e.g., showReportDialog(context, post.id);
+                            showReportDialog(context, post.id, isDark);
                           }
-                          // TODO: Implement 'edit' and 'delete' actions
-                          // Example: if (value == 'edit') { Navigator.push(context, SlideRouting(page: EditPostPage(post: post))); }
-                          // Example: if (value == 'delete') { showDeleteConfirmationDialog(context, post.id); }
                         },
                         itemBuilder: (context) {
                           final isOwner = post.userId == loggedInUser;
+                          final isdark = ref.watch(isDarkModeProvider);
                           if (isOwner) {
                             return [
                               const PopupMenuItem(
@@ -119,10 +116,14 @@ class PostWidget extends ConsumerWidget {
                             ];
                           } else {
                             return [
-                              const PopupMenuItem(
-                                // TODO: Implement report functionality
+                              PopupMenuItem(
                                 value: 'report',
-                                child: Text('Report Post'),
+                                child: Text(
+                                  'Report Post',
+                                  style: TextStyle(
+                                    color: isdark ? Colors.white : Colors.black,
+                                  ),
+                                ),
                               ),
                             ];
                           }
