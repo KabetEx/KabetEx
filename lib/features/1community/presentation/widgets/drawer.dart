@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/common/slide_routing.dart';
 import 'package:kabetex/utils/snackbars.dart';
 import 'package:kabetex/features/1community/presentation/pages/profile_page.dart';
-import 'package:kabetex/features/1community/providers/user_provider.dart';
+import 'package:kabetex/features/auth/providers/user_provider.dart';
 import 'package:kabetex/features/auth/presentation/login.dart';
 import 'package:kabetex/features/home/providers/nav_bar.dart';
 import 'package:kabetex/features/settings/presentations/settings_page.dart';

@@ -3,365 +3,322 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/common/slide_routing.dart';
-import 'package:kabetex/features/1community/providers/user_provider.dart';
-import 'package:kabetex/features/auth/data/auth_services.dart';
 import 'package:kabetex/features/auth/presentation/login.dart';
+import 'package:kabetex/features/auth/providers/auth_provider.dart';
+import 'package:kabetex/features/home/providers/nav_bar.dart';
 import 'package:kabetex/features/profile/presentantion/change_password.dart';
 import 'package:kabetex/features/profile/presentantion/edit_profile.dart';
 import 'package:kabetex/features/profile/presentantion/phone_verification.dart';
 import 'package:kabetex/features/profile/widgets/not_logged_In.dart';
-import 'package:kabetex/features/products/providers/user_provider.dart';
-import 'package:kabetex/features/home/providers/nav_bar.dart';
+import 'package:kabetex/features/auth/providers/user_provider.dart';
 import 'package:kabetex/providers/theme_provider.dart';
+import 'package:kabetex/utils/snackbars.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:kabetex/features/auth/data/auth_services.dart';
 
-class ProfilePage extends ConsumerStatefulWidget {
-  const ProfilePage({super.key});
+class AccountPage extends ConsumerStatefulWidget {
+  const AccountPage({super.key});
 
   @override
-  ConsumerState<ProfilePage> createState() => _ProfilePageState();
+  ConsumerState<AccountPage> createState() => _AccountPageState();
 }
 
-class _ProfilePageState extends ConsumerState<ProfilePage> {
-  final _user = Supabase.instance.client.auth.currentUser;
+class _AccountPageState extends ConsumerState<AccountPage> {
   final _authService = AuthService();
-
-  String? fName;
-  bool? isVerified;
-  bool isDeleting = false;
   bool isLoggingOut = false;
+  bool isDeleting = false;
 
-  bool get isLoggedIn => _user != null;
-
-  Future<bool?> showDeleteConfirmation(BuildContext context) async {
+  Future<bool?> confirmDelete(BuildContext context) {
     return showDialog<bool>(
       context: context,
-      builder: (context) {
-        final isDark = ref.watch(isDarkModeProvider);
-
-        return AlertDialog(
-          title: Text(
-            'Delete Account',
-            style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-              color: isDark ? Colors.white : Colors.black,
-              fontSize: 24,
-            ),
+      builder: (_) => AlertDialog(
+        title: const Text("Delete Account"),
+        content: const Text("Are you sure? This action cannot be undone."),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text("Cancel"),
           ),
-          content: Text(
-            'Are you sure you want to delete your account? This cannot be undone.',
-            style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-              color: isDark ? Colors.grey[300] : Colors.black,
-              fontSize: 18,
-            ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text("Delete"),
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(context, true),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-              child: Text(
-                'Delete',
-                style: Theme.of(
-                  context,
-                ).textTheme.bodySmall!.copyWith(color: Colors.white),
-              ),
-            ),
-          ],
-        );
-      },
+        ],
+      ),
     );
-  }
-
-  void onVerified() {
-    setState(() {
-      isVerified = true;
-    });
-    ref.refresh(futureProfileProvider);
   }
 
   @override
   Widget build(BuildContext context) {
     final isDark = ref.watch(isDarkModeProvider);
     final userID = ref.watch(currentUserIdProvider);
-    final userProfileAsync = ref.watch(userByIDProvider(userID));
+    final profileAsync = ref.watch(userByIDProvider(userID));
 
-    // If not logged in, just return the NotLoggedIn widget
-    if (!isLoggedIn) return const NotLoggedIn();
+    final currentUser = Supabase.instance.client.auth.currentUser;
+    if (currentUser == null) return const NotLoggedIn();
 
-    return SafeArea(
-      child: Column(
-        children: [
-          if (isDeleting)
-            const Expanded(child: Center(child: CircularProgressIndicator()))
-          else ...[
-            // Top container
-            Container(
-              height: 300,
-              width: double.infinity,
-              decoration: BoxDecoration(color: isDark ? null : null),
-              child: Padding(
-                padding: const EdgeInsets.only(top: 32.0, bottom: 32),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    userProfileAsync.when(
-                      loading: () => const CircularProgressIndicator(),
-                      error: (e, st) => Text(
-                        'Error loading name',
-                        style: TextStyle(
-                          color: isDark ? Colors.red : Colors.red,
-                          fontStyle: FontStyle.italic,
-                        ),
-                      ),
-                      data: (data) {
-                        final userProfile = data;
-
-                        if (userProfile == null) {
-                          return const Text('Not logged in');
-                        }
-                        final fullName = data!.name;
-                        final bool isVerified = data.isVerified;
-
-                        return Column(
-                          children: [
-                            CircleAvatar(
-                              radius: 48,
-                              backgroundImage: CachedNetworkImageProvider(
-                                data.avatarUrl,
-                              ),
-                            ),
-                            Text(
-                              fullName,
-                              style: Theme.of(context).textTheme.bodyLarge!
-                                  .copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: isDark ? Colors.white : Colors.black,
-                                    fontSize: 24,
-                                  ),
-                            ),
-                            const SizedBox(height: 8),
-
-                            Container(
-                              margin: const EdgeInsets.all(4),
-                              padding: const EdgeInsets.all(4),
-                              decoration: BoxDecoration(
-                                color: isVerified
-                                    ? Colors.green
-                                    : Colors.red.withAlpha(200),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                isVerified ? 'Verified seller' : 'Not Verified',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            if (!isVerified)
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    SlideRouting(
-                                      page: PhoneVerificationPage(
-                                        phoneNumber: data.pNumber,
-                                        onVerified: onVerified,
-                                      ),
-                                    ),
-                                  );
-                                },
-                                child: Text(
-                                  'Verify Now',
-                                  style: Theme.of(context).textTheme.bodyLarge!
-                                      .copyWith(
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.green,
-                                        fontSize: 16,
-                                      ),
-                                ),
-                              ),
-                          ],
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            _buildProfileCard(
-              isDark: isDark,
-              leadingIcon: CupertinoIcons.profile_circled,
-              trailingIcon: CupertinoIcons.right_chevron,
-              title: 'Edit profile',
-              onTap: () {
-                Navigator.push(
-                  context,
-                  SlideRouting(page: const EditProfilePage()),
-                );
-              },
-            ),
-
-            _buildProfileCard(
-              isDark: isDark,
-              leadingIcon: CupertinoIcons.padlock,
-              trailingIcon: CupertinoIcons.right_chevron,
-              title: 'Change password',
-              onTap: () {
-                Navigator.push(
-                  context,
-                  SlideRouting(page: const ChangePasswordPage()),
-                );
-              },
-            ),
-            _buildProfileCard(
-              isDark: isDark,
-              leadingIcon: CupertinoIcons.delete,
-              title: 'Delete account',
-              onTap: () async {
-                final confirmed = await showDeleteConfirmation(context);
-                if (confirmed == true) {
-                  setState(() => isDeleting = true);
-                  final success = await _authService.deleteUserFromSupabase();
-                  if (success) {
-                    await Supabase.instance.client.auth.signOut();
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(builder: (_) => const LoginPage()),
-                      (route) => false,
-                    );
-                    ref.read(tabsProvider.notifier).state = 0;
-                    setState(() => isDeleting = false);
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Failed to delete account.'),
-                      ),
-                    );
-                  }
-                }
-              },
-            ),
-
-            // Edit profile tile
-            const Spacer(),
-
-            // Logout button at bottom
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepOrange,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  minimumSize: const Size.fromHeight(50),
-                ),
-                onPressed: isLoggingOut
-                    ? null
-                    : () async {
-                        setState(() => isLoggingOut = true);
-
-                        try {
-                          await Supabase.instance.client.auth.signOut();
-                          ref.invalidate(futureProfileProvider);
-
-                          if (mounted) {
-                            Navigator.pushAndRemoveUntil(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => const LoginPage(),
-                              ),
-                              (route) => false,
-                            );
-                          }
-                        } catch (e) {
-                          if (mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Failed to log out: $e')),
-                            );
-                          }
-                        } finally {
-                          if (mounted) setState(() => isLoggingOut = false);
-                        }
-                      },
-                child: isLoggingOut
-                    ? const SizedBox(
-                        height: 16,
-                        width: 16,
-                        child: Center(
-                          child: CircularProgressIndicator(color: Colors.white),
-                        ),
-                      )
-                    : const Text(
-                        'Log Out',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-              ),
-            ),
-          ],
-        ],
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+        elevation: 0,
+        centerTitle: false,
+        title: Text(
+          'Account',
+          style: Theme.of(context).appBarTheme.titleTextStyle,
+        ),
       ),
-    );
-  }
-}
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              // ============================================
+              // USER CARD — Clean, top, always visible
+              // ============================================
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 24,
+                  horizontal: 16,
+                ),
+                child: profileAsync.when(
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
+                  error: (e, st) => const Text("Error loading profile"),
+                  data: (data) {
+                    if (data == null) return const Text("Profile not found");
 
-Widget _buildProfileCard({
-  required IconData leadingIcon,
-  required String title,
-  required VoidCallback onTap,
-  required bool isDark,
-  IconData? trailingIcon,
-  String? subtitle,
-}) {
-  return GestureDetector(
-    onTap: onTap,
-    child: Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8),
-      child: SizedBox(
-        height: 76,
-        child: Card(
-          elevation: 3,
-          color: isDark ? Colors.grey[900] : Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          shadowColor: isDark ? Colors.grey[600] : Colors.grey[900],
-          child: ListTile(
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 8,
-            ),
-            leading: Container(
-              height: 44,
-              width: 44,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.deepOrange[100],
+                    return Column(
+                      children: [
+                        // Avatar
+                        CircleAvatar(
+                          radius: 50,
+                          backgroundImage: CachedNetworkImageProvider(
+                            data.avatarUrl,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+
+                        // User name
+                        Text(
+                          data.name,
+                          style: Theme.of(context).textTheme.bodyLarge!
+                              .copyWith(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 24,
+                                color: isDark ? Colors.white : Colors.black,
+                              ),
+                        ),
+                        const SizedBox(height: 8),
+
+                        // Verified badge
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 4,
+                            horizontal: 10,
+                          ),
+                          decoration: BoxDecoration(
+                            color: data.isVerified
+                                ? Colors.green
+                                : Colors.orange.shade700,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            data.isVerified
+                                ? "Verified Seller"
+                                : "Not Verified",
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+
+                        // Verify button
+                        if (!data.isVerified)
+                          TextButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                SlideRouting(
+                                  page: PhoneVerificationPage(
+                                    phoneNumber: data.pNumber,
+                                    onVerified: () =>
+                                        ref.refresh(userByIDProvider(userID)),
+                                  ),
+                                ),
+                              );
+                            },
+                            child: const Text(
+                              "Verify Now",
+                              style: TextStyle(
+                                color: Colors.green,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                      ],
+                    );
+                  },
+                ),
               ),
-              child: Icon(leadingIcon, color: Colors.deepOrangeAccent),
-            ),
-            title: Text(
-              title,
-              style: TextStyle(
-                fontFamily: 'Inter',
-                fontWeight: FontWeight.w500,
-                fontSize: 16,
-                color: isDark ? Colors.white : Colors.black,
+
+              const Divider(),
+
+              // ============================================
+              // ACCOUNT SECTION – Edit profile etc.
+              // ============================================
+              _sectionTitle("ACCOUNT", isDark),
+
+              _settingTile(
+                icon: CupertinoIcons.person_circle,
+                title: "Edit Profile",
+                context: context,
+                onTap: () {
+                  if (!mounted) return;
+                  Navigator.push(
+                    context,
+                    SlideRouting(page: const EditProfilePage()),
+                  );
+                },
               ),
-            ),
-            subtitle: subtitle != null ? Text(subtitle) : null,
-            trailing: Icon(trailingIcon),
+
+              // ============================================
+              // SECURITY
+              // ============================================
+              _sectionTitle("SECURITY", isDark),
+              _settingTile(
+                icon: CupertinoIcons.lock_fill,
+                title: "Change Password",
+                context: context,
+                onTap: () {
+                  if (!mounted) return;
+                  Navigator.push(
+                    context,
+                    SlideRouting(page: const ChangePasswordPage()),
+                  );
+                },
+              ),
+
+              // ============================================
+              // DELETE ACCOUNT
+              // ============================================
+              _sectionTitle("DANGER ZONE", isDark),
+              _settingTile(
+                icon: CupertinoIcons.delete,
+                title: "Delete Account",
+                context: context,
+                color: Colors.red,
+                onTap: () async {
+                  if (!mounted) return;
+
+                  final sure = await confirmDelete(context);
+                  if (sure == true) {
+                    setState(() => isDeleting = true);
+
+                    final ok = await _authService.deleteUserFromSupabase();
+                    if (ok) {
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (_) => const LoginPage()),
+                        (_) => false,
+                      );
+
+                      await Supabase.instance.client.auth.signOut();
+
+                      //invalidate user provider
+                      ref.invalidate(currentUserIdProvider);
+                    }
+
+                    setState(() => isDeleting = false);
+                  }
+                },
+              ),
+
+              // ============================================
+              // LOGOUT BUTTON
+              // ============================================
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(50),
+                    backgroundColor: Colors.deepOrange,
+                  ),
+                  onPressed: isLoggingOut
+                      ? null
+                      : () async {
+                          setState(() => isLoggingOut = true);
+
+                          try {
+                            await Supabase.instance.client.auth.signOut();
+
+                            if (!mounted) return;
+
+                            //invalidate user provider
+                            ref.invalidate(authStateProvider);
+                            ref.invalidate(currentUserIdProvider);
+                          } catch (_) {
+                            FailureSnackBar.show(
+                              context: context,
+                              message: 'Failed to sign out, please try again',
+                              isDark: isDark,
+                            );
+                          } finally {
+                            setState(() => isLoggingOut = false);
+                          }
+                        },
+                  child: isLoggingOut
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text(
+                          "Log Out",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                ),
+              ),
+
+              const SizedBox(height: 20),
+            ],
           ),
         ),
       ),
-    ),
-  );
+    );
+  }
+
+  // ============================================================
+  // Helpers
+  // ============================================================
+
+  Widget _sectionTitle(String title, bool isDark) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      child: Text(
+        title,
+        style: TextStyle(
+          color: isDark ? Colors.grey[400] : Colors.grey[700],
+          fontWeight: FontWeight.bold,
+          fontSize: 13,
+        ),
+      ),
+    );
+  }
+
+  Widget _settingTile({
+    required BuildContext context,
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+    Color? color,
+  }) {
+    return ListTile(
+      onTap: onTap,
+      leading: Icon(icon, color: color ?? Colors.deepOrange),
+      title: Text(title),
+      trailing: const Icon(CupertinoIcons.chevron_right),
+    );
+  }
 }

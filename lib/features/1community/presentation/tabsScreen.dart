@@ -5,7 +5,7 @@ import 'package:kabetex/features/1community/presentation/pages/feed_page.dart';
 import 'package:kabetex/features/1community/presentation/pages/new_post_page.dart';
 import 'package:kabetex/features/1community/presentation/pages/profile_page.dart';
 import 'package:kabetex/features/1community/providers/tabs_provider.dart';
-import 'package:kabetex/features/1community/providers/user_provider.dart';
+import 'package:kabetex/features/auth/providers/user_provider.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 
 class CommunityTabsScreen extends ConsumerStatefulWidget {

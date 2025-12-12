@@ -8,7 +8,7 @@ import 'package:kabetex/features/1community/presentation/widgets/drawer.dart';
 import 'package:kabetex/features/1community/presentation/widgets/post_widget.dart';
 import 'package:kabetex/features/1community/providers/feed_provider.dart';
 import 'package:kabetex/features/1community/providers/tabs_provider.dart';
-import 'package:kabetex/features/1community/providers/user_provider.dart';
+import 'package:kabetex/features/auth/providers/user_provider.dart';
 import 'package:kabetex/features/settings/presentations/settings_page.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 import 'package:kabetex/utils/user_avatar.dart';

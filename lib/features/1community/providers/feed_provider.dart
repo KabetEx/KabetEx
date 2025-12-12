@@ -1,7 +1,7 @@
 import 'package:kabetex/features/1community/data/community_repo.dart';
 import 'package:kabetex/features/1community/data/models/post.dart';
 import 'package:kabetex/features/1community/providers/post_provider.dart';
-import 'package:kabetex/features/1community/providers/user_provider.dart';
+import 'package:kabetex/features/auth/providers/user_provider.dart';
 import 'package:riverpod/legacy.dart';
 
 // Provider

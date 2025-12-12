@@ -5,13 +5,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:kabetex/features/1community/data/models/user.dart';
 import 'package:kabetex/features/1community/data/user_repo.dart';
+import 'package:kabetex/features/auth/providers/auth_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 final userRepo = UserRepository(client: Supabase.instance.client);
 
 final currentUserIdProvider = Provider<String?>((ref) {
-  return Supabase.instance.client.auth.currentUser?.id;
+  // This makes the provider rebuild whenever auth changes
+  ref.watch(authStateProvider);
+
+  final user = Supabase.instance.client.auth.currentUser;
+  return user?.id;
 });
+
 
 //returns a userProfile based on the provided ID
 final userByIDProvider = FutureProvider.family<UserProfile?, String?>((

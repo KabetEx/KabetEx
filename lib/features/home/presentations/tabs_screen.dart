@@ -17,7 +17,7 @@ class TabsScreen extends ConsumerWidget {
     final homeTopTab = ref.watch(homeTopTabProvider);
 
     //Common bottom nav bar
-    final pages = [const HomePage(), const FeedPage(), const ProfilePage()];
+    final pages = [const HomePage(), const FeedPage(), const AccountPage()];
 
     return Scaffold(
       body: pages[currentIndex],
