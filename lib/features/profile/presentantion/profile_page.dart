@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/common/slide_routing.dart';
+import 'package:kabetex/features/1community/presentation/pages/edit_profile_page.dart';
 import 'package:kabetex/features/auth/presentation/login.dart';
 import 'package:kabetex/features/auth/providers/auth_provider.dart';
 import 'package:kabetex/features/profile/presentantion/change_password.dart';
@@ -174,10 +175,15 @@ class _AccountPageState extends ConsumerState<AccountPage> {
                 title: "Edit Profile",
                 context: context,
                 onTap: () {
-                  if (!mounted) return;
-                  Navigator.push(
-                    context,
-                    SlideRouting(page: const EditProfilePage()),
+                  profileAsync.whenData(
+                    (value) => Navigator.push(
+                      context,
+                      SlideRouting(
+                        page: CommunityEditProfilePage(
+                          user: profileAsync.value!,
+                        ),
+                      ),
+                    ),
                   );
                 },
               ),

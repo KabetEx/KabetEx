@@ -322,7 +322,7 @@ class AvatarWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return UserAvatar(userAsync: userAsync);
+    return UserAvatar(userAsync: userAsync, radius: 40);
   }
 }
 

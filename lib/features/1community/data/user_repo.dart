@@ -29,6 +29,8 @@ class UserRepository {
   Future<void> updateUser({
     required String userId,
     required String name,
+    required String email,
+    required String pNumber,
     required String? bio,
     required String? avatarUrl,
   }) async {
@@ -37,6 +39,8 @@ class UserRepository {
         .update({
           'full_name': name,
           'bio': bio,
+          'email': email,
+          'phone_number': pNumber,
           if (avatarUrl != null) 'avatar_url': avatarUrl,
         })
         .eq('id', userId);

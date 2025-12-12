@@ -77,6 +77,15 @@ class CommunityRepository {
     }
   }
 
+  //delete post
+  Future<void> deletePost(String postId) async {
+    try {
+      await client.from('community-posts').delete().eq('id', postId);
+    } catch (e) {
+      throw Exception('Failed to delete post: $e');
+    }
+  }
+
   // Create new post
   Future<Post> createPost({
     required UserProfile userProfile,

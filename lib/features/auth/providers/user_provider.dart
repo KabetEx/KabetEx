@@ -73,6 +73,9 @@ class EditProfileNotifier extends StateNotifier<AsyncValue<void>> {
   Future<void> updateUser({
     required String userId,
     required String name,
+    required String email,
+    required String pNumber,
+    required String year,
     required String? bio,
     required String? avatarUrl,
   }) async {
@@ -83,6 +86,8 @@ class EditProfileNotifier extends StateNotifier<AsyncValue<void>> {
         name: name,
         bio: bio,
         avatarUrl: avatarUrl,
+        email: email,
+        pNumber: pNumber, 
       );
       state = const AsyncData(null);
     } catch (e) {

@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/common/slide_routing.dart';
+import 'package:kabetex/features/1community/providers/post_provider.dart';
 import 'package:kabetex/features/1community/utils/functions.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 import 'package:kabetex/utils/snackbars.dart';
@@ -52,15 +53,9 @@ class PostWidget extends ConsumerWidget {
             //post avatar
             GestureDetector(
               onTap: () {
-                if (isOwner) {
-                  ref.read(communityTabsProvider.notifier).state = 2;
-                } else {
-                  Navigator.of(context).push(
-                    SlideRouting(
-                      page: CommunityProfilePage(userID: postOwnerID),
-                    ),
-                  );
-                }
+                Navigator.of(context).push(
+                  SlideRouting(page: CommunityProfilePage(userID: postOwnerID)),
+                );
               },
               child: UserAvatar(userAsync: userProfileAsync),
             ),
@@ -99,9 +94,29 @@ class PostWidget extends ConsumerWidget {
                       PopupMenuButton(
                         icon: const Icon(Icons.more_horiz),
                         color: isDark ? Colors.grey[900] : Colors.grey[100],
-                        onSelected: (value) {
+                        onSelected: (value) async {
                           if (value == 'report') {
                             showReportDialog(context, post.id, isDark);
+                          } else if (value == 'delete') {
+                            // Delete post action
+                            await ref
+                                .read(communityRepoProvider)
+                                .deletePost(post.id)
+                                .then((_) {
+                                  SuccessSnackBar.show(
+                                    context: context,
+                                    isDark: isDark,
+                                    message: 'Post deleted successfully.',
+                                  );
+                                })
+                                .catchError((error) {
+                                  FailureSnackBar.show(
+                                    context: context,
+                                    isDark: isDark,
+                                    message:
+                                        'Failed to delete post: ${error.toString()}',
+                                  );
+                                });
                           }
                         },
                         itemBuilder: (context) {
@@ -109,9 +124,14 @@ class PostWidget extends ConsumerWidget {
                           final isdark = ref.watch(isDarkModeProvider);
                           if (isOwner) {
                             return [
-                              const PopupMenuItem(
+                              PopupMenuItem(
                                 value: 'delete',
-                                child: Text('Delete Post'),
+                                child: Text(
+                                  '🗑️ Delete Post',
+                                  style: TextStyle(
+                                    color: isdark ? Colors.white : Colors.black,
+                                  ),
+                                ),
                               ),
                             ];
                           } else {

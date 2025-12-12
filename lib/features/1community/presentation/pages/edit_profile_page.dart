@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:kabetex/features/auth/providers/user_provider.dart';
 import 'package:kabetex/providers/theme_provider.dart';
+import 'package:kabetex/utils/snackbars.dart';
 import '../../data/models/user.dart';
 
 class CommunityEditProfilePage extends ConsumerStatefulWidget {
@@ -20,16 +21,24 @@ class _CommunityEditProfilePageState
     extends ConsumerState<CommunityEditProfilePage> {
   late final TextEditingController nameCtrl;
   late final TextEditingController bioCtrl;
+  late final TextEditingController phoneCtrl;
+  late final TextEditingController emailCtrl;
+  String? selectedYear;
 
   File? pendingImage;
   String? tempAvatarUrl;
+
+  final List<String> years = ['1st Year', '2nd Year', '3rd Year', '4th Year'];
 
   @override
   void initState() {
     super.initState();
     nameCtrl = TextEditingController(text: widget.user.name);
     bioCtrl = TextEditingController(text: widget.user.bio);
+    phoneCtrl = TextEditingController(text: widget.user.pNumber);
+    emailCtrl = TextEditingController(text: widget.user.email);
     tempAvatarUrl = widget.user.avatarUrl;
+    selectedYear = widget.user.year;
   }
 
   Future<void> selectImage() async {
@@ -123,18 +132,62 @@ class _CommunityEditProfilePageState
             const SizedBox(height: 30),
 
             // Name field
-            TextField(
+            _buildTextField(
               controller: nameCtrl,
+              label: "Name",
+              isDark: isDark,
               textCapitalization: TextCapitalization.words,
+            ),
+            const SizedBox(height: 20),
+
+            // Phone field
+            _buildTextField(
+              controller: phoneCtrl,
+              label: "Phone Number",
+              isDark: isDark,
+              keyboardType: TextInputType.phone,
+            ),
+            const SizedBox(height: 20),
+
+            // Email field
+            _buildTextField(
+              controller: emailCtrl,
+              label: "Email",
+              isDark: isDark,
+              keyboardType: TextInputType.emailAddress,
+            ),
+            const SizedBox(height: 20),
+
+            // Year dropdown
+            DropdownButtonFormField<String>(
+              initialValue: selectedYear,
+              items: years
+                  .map(
+                    (year) => DropdownMenuItem(
+                      value: year,
+                      child: Text(
+                        year,
+                        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                          fontSize: 16,
+                          color: isDark ? Colors.white : Colors.black,
+                        ),
+                      ),
+                    ),
+                  )
+                  .toList(),
+              onChanged: (val) => setState(() => selectedYear = val!),
               decoration: InputDecoration(
-                labelText: "Name",
-                floatingLabelBehavior: FloatingLabelBehavior.always,
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 20,
+                labelText: "Year",
+                labelStyle: TextStyle(
+                  color: isDark ? Colors.grey[400] : Colors.black,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w500,
                 ),
-                border: OutlineInputBorder(
+                filled: true,
+                fillColor: isDark ? Colors.grey[900] : Colors.grey[100],
+                enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(30),
+                  borderSide: const BorderSide(color: Colors.black),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(30),
@@ -145,26 +198,15 @@ class _CommunityEditProfilePageState
             const SizedBox(height: 20),
 
             // Bio field
-            TextField(
+            _buildTextField(
               controller: bioCtrl,
+              label: "Bio",
+              isDark: isDark,
               maxLines: 4,
               textCapitalization: TextCapitalization.sentences,
-              decoration: InputDecoration(
-                labelText: "Bio",
-                floatingLabelBehavior: FloatingLabelBehavior.always,
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 20,
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30),
-                  borderSide: const BorderSide(color: Colors.deepOrange),
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                hintText: "Tell people about yourself...",
-              ),
+              textInputAction: TextInputAction.newline,
+              keyboardType: TextInputType.multiline,
+              hintText: "Tell people about yourself...",
             ),
             const SizedBox(height: 40),
 
@@ -180,7 +222,7 @@ class _CommunityEditProfilePageState
 
                         String? avatarUrl = tempAvatarUrl;
 
-                        //upload avatar to supabase
+                        // upload avatar if changed
                         if (pendingImage != null) {
                           avatarUrl = await ref
                               .read(editProfileProvider.notifier)
@@ -194,9 +236,21 @@ class _CommunityEditProfilePageState
                               name: nameCtrl.text.trim(),
                               bio: bioCtrl.text.trim(),
                               avatarUrl: avatarUrl,
+                              pNumber: phoneCtrl.text.trim(),
+                              email: emailCtrl.text.trim(),
+                              year: selectedYear ?? '1st',
                             );
 
-                        if (mounted) Navigator.pop(context);
+                        if (mounted) {
+                          SuccessSnackBar.show(
+                            context: context,
+                            message: 'Updated profile successfully!',
+                            isDark: isDark,
+                          );
+                          //refresh user profile
+                          ref.refresh(userByIDProvider(widget.user.id!));
+                          Navigator.pop(context);
+                        }
                       },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.deepOrange,
@@ -221,6 +275,53 @@ class _CommunityEditProfilePageState
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required bool isDark,
+    TextInputType keyboardType = TextInputType.text,
+    TextInputAction textInputAction = TextInputAction.done,
+    TextCapitalization textCapitalization = TextCapitalization.none,
+    int maxLines = 1,
+    String? hintText,
+  }) {
+    return TextField(
+      controller: controller,
+      keyboardType: keyboardType,
+      textInputAction: textInputAction,
+      textCapitalization: textCapitalization,
+      maxLines: maxLines,
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(
+          color: isDark ? Colors.grey[300] : Colors.black,
+          fontSize: 20,
+          fontWeight: FontWeight.w500,
+        ),
+        floatingLabelBehavior: FloatingLabelBehavior.always,
+        hintText: hintText,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 20,
+        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30),
+          borderSide: BorderSide(
+            color: isDark ? Colors.grey[700]! : Colors.grey[400]!,
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30),
+          borderSide: const BorderSide(color: Colors.deepOrange),
+        ),
+        filled: true,
+        fillColor: isDark ? Colors.grey[900] : Colors.white12,
+      ),
+      style: TextStyle(color: isDark ? Colors.white : Colors.black),
     );
   }
 }
