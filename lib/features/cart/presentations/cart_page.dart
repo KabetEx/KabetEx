@@ -28,21 +28,34 @@ class _CartPageState extends ConsumerState<CartPage> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+        elevation: 0,
+        centerTitle: true,
+        title: Text(
+          'My Cart',
+          style: Theme.of(context).appBarTheme.titleTextStyle,
+        ),
+        leading: Container(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.grey.shade300,
+          ),
+          margin: const EdgeInsets.only(left: 16),
+          child: IconButton(
+            icon: Icon(
+              Icons.arrow_back_ios_new_rounded,
+              color: isDarkMode ? Colors.white : Colors.black,
+            ),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
+        ),
+      ),
       body: SafeArea(
         child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Your cart',
-                  textAlign: TextAlign.left,
-                  style: Theme.of(context).appBarTheme.titleTextStyle,
-                ),
-              ),
-            ),
-
             Align(
               alignment: Alignment.centerRight,
               child: Padding(

@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -69,7 +68,7 @@ class MyApp extends ConsumerWidget {
         brightness: Brightness.light,
         colorScheme: kLightColorScheme,
         appBarTheme: const AppBarThemeData().copyWith(
-          backgroundColor: const Color.fromARGB(255, 222, 216, 216),
+          backgroundColor: Colors.transparent,
           centerTitle: false,
           titleTextStyle: GoogleFonts.robotoTextTheme().titleLarge!.copyWith(
             fontSize: 28,

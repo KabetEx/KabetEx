@@ -36,7 +36,7 @@ class _AppTitleSliverState extends ConsumerState<AppTitleSliver> {
       snap: true,
       pinned: false,
       backgroundColor: Colors.transparent,
-      leadingWidth: 70,
+      leadingWidth: 80,
       automaticallyImplyLeading: false,
       flexibleSpace: FlexibleSpaceBar(
         collapseMode: CollapseMode.parallax,
@@ -53,6 +53,7 @@ class _AppTitleSliverState extends ConsumerState<AppTitleSliver> {
                   color: isDarkMode ? Colors.white : Colors.black,
                 ),
                 onTap: () => Scaffold.of(context).openDrawer(),
+                isdark: isDarkMode,
                 background: isDarkMode
                     ? Colors.grey.withAlpha(30)
                     : Colors.grey.withAlpha(100),
@@ -73,6 +74,7 @@ class _AppTitleSliverState extends ConsumerState<AppTitleSliver> {
                         MaterialPageRoute(builder: (_) => const SearchPage()),
                       );
                     },
+                    isdark: isDarkMode,
                     background: isDarkMode
                         ? Colors.grey.withAlpha(30)
                         : Colors.grey.withAlpha(100),
@@ -91,7 +93,7 @@ class _AppTitleSliverState extends ConsumerState<AppTitleSliver> {
                       decoration: BoxDecoration(
                         color: isDarkMode
                             ? Colors.grey.withAlpha(30)
-                            : Colors.grey.withAlpha(100),
+                            : Colors.grey.shade300,
                         shape: BoxShape.circle,
                       ),
                       child: Stack(
@@ -243,11 +245,14 @@ class CircleIconButton extends StatelessWidget {
   final VoidCallback onTap;
   final Color background;
 
+  final bool isdark;
+
   const CircleIconButton({
     super.key,
     required this.icon,
     required this.onTap,
     required this.background,
+    required this.isdark,
   });
 
   @override
@@ -255,10 +260,13 @@ class CircleIconButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: SizedBox(
-        height: 44,
-        width: 44,
+        height: 48,
+        width: 48,
         child: Container(
-          decoration: BoxDecoration(color: background, shape: BoxShape.circle),
+          decoration: BoxDecoration(
+            color: isdark ? Colors.grey.withAlpha(30) : Colors.grey.shade300,
+            shape: BoxShape.circle,
+          ),
           child: Center(child: icon),
         ),
       ),
