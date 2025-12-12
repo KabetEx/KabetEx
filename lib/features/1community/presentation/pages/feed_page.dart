@@ -24,7 +24,7 @@ class FeedPage extends ConsumerStatefulWidget {
 class _FeedPageState extends ConsumerState<FeedPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
   final ScrollController _scrollController = ScrollController();
-  final double _lastOffset = 0;
+  String _selectedAudience = 'Everyone';
 
   @override
   void initState() {
@@ -40,23 +40,6 @@ class _FeedPageState extends ConsumerState<FeedPage> {
         ref.read(feedProvider(null).notifier).loadMore();
       }
     });
-
-    //--------------------SHOW/HIDE BOTTOM NAV BAR------------------------------
-    //--------------------------------------------------------------------------
-    // _scrollController.addListener(() {
-    //   final offset = _scrollController.offset;
-    //   const sensitivity = 8;
-
-    //   if (offset > _lastOffset + sensitivity) {
-    //     // scrolling down → hide
-    //     ref.read(bottomBarVisibleProvider.notifier).state = false;
-    //   } else if (offset < _lastOffset - sensitivity) {
-    //     // scrolling up → show
-    //     ref.read(bottomBarVisibleProvider.notifier).state = true;
-    //   }
-
-    //   _lastOffset = offset;
-    // });
   }
 
   Future<void> onRefresh() async {
@@ -95,6 +78,12 @@ class _FeedPageState extends ConsumerState<FeedPage> {
               scaffoldKey: _scaffoldKey,
               scrollController: _scrollController,
               isDark: isDark,
+              selectedAudience: _selectedAudience,
+              onAudienceChanged: (value) {
+                setState(() {
+                  _selectedAudience = value;
+                });
+              },
               userAsync: userAsync,
             ),
 
@@ -257,47 +246,52 @@ class NewPostCard extends ConsumerWidget {
   }
 }
 
-class MySliverAppBar extends ConsumerWidget {
+class MySliverAppBar extends ConsumerStatefulWidget {
   const MySliverAppBar({
     super.key,
     required this.scaffoldKey,
     required this.userAsync,
     required this.isDark,
+    required this.selectedAudience,
+    required this.onAudienceChanged,
     required this.scrollController,
   });
   final AsyncValue<UserProfile?> userAsync;
+  final ValueChanged<String> onAudienceChanged;
+  final String selectedAudience;
   final ScrollController scrollController;
   final bool isDark;
   final GlobalKey<ScaffoldState> scaffoldKey;
 
   @override
-  Widget build(BuildContext context, ref) {
+  ConsumerState<MySliverAppBar> createState() => _MySliverAppBarState();
+}
+
+class _MySliverAppBarState extends ConsumerState<MySliverAppBar> {
+  @override
+  Widget build(BuildContext context) {
     return SliverAppBar(
       pinned: false,
       floating: true,
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       elevation: 4,
-      toolbarHeight: 64,
-      leadingWidth: 64,
+      toolbarHeight: 70,
+      leadingWidth: 76,
       actionsPadding: const EdgeInsets.symmetric(horizontal: 12),
       leading: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12.0),
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6),
         child: GestureDetector(
-          onTap: () => scaffoldKey.currentState?.openDrawer(),
+          onTap: () => widget.scaffoldKey.currentState?.openDrawer(),
           // Use the new reusable UserAvatar widget.
           // The padding is now part of the AppBar's leadingWidth and internal padding.
-          child: Consumer(
-            builder: (context, ref, child) {
-              return UserAvatar(userAsync: userAsync, radius: 18);
-            },
-          ),
+          child: UserAvatar(userAsync: widget.userAsync, radius: 18),
         ),
       ),
       centerTitle: true,
       title: GestureDetector(
         onTap: () {
           //slide to top
-          scrollController.animateTo(
+          widget.scrollController.animateTo(
             0,
             duration: const Duration(milliseconds: 300),
             curve: Curves.easeInBack,
@@ -306,7 +300,7 @@ class MySliverAppBar extends ConsumerWidget {
         child: Text(
           "KabetEx",
           style: TextStyle(
-            color: isDark ? Colors.white : Colors.black,
+            color: widget.isDark ? Colors.white : Colors.black,
             fontWeight: FontWeight.bold,
             fontSize: 24,
             letterSpacing: 1.2,
@@ -315,12 +309,66 @@ class MySliverAppBar extends ConsumerWidget {
       ),
       actions: [
         IconButton(
-          icon: const Icon(Icons.settings_outlined, size: 40),
-          color: isDark ? Colors.white : Colors.grey[1000],
+          icon: const Icon(Icons.settings_outlined, size: 42),
+          color: widget.isDark ? Colors.white : Colors.grey[1000],
           onPressed: () =>
               Navigator.push(context, SlideRouting(page: const SettingsPage())),
         ),
       ],
+      bottom: PreferredSize(
+        preferredSize: const Size.fromHeight(50),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: ['Everyone', 'Friends', 'Classmates'].map((audience) {
+              final isSelected = widget.selectedAudience == audience;
+              final isDark = ref.watch(isDarkModeProvider);
+
+              return AnimatedScale(
+                scale: isSelected ? 1.05 : 1.0,
+                duration: const Duration(milliseconds: 200),
+                child: GestureDetector(
+                  onTap: () => widget.onAudienceChanged(audience),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? isSelected
+                                ? Colors.deepOrange
+                                : Colors.grey[900]
+                          : isSelected
+                          ? Colors.deepOrange
+                          : Colors.grey[300],
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      audience,
+                      style: TextStyle(
+                        color: isDark
+                            ? isSelected
+                                  ? Colors.white
+                                  : Colors.white
+                            : isSelected
+                            ? Colors.white
+                            : Colors.black,
+                        fontWeight: isSelected
+                            ? FontWeight.bold
+                            : FontWeight.normal,
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+      ),
     );
   }
 }
