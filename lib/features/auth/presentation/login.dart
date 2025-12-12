@@ -3,12 +3,13 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kabetex/features/1community/providers/user_provider.dart';
+import 'package:kabetex/features/auth/providers/user_provider.dart';
 import 'package:kabetex/features/auth/presentation/sign_up.dart';
 import 'package:kabetex/features/auth/widgets/error_BotttomSheet.dart';
 import 'package:kabetex/features/home/presentations/tabs_screen.dart';
 import 'package:kabetex/features/auth/data/auth_services.dart';
 import 'package:kabetex/common/slide_routing.dart';
+import 'package:kabetex/features/home/providers/nav_bar.dart';
 import 'package:kabetex/features/products/providers/user_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -43,6 +44,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       final user = Supabase.instance.client.auth.currentUser;
 
       if (user != null) {
+        ref.read(tabsProvider.notifier).state = 0;
         Navigator.pushReplacement(
           context,
           SlideRouting(page: const TabsScreen()),
@@ -55,7 +57,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           const SnackBar(content: Text('Login failed, check your credentials')),
         );
       }
-      await ref.refresh(futureProfileProvider.future);
+      await ref.refresh(
+        futureProfileProvider.future,
+      ); //to be removed, use current one
+
+      ref.invalidate(userByIDProvider);
+      ref.invalidate(currentUserIdProvider);
     } catch (e) {
       String error = e.toString();
       if (e is SocketException) {

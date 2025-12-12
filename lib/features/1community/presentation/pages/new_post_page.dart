@@ -6,7 +6,7 @@ import 'package:kabetex/common/slide_routing.dart';
 import 'package:kabetex/utils/snackbars.dart';
 import 'package:kabetex/features/1community/data/community_repo.dart';
 import 'package:kabetex/features/1community/presentation/pages/profile_page.dart';
-import 'package:kabetex/features/1community/providers/user_provider.dart';
+import 'package:kabetex/features/auth/providers/user_provider.dart';
 import 'package:kabetex/features/profile/widgets/not_logged_In.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 import 'package:shimmer/shimmer.dart';

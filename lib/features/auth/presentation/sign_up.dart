@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kabetex/features/1community/providers/user_provider.dart';
+import 'package:kabetex/features/auth/providers/user_provider.dart';
 import 'package:kabetex/features/auth/widgets/error_BotttomSheet.dart';
 import 'package:kabetex/features/home/presentations/tabs_screen.dart';
 import 'package:kabetex/common/slide_routing.dart';
