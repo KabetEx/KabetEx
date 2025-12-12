@@ -30,8 +30,9 @@ class CommunityRepository {
 
   // Fetch all posts (and if user liked or not)
   Future<List<Post>> fetchPosts({
-    String? profileUserId, // whose posts to show (optional) //if null show all
     required String currentUserId,
+    String? profileUserId, // whose posts to show (optional) //if null show all
+    String? audience,
     int limit = 10,
     required int page,
   }) async {
@@ -70,6 +71,10 @@ class CommunityRepository {
           });
         }),
       );
+      //audience filter
+      if (audience != null && audience != 'Everyone') {
+        return posts.where((post) => post.audience == audience).toList();
+      }
 
       return posts;
     } catch (e) {

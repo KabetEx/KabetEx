@@ -6,7 +6,9 @@ final profilePostsProvider = FutureProvider.family<List<Post>, String>((
   ref,
   userId,
 ) async {
-  final feedState = ref.watch(feedProvider(userId)); //filters posts
+  final feedState = ref.watch(
+    feedProvider({'profileUID': userId}),
+  ); //filters posts
   final posts = feedState.posts;
 
   return posts;

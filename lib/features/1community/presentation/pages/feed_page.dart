@@ -62,7 +62,9 @@ class _FeedPageState extends ConsumerState<FeedPage> {
     final isDark = ref.watch(isDarkModeProvider);
     final userID = ref.watch(currentUserIdProvider);
     final userAsync = ref.watch(userByIDProvider(userID));
-    final feedState = ref.watch(feedProvider(null)); //dont filter
+    final feedState = ref.watch(
+      feedProvider({'audience': _selectedAudience}),
+    ); //dont filter
     final posts = feedState.posts;
 
     return Scaffold(

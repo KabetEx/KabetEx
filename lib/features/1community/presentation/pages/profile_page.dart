@@ -24,7 +24,7 @@ class CommunityProfilePage extends ConsumerStatefulWidget {
 }
 
 class _CommunityProfilePageState extends ConsumerState<CommunityProfilePage> {
-  late final feedProviderWithID = feedProvider(widget.userID);
+  late final feedProviderWithID = feedProvider({'profileUID': widget.userID});
   bool isRefreshing = false;
 
   @override
@@ -59,7 +59,7 @@ class _CommunityProfilePageState extends ConsumerState<CommunityProfilePage> {
               ref.invalidate(
                 userByIDProvider(widget.userID),
               ); //refresh userprofile
-              ref.refresh(feedProvider(widget.userID)); //refresh user posts
+              ref.refresh(feedProvider({'profileUID': widget.userID})); //refresh user posts
               await Future.delayed(const Duration(milliseconds: 300));
 
               SuccessSnackBar.show(

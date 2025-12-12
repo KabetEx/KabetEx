@@ -6,22 +6,23 @@ import 'package:riverpod/legacy.dart';
 
 // Provider
 final feedProvider =
-    StateNotifierProvider.family<FeedNotifier, FeedState, String?>((
-      ref,
-      profileUserID,
-    ) {
-      final repo = ref.read(communityRepoProvider);
-      final loggedInUserId =
-          ref.watch(currentUserIdProvider) ?? ''; //for like feature
+    StateNotifierProvider.family<FeedNotifier, FeedState, Map<String, dynamic>?>(
+      (ref, feedFilter) {
+        final repo = ref.read(communityRepoProvider);
+        final loggedInUserId =
+            ref.watch(currentUserIdProvider) ?? ''; //for like feature
 
-      return FeedNotifier(
-        repo: repo,
-        currentUserID: loggedInUserId,
-        profileUserID: profileUserID, //not null if needs to filter posts
-      );
-    });
+        return FeedNotifier(
+          repo: repo,
+          currentUserID: loggedInUserId,
+          profileUserID:
+              feedFilter?['profileUID'], //not null if needs to filter posts
+          audience: feedFilter?['audience'], //null means all audiences
+        );
+      },
+    );
 
-// State
+// The STATE of posts feed
 class FeedState {
   final List<Post> posts;
   final bool isLoading;
@@ -59,12 +60,14 @@ class FeedNotifier extends StateNotifier<FeedState> {
   final CommunityRepository repo;
   final String currentUserID;
   final String? profileUserID;
+  final String? audience;
 
   bool _loadingMore = false;
 
   FeedNotifier({
     required this.repo,
     required this.currentUserID,
+    required this.audience,
     this.profileUserID,
   }) : super(FeedState(posts: [])) {
     fetchPosts();
@@ -119,6 +122,7 @@ class FeedNotifier extends StateNotifier<FeedState> {
       final rawPosts = await repo.fetchPosts(
         profileUserId: profileUserID,
         currentUserId: currentUserID,
+        audience: audience,
         page: 0,
         limit: 3,
       );
