@@ -1,7 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/common/slide_routing.dart';
 import 'package:kabetex/features/1community/data/models/user.dart';
+import 'package:kabetex/features/1community/presentation/pages/new_post_page.dart';
 import 'package:kabetex/features/1community/presentation/pages/post_shimmer.dart';
 import 'package:kabetex/features/1community/presentation/widgets/sliver_status_indicator.dart';
 import 'package:kabetex/features/1community/presentation/widgets/drawer.dart';
@@ -23,14 +25,14 @@ class FeedPage extends ConsumerStatefulWidget {
 class _FeedPageState extends ConsumerState<FeedPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
   final ScrollController _scrollController = ScrollController();
-  double _lastOffset = 0;
+  final double _lastOffset = 0;
 
   @override
   void initState() {
     super.initState();
 
     //--------------------SCROLL PAGINATION-------------------------------------
-    //-------------------- ------------------------------------------------------
+    //--------------------------------------------------------------------------
     _scrollController.addListener(() {
       final position = _scrollController.position;
 
@@ -40,20 +42,22 @@ class _FeedPageState extends ConsumerState<FeedPage> {
       }
     });
 
-    _scrollController.addListener(() {
-      final offset = _scrollController.offset;
-      const sensitivity = 8;
+    //--------------------SHOW/HIDE BOTTOM NAV BAR------------------------------
+    //--------------------------------------------------------------------------
+    // _scrollController.addListener(() {
+    //   final offset = _scrollController.offset;
+    //   const sensitivity = 8;
 
-      if (offset > _lastOffset + sensitivity) {
-        // scrolling down → hide
-        ref.read(bottomBarVisibleProvider.notifier).state = false;
-      } else if (offset < _lastOffset - sensitivity) {
-        // scrolling up → show
-        ref.read(bottomBarVisibleProvider.notifier).state = true;
-      }
+    //   if (offset > _lastOffset + sensitivity) {
+    //     // scrolling down → hide
+    //     ref.read(bottomBarVisibleProvider.notifier).state = false;
+    //   } else if (offset < _lastOffset - sensitivity) {
+    //     // scrolling up → show
+    //     ref.read(bottomBarVisibleProvider.notifier).state = true;
+    //   }
 
-      _lastOffset = offset;
-    });
+    //   _lastOffset = offset;
+    // });
   }
 
   Future<void> onRefresh() async {
@@ -90,8 +94,14 @@ class _FeedPageState extends ConsumerState<FeedPage> {
           slivers: [
             MySliverAppBar(
               scaffoldKey: _scaffoldKey,
+              scrollController: _scrollController,
               isDark: isDark,
               userAsync: userAsync,
+            ),
+
+            //NEWPOST CARD
+            SliverToBoxAdapter(
+              child: NewPostCard(userAsync: userAsync, isdark: isDark),
             ),
 
             // ✅ Conditional Sliver content
@@ -146,14 +156,118 @@ class _FeedPageState extends ConsumerState<FeedPage> {
   }
 }
 
+class NewPostCard extends ConsumerWidget {
+  const NewPostCard({super.key, required this.userAsync, required this.isdark});
+
+  final AsyncValue<UserProfile?> userAsync; //check if user is logged in
+
+  final bool isdark;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return userAsync.when(
+      data: (user) {
+        if (user == null) return const SizedBox.shrink();
+
+        return AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          switchInCurve: Curves.easeInOut,
+          switchOutCurve: Curves.easeInOut,
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: isdark
+                  ? Colors.grey[900]
+                  : Theme.of(context).scaffoldBackgroundColor,
+              border: Border.all(
+                color: isdark ? Colors.grey[800]! : Colors.black12,
+              ),
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: isdark ? Colors.grey.withAlpha(30) : Colors.black12,
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: InkWell(
+              onTap: () {
+                // Slide up to CreatePostPage
+                Navigator.push(
+                  context,
+                  PageRouteBuilder(
+                    pageBuilder: (context, animation, secondaryAnimation) =>
+                        const PostTweetPage(),
+                    transitionDuration: const Duration(milliseconds: 200),
+                    transitionsBuilder:
+                        (context, animation, secondaryAnimation, child) {
+                          const begin = Offset(0, 1); //from down to up
+                          const end = Offset(0, 0); // original position
+
+                          final tween = Tween(
+                            begin: begin,
+                            end: end,
+                          ).chain(CurveTween(curve: Curves.bounceInOut));
+
+                          return SlideTransition(
+                            position: tween.animate(animation),
+                            child: child,
+                          );
+                        },
+                  ),
+                );
+              },
+              splashColor: isdark ? Colors.grey : Colors.grey[300],
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    radius: 20,
+                    backgroundColor: isdark
+                        ? Colors.grey[700]
+                        : Colors.grey[300],
+                    child: Icon(
+                      CupertinoIcons.add_circled,
+                      size: 24,
+                      color: isdark ? Colors.white : Colors.black,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      "What's on your mind?",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: isdark ? Colors.grey[600] : Colors.grey[800],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+      loading: () => const SizedBox(
+        height: 60,
+        child: Center(child: CircularProgressIndicator()),
+      ),
+      error: (_, __) => const SizedBox.shrink(),
+    );
+  }
+}
+
 class MySliverAppBar extends ConsumerWidget {
   const MySliverAppBar({
     super.key,
     required this.scaffoldKey,
     required this.userAsync,
     required this.isDark,
+    required this.scrollController,
   });
   final AsyncValue<UserProfile?> userAsync;
+  final ScrollController scrollController;
   final bool isDark;
   final GlobalKey<ScaffoldState> scaffoldKey;
 
@@ -181,13 +295,23 @@ class MySliverAppBar extends ConsumerWidget {
         ),
       ),
       centerTitle: true,
-      title: Text(
-        "KabetEx",
-        style: TextStyle(
-          color: isDark ? Colors.white : Colors.black,
-          fontWeight: FontWeight.bold,
-          fontSize: 24,
-          letterSpacing: 1.2,
+      title: GestureDetector(
+        onTap: () {
+          //slide to top
+          scrollController.animateTo(
+            0,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInBack,
+          );
+        },
+        child: Text(
+          "KabetEx",
+          style: TextStyle(
+            color: isDark ? Colors.white : Colors.black,
+            fontWeight: FontWeight.bold,
+            fontSize: 24,
+            letterSpacing: 1.2,
+          ),
         ),
       ),
       actions: [
