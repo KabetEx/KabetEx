@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/common/slide_routing.dart';
+import 'package:kabetex/features/auth/providers/auth_provider.dart';
 import 'package:kabetex/utils/snackbars.dart';
 import 'package:kabetex/features/1community/presentation/pages/profile_page.dart';
 import 'package:kabetex/features/auth/providers/user_provider.dart';
@@ -29,64 +30,67 @@ class _MyCommunityDrawerState extends ConsumerState<MyCommunityDrawer> {
     final isDark = ref.watch(isDarkModeProvider);
     final userProfileAsync = ref.watch(userByIDProvider(user?.id));
 
-    return Drawer(
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: isDark
-              ? Colors.black
-              : Theme.of(context).scaffoldBackgroundColor,
-          border: Border(
-            right: BorderSide(color: Colors.grey[700]!, width: 0.6),
+    return SafeArea(
+      child: Drawer(
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: isDark
+                ? Colors.black
+                : Theme.of(context).scaffoldBackgroundColor,
+            border: Border(
+              right: BorderSide(color: Colors.grey[700]!, width: 0.6),
+            ),
           ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ------------------------------------------
-            //  HEADER with fixed height
-            // ------------------------------------------
-            user == null
-                ? SizedBox(
-                    height: 190,
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            CupertinoIcons.person_crop_circle,
-                            size: 60,
-                            color: isDark ? Colors.white : Colors.grey[700],
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            "Guest",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                              color: isDark ? Colors.white : Colors.black,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ------------------------------------------
+              //  HEADER with fixed height
+              // ------------------------------------------
+              user == null
+                  ? SizedBox(
+                      height: 190,
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              CupertinoIcons.person_crop_circle,
+                              size: 60,
+                              color: isDark ? Colors.white : Colors.grey[700],
                             ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            "Sign in to access more features",
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: isDark
-                                  ? Colors.grey[400]
-                                  : Colors.grey[600],
+                            const SizedBox(height: 12),
+                            Text(
+                              "Guest",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                                color: isDark ? Colors.white : Colors.black,
+                              ),
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 4),
+                            Text(
+                              "Sign in to access more features",
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: isDark
+                                    ? Colors.grey[400]
+                                    : Colors.grey[600],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  )
-                : SizedBox(
-                    height: 190,
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 35, 20, 10),
+                    )
+                  : Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0,
+                        vertical: 32,
+                      ),
                       child: userProfileAsync.when(
                         data: (user) {
                           return Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               CircleAvatar(
@@ -176,222 +180,224 @@ class _MyCommunityDrawerState extends ConsumerState<MyCommunityDrawer> {
                         ),
                       ),
                     ),
-                  ),
 
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Divider(
-                thickness: 0.7,
-                color: isDark ? Colors.grey[800] : Colors.grey[700],
-                height: 0,
-              ),
-            ),
-
-            const SizedBox(height: 10),
-
-            // ------------------------------------------
-            // LIST TILES
-            // ------------------------------------------
-            Expanded(
-              child: ListView(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 32,
-                      vertical: 6,
-                    ),
-                    child: ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      leading: Icon(
-                        CupertinoIcons.house,
-                        size: 26,
-                        color: isDark ? Colors.white : Colors.black,
-                      ),
-                      title: Text(
-                        "Home Feed",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                          color: isDark ? Colors.white : Colors.black,
-                        ),
-                      ),
-                      onTap: () {
-                        Navigator.pop(context);
-                      },
-                    ),
-                  ),
-
-                  //profile
-                  user == null
-                      ? const SizedBox.shrink()
-                      : Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 32,
-                            vertical: 6,
-                          ),
-                          child: ListTile(
-                            enabled: userProfileAsync.hasValue,
-                            contentPadding: EdgeInsets.zero,
-                            leading: Icon(
-                              CupertinoIcons.person,
-                              size: 26,
-                              color: isDark ? Colors.white : Colors.black,
-                            ),
-                            title: Text(
-                              "Profile",
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 16,
-                                color: isDark ? Colors.white : Colors.black,
-                              ),
-                            ),
-                            onTap: () {
-                              userProfileAsync.when(
-                                data: (userProfile) {
-                                  Navigator.push(
-                                    context,
-                                    SlideRouting(
-                                      page: CommunityProfilePage(
-                                        userID: user!.id,
-                                      ),
-                                    ),
-                                  );
-                                },
-                                loading: () {
-                                  // Optional: show a snackbar or loading indicator
-                                  return const CircularProgressIndicator();
-                                },
-                                error: (error, stack) {
-                                  // Optional: show an error message
-                                  FailureSnackBar.show(
-                                    context: context,
-                                    message: 'Failure fetching profile',
-                                    isDark: isDark,
-                                  );
-                                },
-                              );
-                            },
-                          ),
-                        ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 32,
-                      vertical: 6,
-                    ),
-                    child: ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      leading: Icon(
-                        CupertinoIcons.gear,
-                        size: 26,
-                        color: isDark ? Colors.white : Colors.black,
-                      ),
-                      title: Text(
-                        "Settings",
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 16,
-                          color: isDark ? Colors.white : Colors.black,
-                        ),
-                      ),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          SlideRouting(page: const SettingsPage()),
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // ------------------------------------------
-            // LOGOUT + FOOTER
-            // ------------------------------------------
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Divider(
-                thickness: 0.7,
-                color: isDark ? Colors.grey[800] : Colors.grey[700],
-                height: 0,
-              ),
-            ),
-
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
-              child: ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: user != null
-                    ? Icon(
-                        CupertinoIcons.arrow_right_square,
-                        size: 26,
-                        color: isDark ? Colors.white : Colors.black,
-                      )
-                    : Icon(
-                        CupertinoIcons.profile_circled,
-                        size: 26,
-                        color: isDark ? Colors.white : Colors.black,
-                      ),
-                title: user != null
-                    ? Text(
-                        "Logout",
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 16,
-                          color: isDark ? Colors.deepOrange : Colors.black,
-                        ),
-                      )
-                    : Text(
-                        "Sign In",
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 16,
-                          color: isDark ? Colors.white : Colors.black,
-                        ),
-                      ),
-                onTap: () async {
-                  if (user == null) {
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute<void>(
-                        builder: (BuildContext context) => const LoginPage(),
-                      ),
-                      (Route<dynamic> route) => false,
-                    );
-                    ref.invalidate(userByIDProvider); //curent user profile
-                    ref.invalidate(currentUserIdProvider); //current user ID
-                    await Future.delayed(Durations.medium2);
-
-                    ref.read(tabsProvider.notifier).state = 0;
-                    ref.read(homeTopTabProvider.notifier).state = 0;
-                  } else {
-                    await supabase.auth.signOut();
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(builder: (_) => const LoginPage()),
-                      (route) => false,
-                    );
-                    ref.invalidate(
-                      userByIDProvider(user!.id),
-                    ); //logged in user ID
-                    ref.read(homeTopTabProvider.notifier).state = 0;
-                    ref.read(tabsProvider.notifier).state = 0;
-                  }
-                },
-              ),
-            ),
-
-            Padding(
-              padding: const EdgeInsets.only(left: 20, bottom: 16),
-              child: Text(
-                "© 2025 KabetEx",
-                style: TextStyle(
-                  fontSize: 12,
-                  color: isDark ? Colors.grey[500] : Colors.grey[600],
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Divider(
+                  thickness: 0.7,
+                  color: isDark ? Colors.grey[800] : Colors.grey[700],
+                  height: 0,
                 ),
               ),
-            ),
-          ],
+
+              const SizedBox(height: 10),
+
+              // ------------------------------------------
+              // LIST TILES
+              // ------------------------------------------
+              Expanded(
+                child: ListView(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 32,
+                        vertical: 6,
+                      ),
+                      child: ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: Icon(
+                          CupertinoIcons.house,
+                          size: 26,
+                          color: isDark ? Colors.white : Colors.black,
+                        ),
+                        title: Text(
+                          "Home Feed",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: isDark ? Colors.white : Colors.black,
+                          ),
+                        ),
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ),
+
+                    //profile
+                    user == null
+                        ? const SizedBox.shrink()
+                        : Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 32,
+                              vertical: 6,
+                            ),
+                            child: ListTile(
+                              enabled: userProfileAsync.hasValue,
+                              contentPadding: EdgeInsets.zero,
+                              leading: Icon(
+                                CupertinoIcons.person,
+                                size: 26,
+                                color: isDark ? Colors.white : Colors.black,
+                              ),
+                              title: Text(
+                                "Profile",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 16,
+                                  color: isDark ? Colors.white : Colors.black,
+                                ),
+                              ),
+                              onTap: () {
+                                userProfileAsync.when(
+                                  data: (userProfile) {
+                                    Navigator.push(
+                                      context,
+                                      SlideRouting(
+                                        page: CommunityProfilePage(
+                                          userID: user!.id,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  loading: () {
+                                    // Optional: show a snackbar or loading indicator
+                                    return const CircularProgressIndicator();
+                                  },
+                                  error: (error, stack) {
+                                    // Optional: show an error message
+                                    FailureSnackBar.show(
+                                      context: context,
+                                      message: 'Failure fetching profile',
+                                      isDark: isDark,
+                                    );
+                                  },
+                                );
+                              },
+                            ),
+                          ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 32,
+                        vertical: 6,
+                      ),
+                      child: ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: Icon(
+                          CupertinoIcons.gear,
+                          size: 26,
+                          color: isDark ? Colors.white : Colors.black,
+                        ),
+                        title: Text(
+                          "Settings",
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                            color: isDark ? Colors.white : Colors.black,
+                          ),
+                        ),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            SlideRouting(page: const SettingsPage()),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // ------------------------------------------
+              // LOGOUT + FOOTER
+              // ------------------------------------------
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Divider(
+                  thickness: 0.7,
+                  color: isDark ? Colors.grey[800] : Colors.grey[700],
+                  height: 0,
+                ),
+              ),
+
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 6,
+                ),
+                child: ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: user != null
+                      ? Icon(
+                          CupertinoIcons.arrow_right_square,
+                          size: 26,
+                          color: isDark ? Colors.white : Colors.black,
+                        )
+                      : Icon(
+                          CupertinoIcons.profile_circled,
+                          size: 26,
+                          color: isDark ? Colors.white : Colors.black,
+                        ),
+                  title: user != null
+                      ? Text(
+                          "Logout",
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                            color: isDark ? Colors.deepOrange : Colors.black,
+                          ),
+                        )
+                      : Text(
+                          "Sign In",
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                            color: isDark ? Colors.white : Colors.black,
+                          ),
+                        ),
+                  onTap: () async {
+                    //no logged in user => loginPage
+                    if (user == null) {
+                      if (mounted) {
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute<void>(
+                            builder: (BuildContext context) =>
+                                const LoginPage(),
+                          ),
+                          (Route<dynamic> route) => false,
+                        );
+                        await Future.delayed(Durations.medium2);
+
+                        ref.read(tabsProvider.notifier).state = 0;
+                      }
+                    } else {
+                      //sign out
+                      if (mounted) {
+                        await supabase.auth.signOut();
+
+                        ref.invalidate(authStateProvider);
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          Navigator.pop(context);
+                        });
+                      }
+                    }
+                  },
+                ),
+              ),
+
+              Padding(
+                padding: const EdgeInsets.only(left: 20, bottom: 16),
+                child: Text(
+                  "© 2025 KabetEx",
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isDark ? Colors.grey[500] : Colors.grey[600],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

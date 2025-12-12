@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kabetex/features/auth/providers/user_provider.dart';
 import 'package:kabetex/features/profile/data/profile_services.dart';
 import 'package:kabetex/features/products/providers/user_provider.dart';
 import 'package:kabetex/providers/theme_provider.dart';
@@ -45,7 +46,6 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
         Navigator.pop(context);
 
         // Refresh profile data
-        ref.refresh(futureProfileProvider);
 
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Profile updated successfully!')),
@@ -55,7 +55,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
           context,
         ).showSnackBar(SnackBar(content: Text('Error updating profile: $e')));
       } finally {
-        if(!mounted) return;
+        if (!mounted) return;
         setState(() => isUpdating = false);
       }
     }
@@ -72,8 +72,10 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    final asyncProfile = ref.watch(futureProfileProvider);
     final isDark = ref.watch(isDarkModeProvider);
+    final asyncProfile = ref.watch(
+      userByIDProvider(ref.read(currentUserIdProvider)),
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -91,18 +93,18 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
             data: (data) {
               //prevent overwriting user edits
               if (nameController.text.isEmpty) {
-                nameController.text = data!['full_name'] ?? '';
+                nameController.text = data?.name ?? '';
               }
               if (emailController.text.isEmpty) {
-                emailController.text = data!['email'] ?? '';
+                emailController.text = data?.email ?? '';
               }
               if (phoneController.text.isEmpty) {
-                phoneController.text = data!['phone_number'] ?? '';
+                phoneController.text = data?.pNumber ?? '';
               }
               if (yearController.text.isEmpty) {
-                yearController.text = data!['year'] ?? '';
+                yearController.text = data?.year ?? '';
               }
-              _selectedYear ??= data!['year'];
+              _selectedYear ??= data?.year;
 
               return Form(
                 key: _formKey1,

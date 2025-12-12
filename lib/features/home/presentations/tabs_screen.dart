@@ -10,26 +10,24 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class TabsScreen extends ConsumerWidget {
   const TabsScreen({super.key});
 
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentIndex = ref.watch(tabsProvider);
     final isDark = ref.watch(isDarkModeProvider);
-    final homeTopTab = ref.watch(homeTopTabProvider);
 
     //Common bottom nav bar
     final pages = [const HomePage(), const FeedPage(), const AccountPage()];
 
     return Scaffold(
       body: pages[currentIndex],
-      bottomNavigationBar: homeTopTab == 0
-          ? GithubStyleBottomBar(
-              currentIndex: currentIndex,
-              isDarkMode: isDark,
-              onTap: (index) {
-                ref.read(tabsProvider.notifier).state = index;
-              },
-            )
-          : null,
+      bottomNavigationBar: GithubStyleBottomBar(
+        currentIndex: currentIndex,
+        isDarkMode: isDark,
+        onTap: (index) {
+          ref.read(tabsProvider.notifier).state = index;
+        },
+      ),
     );
   }
 }

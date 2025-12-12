@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kabetex/features/auth/providers/auth_provider.dart';
 import 'package:kabetex/features/auth/providers/user_provider.dart';
 import 'package:kabetex/features/auth/presentation/sign_up.dart';
 import 'package:kabetex/features/auth/widgets/error_BotttomSheet.dart';
@@ -11,6 +12,8 @@ import 'package:kabetex/features/auth/data/auth_services.dart';
 import 'package:kabetex/common/slide_routing.dart';
 import 'package:kabetex/features/home/providers/nav_bar.dart';
 import 'package:kabetex/features/products/providers/user_provider.dart';
+import 'package:kabetex/providers/theme_provider.dart';
+import 'package:kabetex/utils/snackbars.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
@@ -41,28 +44,32 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         password: _passController.text.trim(),
       );
 
-      final user = Supabase.instance.client.auth.currentUser;
+      final user = ref.watch(authStateProvider);
 
-      if (user != null) {
+      //IF SIGNED IN
+      if (user.value != null) {
         ref.read(tabsProvider.notifier).state = 0;
         Navigator.pushReplacement(
           context,
           SlideRouting(page: const TabsScreen()),
         );
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Login successful🥂')));
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Login failed, check your credentials')),
-        );
       }
-      await ref.refresh(
-        futureProfileProvider.future,
-      ); //to be removed, use current one
 
-      ref.invalidate(userByIDProvider);
-      ref.invalidate(currentUserIdProvider);
+      Future.microtask(() {
+        if (mounted) {
+          SuccessSnackBar.show(
+            context: context,
+            message: 'Login successful 🥂',
+            isDark: ref.read(isDarkModeProvider),
+          );
+        }
+      });
+
+      if (mounted) {
+        //refresh user data
+        ref.invalidate(userByIDProvider);
+        ref.invalidate(currentUserIdProvider);
+      }
     } catch (e) {
       String error = e.toString();
       if (e is SocketException) {
@@ -83,9 +90,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       );
     } finally {
       setState(() => isLogging = false);
-      await ref.refresh(futureProfileProvider.future);
-      ref.invalidate(userByIDProvider);
       ref.invalidate(currentUserIdProvider);
+      ref.invalidate(authStateProvider);
     }
   }
 
