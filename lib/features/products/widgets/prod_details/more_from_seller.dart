@@ -82,11 +82,11 @@ class MoreFromSeller extends ConsumerWidget {
             if (products == null || products.isEmpty) {
               return const Padding(
                 padding: EdgeInsets.all(16),
-                child: Text("Nothing here from this seller"),
+                child: Text("Nothing more from seller"),
               );
             }
             return SizedBox(
-              height: 265,
+              height: 270,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: ListView.builder(

@@ -33,6 +33,7 @@ class ProductListNotifier extends StateNotifier<List<Product>> {
 
   Future<void> loadProducts() async {
     if (isLoading) return;
+    
     isLoading = true;
     try {
       final fetched = await service.fetchProducts(limit: limit, offset: 0);

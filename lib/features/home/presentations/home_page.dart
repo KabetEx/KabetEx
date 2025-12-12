@@ -32,7 +32,7 @@ class _HomePageState extends ConsumerState<HomePage>
       final notifier = ref.read(productsProvider.notifier);
       if (_scrollController.position.pixels >=
               _scrollController.position.maxScrollExtent - 200 &&
-         notifier.hasMore &&
+          notifier.hasMore &&
           !notifier.isLoading &&
           !isRefreshing) {
         notifier.loadMore();
@@ -91,17 +91,15 @@ class _HomePageState extends ConsumerState<HomePage>
               // Categories
               const SliverToBoxAdapter(child: MyCategoryGrid()),
 
-              // Products or shimmer
-              products.isEmpty && notifier.isLoading
+              // SHIMMER OR PRODUCTS
+              products.isEmpty && notifier.isLoading || notifier.isLoading
                   ? const SliverToBoxAdapter(child: ProductsShimmer())
-                  : SliverList(
-                      delegate: SliverChildBuilderDelegate((context, index) { 
-                        return HomeProductsSection(
-                          products: products,
-                          isLoading: false,
-                          isLoadingMore: false,
-                        );
-                      }, childCount: products.length),
+                  : SliverToBoxAdapter(
+                      child: HomeProductsSection(
+                        products: products,
+                        isLoading: false,
+                        isLoadingMore: false,
+                      ),
                     ),
 
               // Loading more indicator at bottom

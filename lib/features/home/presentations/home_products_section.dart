@@ -3,7 +3,7 @@ import 'package:kabetex/features/products/data/product.dart';
 import 'package:kabetex/features/products/widgets/products_listview.dart';
 import 'package:kabetex/features/products/widgets/products_shimmer.dart';
 
-class HomeProductsSection extends StatelessWidget {
+class HomeProductsSection extends StatefulWidget {
   const HomeProductsSection({
     super.key,
     required this.isLoading,
@@ -16,38 +16,52 @@ class HomeProductsSection extends StatelessWidget {
   final List<Product> products;
 
   @override
+  State<HomeProductsSection> createState() => _HomeProductsSectionState();
+}
+
+class _HomeProductsSectionState extends State<HomeProductsSection>
+    with SingleTickerProviderStateMixin {
+  late Animation<double> _fade;
+  late AnimationController _animationController;
+
+  @override
+  void initState() {
+    super.initState();
+
+    //initializing the animation controller
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 600),
+      vsync: this,
+    );
+
+    //defining the fade animation
+    _fade = CurvedAnimation(parent: _animationController, curve: Curves.easeIn);
+
+    //start the animation
+    _animationController.forward();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         // Products or shimmer
-        if (isLoading || products.isEmpty)
+        if (widget.isLoading || widget.products.isEmpty)
           const ProductsShimmer()
-        else if (products.isEmpty)
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Text(
-                "No products yet 😔",
-                style: Theme.of(context).textTheme.bodyLarge,
-              ),
-            ),
-          )
         else
           FadeTransition(
-            opacity: Tween(begin: 0.0, end: 1.0).animate(
-              CurvedAnimation(
-                parent: AnimationController(
-                  duration: const Duration(milliseconds: 700),
-                  vsync: Scaffold.of(context),
-                )..forward(),
-                curve: Curves.easeInOut,
-              ),
-            ),
-            child: MyProductsGridview(products: products),
+            opacity: _fade,
+            child: MyProductsGridview(products: widget.products),
           ),
 
         // Loading more indicator
-        if (isLoadingMore)
+        if (widget.isLoadingMore)
           const Padding(
             padding: EdgeInsets.all(16.0),
             child: Center(
