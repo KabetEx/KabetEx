@@ -48,18 +48,19 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
     }
   }
 
+  //FETCH BY ID IF NAVIGATED BY CART
   Future<void> _fetchProduct(String id) async {
     if (!mounted) return;
     setState(() => isLoading = true);
 
     try {
-      final fetchedProduct = await ProductService().getProductById(id);
+      final fetchedProduct = await ref
+          .read(productsProvider.notifier)
+          .getProductById(id);
       if (!mounted) return;
 
       setState(() => product = fetchedProduct);
 
-      // fade in after a small delay
-      await Future.delayed(const Duration(milliseconds: 50));
       if (mounted) setState(() => isLoaded = true);
     } catch (e) {
       FailureSnackBar.show(
@@ -96,140 +97,148 @@ class _ProdDetailsPageState extends ConsumerState<ProdDetailsPage> {
       productDetailsControllerProvider(product!).notifier,
     );
 
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: AppBar(
-        actions: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: Chip(
-              label: Text(
-                isAvailable ? 'Available' : 'Unavailable',
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
+    return AnimatedOpacity(
+      duration: const Duration(milliseconds: 300),
+      opacity: isLoaded ? 1.0 : 0.0,
+      curve: isLoaded ? Curves.easeIn : Curves.linear,
+      child: Scaffold(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        appBar: AppBar(
+          actions: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Chip(
+                label: Text(
+                  isAvailable ? 'Available' : 'Unavailable',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
+                side: const BorderSide(color: Colors.transparent),
+                backgroundColor: isAvailable ? Colors.green : Colors.grey[700],
+                labelStyle: const TextStyle(color: Colors.white),
               ),
-              side: const BorderSide(color: Colors.transparent),
-              backgroundColor: isAvailable ? Colors.green : Colors.grey[700],
-              labelStyle: const TextStyle(color: Colors.white),
             ),
-          ),
-          AddToCart(product: product!),
-          ReportProduct(isDark: isDarkMode, product: product!),
-        ],
-      ),
-      body: Stack(
-        children: [
-          AnimatedOpacity(
-            duration: const Duration(seconds: 1),
-            opacity: isLoaded ? 1.0 : 0.0,
-            curve: Curves.easeInOut,
-            child: SafeArea(
-              child: SizedBox.expand(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.only(bottom: 90),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      //PRODUCT IMAGES
-                      RepaintBoundary(
-                        child: ProductGallery(
-                          images: product!.imageUrls,
-                          product: product!,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      //PRODUCT TITLE
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        child: Text(
-                          product!.title,
-                          style: TextStyle(
-                            fontFamily: 'Poppins',
-                            fontSize: 24,
-                            fontWeight: FontWeight.w600,
-                            color: titleColor,
+            AddToCart(product: product!),
+            ReportProduct(isDark: isDarkMode, product: product!),
+          ],
+        ),
+        body: Stack(
+          children: [
+            AnimatedOpacity(
+              duration: const Duration(seconds: 1),
+              opacity: isLoaded ? 1.0 : 0.0,
+              curve: Curves.easeInOut,
+              child: SafeArea(
+                child: SizedBox.expand(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.only(bottom: 90),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        //PRODUCT IMAGES
+                        RepaintBoundary(
+                          child: ProductGallery(
+                            images: product!.imageUrls,
+                            product: product!,
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 8),
+                        const SizedBox(height: 16),
 
-                      //PRODUCT PRICE
-                      RepaintBoundary(
-                        child: PriceRow(product: product!, isDark: isDarkMode),
-                      ),
-                      const SizedBox(height: 16),
-
-                      //SELLER CARD
-                      RepaintBoundary(
-                        child: SellerCard(
-                          isDark: isDarkMode,
-                          sellerId: product!.sellerId,
+                        //PRODUCT TITLE
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: Text(
+                            product!.title,
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 24,
+                              fontWeight: FontWeight.w600,
+                              color: titleColor,
+                            ),
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 16),
+                        const SizedBox(height: 8),
 
-                      //STOCK
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16.0,
-                          vertical: 8,
+                        //PRODUCT PRICE
+                        RepaintBoundary(
+                          child: PriceRow(
+                            product: product!,
+                            isDark: isDarkMode,
+                          ),
                         ),
-                        child: RichText(
-                          text: TextSpan(
-                            children: [
-                              TextSpan(
-                                text: 'Stock: ',
-                                style: Theme.of(context).textTheme.bodyLarge!
-                                    .copyWith(
-                                      fontFamily: 'Roboto Slab',
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w500,
-                                      color: sectionHeadingColor,
-                                    ),
-                              ),
-                              TextSpan(
-                                text: product!.quantity.toString(),
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: isDarkMode
-                                      ? Colors.grey[400]
-                                      : Colors.black,
+                        const SizedBox(height: 16),
+
+                        //SELLER CARD
+                        RepaintBoundary(
+                          child: SellerCard(
+                            isDark: isDarkMode,
+                            sellerId: product!.sellerId,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
+                        //STOCK
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16.0,
+                            vertical: 8,
+                          ),
+                          child: RichText(
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: 'Stock: ',
+                                  style: Theme.of(context).textTheme.bodyLarge!
+                                      .copyWith(
+                                        fontFamily: 'Roboto Slab',
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w500,
+                                        color: sectionHeadingColor,
+                                      ),
                                 ),
-                              ),
-                            ],
+                                TextSpan(
+                                  text: product!.quantity.toString(),
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: isDarkMode
+                                        ? Colors.grey[400]
+                                        : Colors.black,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 16),
+                        const SizedBox(height: 16),
 
-                      //PRODUCT DESCRIPTION
-                      ProdDescription(
-                        productDescription: product!.description,
-                        isDark: isDarkMode,
-                      ),
-                      const SizedBox(height: 16),
-
-                      //MORE FROM SELLER
-                      RepaintBoundary(
-                        child: MoreFromSeller(
-                          product: product!,
+                        //PRODUCT DESCRIPTION
+                        ProdDescription(
+                          productDescription: product!.description,
                           isDark: isDarkMode,
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 16),
+
+                        //MORE FROM SELLER
+                        RepaintBoundary(
+                          child: MoreFromSeller(
+                            product: product!,
+                            isDark: isDarkMode,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-          ContactButton(
-            isAvailable: isAvailable,
-            onpressed: controller.contactSeller,
-          ),
-        ],
+            ContactButton(
+              isAvailable: isAvailable,
+              onpressed: controller.contactSeller,
+            ),
+          ],
+        ),
       ),
     );
   }

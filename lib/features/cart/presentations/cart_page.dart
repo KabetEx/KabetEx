@@ -191,13 +191,7 @@ class _CartPageState extends ConsumerState<CartPage> {
                                       productId: cartProducts[index].id,
                                     ),
                                   ),
-                                );
-                                // Navigator.push(
-                                //   context,
-                                //   SlideRouting(
-                                //     page: const ProdDetailsShimmer(),
-                                //   ),
-                                // );
+                                ); 
                               },
                               child: CartItem(product: cartProducts[index]),
                             ),

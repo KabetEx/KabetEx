@@ -17,6 +17,20 @@ class ProductListNotifier extends StateNotifier<List<Product>> {
   final int limit = 10;
   final service = ProductService();
 
+  Future<Product> getProductById(String id) async {
+    try {
+      final productMap = await service.getProductById(id);
+      if (productMap != null) {
+        return productMap;
+      } else {
+        throw Exception('Product not found');
+      }
+    } catch (e) {
+      print('Error fetching product by ID $e');
+      rethrow;
+    }
+  }
+
   Future<void> loadProducts() async {
     if (isLoading) return;
     isLoading = true;
