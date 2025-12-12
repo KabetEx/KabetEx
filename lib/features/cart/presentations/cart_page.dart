@@ -39,7 +39,9 @@ class _CartPageState extends ConsumerState<CartPage> {
         leading: Container(
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: Colors.grey.shade300,
+            color: isDarkMode
+                ? Colors.grey.withAlpha(30)
+                : Colors.grey.shade300,
           ),
           margin: const EdgeInsets.only(left: 16),
           child: IconButton(
