@@ -46,7 +46,11 @@ class _PostTweetPageState extends ConsumerState<PostTweetPage> {
     final content = _controller.text.trim();
 
     try {
-      await repo.createPost(userProfile: userProfile!, content: content);
+      await repo.createPost(
+        userProfile: userProfile!,
+        content: content,
+        audience: _audience,
+      );
       SuccessSnackBar.show(
         context: context,
         message: 'Posted Successfully',
@@ -55,8 +59,7 @@ class _PostTweetPageState extends ConsumerState<PostTweetPage> {
     } catch (e) {
       FailureSnackBar.show(
         context: context,
-        message:
-            'Error posting: $e, ${userProfile?.id ?? 'null id'} ${userProfile?.name ?? 'null name'}}',
+        message: 'Error posting: $e,',
         isDark: isDark,
         duration: 300,
       );
@@ -87,7 +90,7 @@ class _PostTweetPageState extends ConsumerState<PostTweetPage> {
           onTap: Navigator.of(context).pop,
           child: const Icon(CupertinoIcons.xmark_circle_fill, size: 32),
         ),
-        backgroundColor: isDark ? Colors.black : Colors.white,
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         elevation: 0,
         foregroundColor: isDark ? Colors.white : Colors.black,
         actions: [
@@ -185,6 +188,14 @@ class _PostTweetPageState extends ConsumerState<PostTweetPage> {
                             controller: _controller,
                             autofocus: true,
                             maxLines: 3,
+                            maxLength: 300,
+                            textCapitalization: TextCapitalization.sentences,
+                            autocorrect: true,
+                            cursorColor: isDark ? Colors.white : Colors.black,
+                            enableSuggestions: true,
+                            keyboardAppearance: isDark
+                                ? Brightness.dark
+                                : Brightness.light,
                             style: TextStyle(
                               color: isDark ? Colors.white : Colors.black,
                               fontSize: 16,
@@ -197,6 +208,8 @@ class _PostTweetPageState extends ConsumerState<PostTweetPage> {
                                     : Colors.grey[600],
                               ),
                               border: InputBorder.none,
+                              counter: const Offstage(),
+                              counterText: '',
                             ),
                             onChanged: (_) => setState(() {}),
                           ),

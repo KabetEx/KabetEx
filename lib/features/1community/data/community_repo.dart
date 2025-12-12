@@ -90,6 +90,7 @@ class CommunityRepository {
   Future<Post> createPost({
     required UserProfile userProfile,
     required String content,
+    required String audience,
   }) async {
     try {
       final response = await client
@@ -99,6 +100,7 @@ class CommunityRepository {
             'content': content,
             'full_name': userProfile.name,
             'avatar_url': userProfile.avatarUrl,
+            'audience': audience,
           })
           .select()
           .single();
