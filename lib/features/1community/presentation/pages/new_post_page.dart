@@ -53,7 +53,7 @@ class _PostTweetPageState extends ConsumerState<PostTweetPage> {
       );
       SuccessSnackBar.show(
         context: context,
-        message: 'Posted Successfully',
+        message: 'Posted Successfully!',
         isDark: isDark,
       );
     } catch (e) {
@@ -64,6 +64,8 @@ class _PostTweetPageState extends ConsumerState<PostTweetPage> {
         duration: 300,
       );
     }
+
+    Navigator.pop(context);
 
     setState(() {
       _controller.clear();
@@ -84,6 +86,7 @@ class _PostTweetPageState extends ConsumerState<PostTweetPage> {
           style: TextStyle(
             color: isDark ? Colors.white : Colors.black,
             fontWeight: FontWeight.bold,
+            fontFamily: 'Lato',
           ),
         ),
         leading: GestureDetector(
@@ -182,6 +185,8 @@ class _PostTweetPageState extends ConsumerState<PostTweetPage> {
                           ),
                         ),
                         const SizedBox(width: 12),
+
+                        //CONTENT TEXTFIELD
                         Expanded(
                           child: TextFormField(
                             key: _formKey,
@@ -273,16 +278,6 @@ class _PostTweetPageState extends ConsumerState<PostTweetPage> {
                                 color: isDark ? Colors.white : Colors.black,
                               ),
                             ),
-                          ),
-                        ),
-
-                        Text(
-                          '${_controller.text.length}/280',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: _controller.text.length > 250
-                                ? Colors.deepOrange
-                                : Colors.grey,
                           ),
                         ),
                       ],

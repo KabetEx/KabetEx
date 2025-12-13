@@ -80,7 +80,7 @@ class PostWidget extends ConsumerWidget {
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            timeAgo(post.createdAt ?? DateTime.now()),
+                            timeAgo(post.createdAt),
                             style: TextStyle(
                               fontSize: 13,
                               color: isDark
@@ -154,7 +154,7 @@ class PostWidget extends ConsumerWidget {
                   const SizedBox(height: 6),
 
                   Text(
-                    post.content ?? '',
+                    post.content,
                     style: TextStyle(
                       fontSize: 15,
                       color: isDark
@@ -166,7 +166,7 @@ class PostWidget extends ConsumerWidget {
                   const SizedBox(height: 10),
 
                   //actions row
-                  PostWidgetActionsRow(post: post),
+                  PostWidgetActionsRow(post: post, feedFilter: feedFilter),
                 ],
               ),
             ),
@@ -179,8 +179,13 @@ class PostWidget extends ConsumerWidget {
 
 class PostWidgetActionsRow extends ConsumerStatefulWidget {
   final Post post;
+  final FeedFilter feedFilter;
 
-  const PostWidgetActionsRow({super.key, required this.post});
+  const PostWidgetActionsRow({
+    super.key,
+    required this.post,
+    required this.feedFilter,
+  });
 
   @override
   ConsumerState<PostWidgetActionsRow> createState() =>
@@ -210,11 +215,6 @@ class _PostWidgetActionsRowState extends ConsumerState<PostWidgetActionsRow> {
         _likeCount = widget.post.likeCount;
       });
     }
-  }
-
-  FeedFilter get feedFilter {
-    final audience = ref.watch(selectedAudienceProvider);
-    return FeedFilter(audience: audience == 'Everyone' ? null : audience);
   }
 
   @override
@@ -254,7 +254,7 @@ class _PostWidgetActionsRowState extends ConsumerState<PostWidgetActionsRow> {
                     try {
                       // Access the notifier directly via ref and perform the action.
                       final result = await ref
-                          .read(feedProvider(feedFilter).notifier)
+                          .read(feedProvider(widget.feedFilter).notifier)
                           .toggleLike(widget.post.id);
 
                       // Confirm the UI with the actual data from the database.

@@ -50,11 +50,13 @@ class CommunityRepository {
 
       // Audience filter
       if (audience != null) {
+        //classmates filter
         if (audience == 'Classmates' && userYear != null) {
           query = query.eq('year', userYear);
           print('Filtering posts for classmates, year: $userYear');
+          //Everyone filter
         } else if (audience == 'For you🔥') {
-          // For You🔥: keep unfiltered OR filter later with your own logic
+          // For You🔥: keep unfiltered  
           print('Fetching For You🔥 posts');
         } else {
           // Any other audience
