@@ -36,51 +36,57 @@ class _GithubStyleBottomBarState extends State<GithubStyleBottomBar> {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: List.generate(icons.length, (index) {
           final isSelected = widget.currentIndex == index;
-          return Column(
-            children: [
-              GestureDetector(
-                onTap: () => widget.onTap(index),
-                child: AnimatedContainer(
-                  width: 52,
-                  duration: const Duration(milliseconds: 250),
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: isDarkMode
-                        ? isSelected
-                              ? Colors.grey[900]
-                              : Colors.transparent
-                        : isSelected
-                        ? Colors.black12
-                        : Colors.transparent,
-                    borderRadius: BorderRadius.circular(24),
+          return GestureDetector(
+            onTap: () => widget.onTap(index),
+            child: SizedBox(
+              width: 100,
+              child: Column(
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  AnimatedContainer(
+                    width: 52,
+                    duration: const Duration(milliseconds: 250),
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: isDarkMode
+                          ? isSelected
+                                ? Colors.grey[900]
+                                : Colors.transparent
+                          : isSelected
+                          ? Colors.black12
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    child: Icon(
+                      icons[index],
+                      size: 24,
+                      color: isSelected
+                          ? Colors.deepOrange
+                          : (isDarkMode ? Colors.white70 : Colors.black54),
+                    ),
                   ),
-                  child: Icon(
-                    icons[index],
-                    size: 24,
-                    color: isSelected
-                        ? Colors.deepOrange
-                        : (isDarkMode ? Colors.white70 : Colors.black54),
-                  ),
-                ),
-              ),
 
-              //text indicator
-              const SizedBox(height: 4),
-              Text(
-                index == 0
-                    ? 'Home'
-                    : index == 1
-                    ? 'Community'
-                    : 'Account',
-                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                  fontSize: 12,
-                  color: isSelected
-                      ? Colors.deepOrange
-                      : (isDarkMode ? Colors.white70 : Colors.black54),
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                ),
+                  //text indicator
+                  const SizedBox(height: 4),
+                  Text(
+                    index == 0
+                        ? 'Home'
+                        : index == 1
+                        ? 'Community'
+                        : 'Account',
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      fontSize: 12,
+                      color: isSelected
+                          ? Colors.deepOrange
+                          : (isDarkMode ? Colors.white70 : Colors.black54),
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.normal,
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           );
         }),
       ),
