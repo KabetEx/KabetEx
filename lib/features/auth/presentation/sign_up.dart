@@ -1,5 +1,5 @@
+import 'dart:async';
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/features/auth/providers/user_provider.dart';
@@ -16,7 +16,8 @@ class SignupPage extends ConsumerStatefulWidget {
   ConsumerState<SignupPage> createState() => _SignupPageState();
 }
 
-class _SignupPageState extends ConsumerState<SignupPage> {
+class _SignupPageState extends ConsumerState<SignupPage>
+    with SingleTickerProviderStateMixin {
   final authService = AuthService();
 
   final _formKey = GlobalKey<FormState>();
@@ -29,10 +30,45 @@ class _SignupPageState extends ConsumerState<SignupPage> {
   bool hidePassword = true;
   bool isSigningUp = false;
 
+  late AnimationController _animController;
+  late Animation<double> _fadeInAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _animController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+    _fadeInAnim = Tween<double>(
+      begin: 0,
+      end: 1,
+    ).animate(CurvedAnimation(parent: _animController, curve: Curves.easeIn));
+    _animController.forward();
+  }
+
+  @override
+  void dispose() {
+    _animController.dispose();
+    _passwordController.dispose();
+    _nameController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
+    super.dispose();
+  }
+
+  final Map<String, int> yearMap = {
+    '1st Year': 1,
+    '2nd Year': 2,
+    '3rd Year': 3,
+    '4th Year': 4,
+  };
+
   void submitForm() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => isSigningUp = true);
+    final int selectedYearInt = yearMap[_selectedYear]!;
 
     try {
       await authService.signUp(
@@ -40,12 +76,11 @@ class _SignupPageState extends ConsumerState<SignupPage> {
         password: _passwordController.text.trim(),
         name: _nameController.text.trim(),
         phone: _phoneController.text.trim(),
-        year: _selectedYear!,
+        year: selectedYearInt,
       );
 
       final session = Supabase.instance.client.auth.currentSession;
 
-      //successful signup
       if (session != null) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -71,7 +106,7 @@ class _SignupPageState extends ConsumerState<SignupPage> {
 
       showModalBottomSheet(
         context: context,
-        backgroundColor: Colors.grey[900],
+        backgroundColor: const Color(0xFF1E1E1E),
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
         ),
@@ -88,31 +123,25 @@ class _SignupPageState extends ConsumerState<SignupPage> {
 
   @override
   Widget build(BuildContext context) {
-    final inputDecoration = InputDecoration(
-      filled: true,
-      fillColor: const Color.fromARGB(21, 255, 86, 34),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide.none,
-      ),
-    );
+    final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFF121212),
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 40.0),
+        child: FadeTransition(
+          opacity: _fadeInAnim,
+          child: SafeArea(
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
                     'KabetEx',
-                    style: Theme.of(context).textTheme.headlineLarge!.copyWith(
-                      color: Colors.deepOrange,
+                    style: theme.textTheme.headlineLarge!.copyWith(
+                      color: Colors.deepOrange.shade400,
                       fontSize: 40,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 1.5,
@@ -125,12 +154,11 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                       children: [
                         TextSpan(
                           text: 'Connect with students ',
-                          style: Theme.of(context).textTheme.labelLarge!
-                              .copyWith(
-                                color: Colors.black,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 18,
-                              ),
+                          style: theme.textTheme.labelLarge!.copyWith(
+                            color: Colors.white70,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 18,
+                          ),
                         ),
                         const TextSpan(
                           text: '👩‍🎓👨‍🎓',
@@ -138,12 +166,11 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                         ),
                         TextSpan(
                           text: ',\n buy & sell ',
-                          style: Theme.of(context).textTheme.labelLarge!
-                              .copyWith(
-                                color: Colors.black,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 16,
-                              ),
+                          style: theme.textTheme.labelLarge!.copyWith(
+                            color: Colors.white70,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                          ),
                         ),
                         const TextSpan(
                           text: '🛍️💸',
@@ -151,12 +178,11 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                         ),
                         TextSpan(
                           text: ' on campus!',
-                          style: Theme.of(context).textTheme.labelLarge!
-                              .copyWith(
-                                color: Colors.black,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 16,
-                              ),
+                          style: theme.textTheme.labelLarge!.copyWith(
+                            color: Colors.white70,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                          ),
                         ),
                       ],
                     ),
@@ -167,233 +193,98 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                     key: _formKey,
                     child: Column(
                       children: [
-                        // Full Name
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 8,
-                          ),
-                          child: TextFormField(
-                            keyboardType: TextInputType.name,
-                            textCapitalization: TextCapitalization.words,
-                            decoration: inputDecoration.copyWith(
-                              prefixIcon: Icon(
-                                Icons.person,
-                                color: Colors.grey[600],
-                              ),
-                              hintText: 'Full Name',
-                              hintStyle: TextStyle(color: Colors.grey[600]),
-                            ),
-
-                            controller: _nameController,
-                            validator: (val) => val == null || val.isEmpty
-                                ? 'Enter your name'
-                                : null,
-                            style: Theme.of(context).textTheme.labelMedium!
-                                .copyWith(color: Colors.black),
-                          ),
+                        //NAME FIELD
+                        AnimatedInputField(
+                          controller: _nameController,
+                          hint: 'Full Name',
+                          icon: Icons.person,
+                          validator: (v) =>
+                              v == null || v.isEmpty ? 'Enter your name' : null,
+                          textCapitalization: TextCapitalization.words,
                         ),
+                        const SizedBox(height: 16),
 
-                        // Email
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 8,
-                          ),
-                          child: TextFormField(
-                            keyboardType: TextInputType.emailAddress,
-                            decoration: inputDecoration.copyWith(
-                              prefixIcon: Icon(
-                                Icons.email,
-                                color: Colors.grey[600],
-                              ),
-                              hintText: 'Email',
-                              hintStyle: TextStyle(color: Colors.grey[600]),
-                            ),
-                            controller: _emailController,
-                            validator: (val) {
-                              if (val == null ||
-                                  !val.contains('@') ||
-                                  val.length < 4) {
-                                return 'Enter a valid email';
-                              }
-                              return null;
-                            },
-                            style: Theme.of(context).textTheme.labelMedium!
-                                .copyWith(color: Colors.black),
-                          ),
+                        //EMAIL FIELD
+                        AnimatedInputField(
+                          controller: _emailController,
+                          hint: 'Email',
+                          icon: Icons.email,
+                          keyboardType: TextInputType.emailAddress,
+                          validator: (v) => v != null && v.contains('@')
+                              ? null
+                              : 'Enter valid email',
                         ),
+                        const SizedBox(height: 16),
 
-                        // WhatsApp Number
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 8,
-                          ),
-                          child: TextFormField(
-                            keyboardType: TextInputType.phone,
-                            maxLength: 10,
-                            decoration: inputDecoration.copyWith(
-                              prefixIcon: Icon(
-                                Icons.phone,
-                                color: Colors.grey[600],
-                              ),
-                              hintText: 'WhatsApp number',
-                              hintStyle: TextStyle(color: Colors.grey[600]),
-                              counterText: '',
-                            ),
-                            controller: _phoneController,
-                            validator: (val) {
-                              if (val == null || val.isEmpty) {
-                                return 'Enter a number';
-                              }
-                              if (!RegExp(
-                                r'^(07\d{8}|01\d{8})$',
-                              ).hasMatch(val)) {
-                                return 'Invalid number (07xx or 01xx)';
-                              }
-                              return null;
-                            },
-                            style: Theme.of(context).textTheme.labelMedium!
-                                .copyWith(color: Colors.black),
-                          ),
+                        //Phone number field
+                        AnimatedInputField(
+                          controller: _phoneController,
+                          hint: 'WhatsApp Number',
+                          icon: Icons.phone,
+                          keyboardType: TextInputType.phone,
+                          maxLength: 10,
+                          validator: (v) {
+                            if (v == null || v.isEmpty) return 'Enter number';
+                            if (!RegExp(r'^(07\d{8}|01\d{8})$').hasMatch(v)) {
+                              return 'Invalid number';
+                            }
+                            return null;
+                          },
                         ),
+                        const SizedBox(height: 16),
 
-                        // Campus Year Dropdown
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 12,
-                          ),
-                          child: Center(
-                            child: Container(
-                              height: 48,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                              ),
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                color: Colors.deepOrange.withAlpha(
-                                  10,
-                                ), // subtle fill
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: Colors.deepOrange,
-                                  width: 0.5,
-                                ),
-
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.deepOrange.withAlpha(25),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 3),
-                                  ),
-                                ],
-                              ),
-                              child: DropdownButtonHideUnderline(
-                                child: DropdownButtonFormField<String>(
-                                  decoration: const InputDecoration(
-                                    border: InputBorder.none,
-                                    isDense: true,
-                                    contentPadding: EdgeInsets.zero,
-                                  ),
-                                  initialValue: _selectedYear,
-                                  isExpanded: true,
-                                  alignment: Alignment
-                                      .center, // CENTER the selected text
-                                  icon: const Icon(
-                                    Icons.arrow_drop_down_circle,
-                                    color: Colors.deepOrange,
-                                    size: 28, // slightly bigger for balance
-                                  ),
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.black87,
-                                  ),
-                                  items:
-                                      [
-                                            '1st Year',
-                                            '2nd Year',
-                                            '3rd Year',
-                                            '4th Year',
-                                          ]
-                                          .map(
-                                            (year) => DropdownMenuItem(
-                                              value: year,
-                                              child: Center(child: Text(year)),
-                                            ),
-                                          )
-                                          .toList(),
-                                  onChanged: (val) =>
-                                      setState(() => _selectedYear = val),
-                                  validator: (val) => val == null || val.isEmpty
-                                      ? 'Select your campus year'
-                                      : null,
-                                  dropdownColor: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ),
+                        // Dropdown for year
+                        AnimatedDropdown(
+                          value: _selectedYear,
+                          items: yearMap.keys.toList(),
+                          onChanged: (v) => setState(() => _selectedYear = v),
+                          hint: 'Select your campus year',
+                          yearMap: yearMap,
                         ),
+                        const SizedBox(height: 16),
 
-                        // Password
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 8,
-                          ),
-                          child: TextFormField(
-                            controller: _passwordController,
-                            obscureText: hidePassword,
-                            style: Theme.of(context).textTheme.labelMedium!
-                                .copyWith(color: Colors.black),
-                            decoration: inputDecoration.copyWith(
-                              prefixIcon: Icon(
-                                Icons.lock,
-                                color: Colors.grey[600],
-                              ),
-                              hintText: 'Password',
-                              hintStyle: TextStyle(color: Colors.grey[600]),
-                              suffixIcon: IconButton(
-                                onPressed: () => setState(
-                                  () => hidePassword = !hidePassword,
-                                ),
-                                icon: Icon(
-                                  hidePassword
-                                      ? Icons.remove_red_eye_outlined
-                                      : Icons.visibility_off,
-                                  color: Colors.grey[600],
-                                ),
-                              ),
+                        //PASSWORD FIELD
+                        AnimatedInputField(
+                          controller: _passwordController,
+                          hint: 'Password',
+                          icon: Icons.lock,
+                          obscureText: hidePassword,
+                          suffixIcon: IconButton(
+                            onPressed: () =>
+                                setState(() => hidePassword = !hidePassword),
+                            icon: Icon(
+                              hidePassword
+                                  ? Icons.remove_red_eye_outlined
+                                  : Icons.visibility_off,
+                              color: Colors.grey[600],
                             ),
-
-                            validator: (val) => val == null || val.length < 6
-                                ? 'Password too short'
-                                : null,
                           ),
+                          validator: (v) => v != null && v.length >= 6
+                              ? null
+                              : 'Password too short',
+                        ),
+                        const SizedBox(height: 24),
+
+                        //SIGN UP BUTTON
+                        AnimatedButton(
+                          label: 'Sign Up',
+                          onTap: submitForm,
+                          isLoading: isSigningUp,
                         ),
 
                         const SizedBox(height: 16),
 
-                        // Sign Up Button
-                        const SizedBox(height: 12),
-                        _buildSignUpBtn(submitForm, isSigningUp),
-
-                        // Already have account
+                        //ALREADY HAVE AN ACCOUNT
                         TextButton(
                           onPressed: () => Navigator.pop(context),
                           child: Text(
                             'Already have an account? Login',
-                            style: Theme.of(context).textTheme.bodyMedium!
-                                .copyWith(
-                                  color: Colors.deepOrange,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                            style: theme.textTheme.bodyMedium!.copyWith(
+                              color: Colors.deepOrange.shade400,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
-
-                        // Continue as Guest
                         TextButton(
                           onPressed: () {
                             Navigator.pushReplacement(
@@ -404,7 +295,7 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                           child: const Text(
                             'Continue as Guest',
                             style: TextStyle(
-                              color: Colors.black,
+                              color: Colors.white70,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -422,31 +313,200 @@ class _SignupPageState extends ConsumerState<SignupPage> {
   }
 }
 
-Widget _buildSignUpBtn(VoidCallback onPressed, bool isSigningUp) {
-  return Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 20),
-    child: SizedBox(
-      width: double.infinity,
-      height: 50,
-      child: ElevatedButton(
-        onPressed: onPressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.deepOrange,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+// --------------------
+// Reusable Widgets
+// --------------------
+
+class AnimatedInputField extends StatelessWidget {
+  final TextEditingController controller;
+  final String hint;
+  final IconData icon;
+  final bool obscureText;
+  final Widget? suffixIcon;
+  final TextInputType keyboardType;
+  final int? maxLength;
+  final TextCapitalization textCapitalization;
+  final String? Function(String?)? validator;
+
+  const AnimatedInputField({
+    super.key,
+    required this.controller,
+    required this.hint,
+    required this.icon,
+    this.obscureText = false,
+    this.suffixIcon,
+    this.maxLength,
+    this.textCapitalization = TextCapitalization.none,
+    this.keyboardType = TextInputType.text,
+    this.validator,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: 1),
+      duration: const Duration(milliseconds: 600),
+      builder: (context, value, child) {
+        return Opacity(
+          opacity: value,
+          child: Transform.translate(
+            offset: Offset(0, 20 * (1 - value)),
+            child: child,
           ),
+        );
+      },
+      child: TextFormField(
+        controller: controller,
+        obscureText: obscureText,
+        keyboardType: keyboardType,
+        maxLength: maxLength,
+        textCapitalization: textCapitalization,
+        validator: validator,
+        style: const TextStyle(color: Colors.white, fontSize: 16),
+        decoration: InputDecoration(
+          counter: null,
+          counterText: '',
+          errorStyle: const TextStyle(color: Colors.red),
+          prefixIcon: Icon(icon, color: Colors.deepOrange.shade400),
+          filled: true,
+          fillColor: Colors.white.withAlpha(15),
+          hintText: hint,
+          hintStyle: TextStyle(color: Colors.grey[400]),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Colors.grey, width: 2),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.deepOrange.shade400, width: 2),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Colors.red, width: 2),
+          ),
+          suffixIcon: suffixIcon,
         ),
-        child: isSigningUp
-            ? const CircularProgressIndicator(color: Colors.white)
-            : const Text(
-                'Sign Up',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                  color: Colors.white,
-                ),
-              ),
       ),
-    ),
-  );
+    );
+  }
+}
+
+class AnimatedDropdown extends StatelessWidget {
+  final String? value;
+  final List<String> items;
+  final void Function(String?)? onChanged;
+  final String hint;
+  final Map<String, int> yearMap;
+
+  const AnimatedDropdown({
+    super.key,
+    required this.value,
+    required this.items,
+    required this.onChanged,
+    required this.hint,
+    required this.yearMap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: 1),
+      duration: const Duration(milliseconds: 600),
+      builder: (context, valueAnim, child) {
+        return Opacity(
+          opacity: valueAnim,
+          child: Transform.translate(
+            offset: Offset(0, 20 * (1 - valueAnim)),
+            child: child,
+          ),
+        );
+      },
+      child: Container(
+        height: 48,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        decoration: BoxDecoration(
+          color: Colors.white.withAlpha(15),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.deepOrange.shade400, width: 0.5),
+        ),
+        child: DropdownButtonFormField<String>(
+          initialValue: yearMap.keys.first,
+          items: items
+              .map(
+                (e) => DropdownMenuItem(
+                  value: e,
+                  child: Center(
+                    child: Text(e, style: const TextStyle(color: Colors.white)),
+                  ),
+                ),
+              )
+              .toList(),
+          onChanged: onChanged,
+          decoration: const InputDecoration(
+            border: InputBorder.none,
+            isDense: true,
+          ),
+          dropdownColor: const Color(0xFF1E1E1E),
+          validator: (v) => v == null || v.isEmpty ? hint : null,
+          style: const TextStyle(color: Colors.white),
+        ),
+      ),
+    );
+  }
+}
+
+class AnimatedButton extends StatelessWidget {
+  final String label;
+  final VoidCallback onTap;
+  final bool isLoading;
+
+  const AnimatedButton({
+    super.key,
+    required this.label,
+    required this.onTap,
+    this.isLoading = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: isLoading ? null : onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        height: 50,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: isLoading ? Colors.deepOrange.shade200 : Colors.deepOrange,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.deepOrange.shade300.withAlpha(60),
+              blurRadius: 8,
+              offset: const Offset(2, 4),
+            ),
+          ],
+        ),
+        child: Center(
+          child: isLoading
+              ? const SizedBox(
+                  height: 24,
+                  width: 24,
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                    strokeWidth: 2,
+                  ),
+                )
+              : Text(
+                  label,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
+                ),
+        ),
+      ),
+    );
+  }
 }

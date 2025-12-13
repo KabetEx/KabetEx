@@ -15,12 +15,12 @@ class AuthService {
     required String password,
     required String name,
     required String phone,
-    required String year,
+    required int year,
   }) async {
     try {
       final response = await supabase.auth
           .signUp(email: email, password: password)
-          .timeout(const Duration(seconds: 10));
+          .timeout(const Duration(seconds: 12));
 
       // 🔥 If user is null → signup failed → throw AuthException manually
       if (response.user == null) {
@@ -34,8 +34,7 @@ class AuthService {
         email: email,
         phone: phone,
         year: year,
-      );
-      print('User signed up and profile created!');
+      ).timeout(const Duration(seconds: 12));
     } on AuthException catch (e) {
       throw AuthException(e.message);
     } on SocketException {
@@ -43,7 +42,9 @@ class AuthService {
         'No internet connection. Please check your WiFi or data.',
       );
     } on TimeoutException {
-      throw Exception('Request timed out. Your internet is probably off.');
+      throw Exception(
+        'Request timed out. please check your Internet connection.',
+      );
     } catch (e) {
       // Any other Supabase/Unexpected error
       throw e.toString();
@@ -58,8 +59,7 @@ class AuthService {
     try {
       await supabase.auth
           .signInWithPassword(email: email, password: password)
-          .timeout(const Duration(seconds: 10));
-
+          .timeout(const Duration(seconds: 12));
     } on AuthException catch (error) {
       throw Exception(error.message);
     } on SocketException {
@@ -67,7 +67,9 @@ class AuthService {
         'No internet connection. Please check your WiFi or data.',
       );
     } on TimeoutException {
-      throw Exception('Request timed out. Your internet is probably off.');
+      throw Exception(
+        'Request timed out. Please check your internet connection.',
+      );
     } on http.ClientException {
       throw Exception(
         'No internet connection. Please check your WiFi or data.',
@@ -84,10 +86,10 @@ class AuthService {
     required String name,
     required String email,
     required String phone,
-    required String year,
+    required int year,
   }) async {
     try {
-      final res = await supabase.from('profiles').insert({
+      await supabase.from('profiles').insert({
         'id': id,
         'full_name': name,
         'email': email,
