@@ -175,7 +175,11 @@ class _CommunityEditProfilePageState
                     ),
                   )
                   .toList(),
-              onChanged: (val) => setState(() => selectedYear = val!),
+              onChanged: (val) => {
+                print('selected year: $val'),
+                setState(() => selectedYear = val!),
+                print('selected $selectedYear'),
+              },
               decoration: InputDecoration(
                 labelText: "Year",
                 labelStyle: TextStyle(
@@ -240,6 +244,7 @@ class _CommunityEditProfilePageState
                               email: emailCtrl.text.trim(),
                               year: selectedYear ?? '1st',
                             );
+                        print('New yr $selectedYear');
 
                         if (mounted) {
                           SuccessSnackBar.show(

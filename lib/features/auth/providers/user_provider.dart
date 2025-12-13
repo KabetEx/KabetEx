@@ -18,7 +18,6 @@ final currentUserIdProvider = Provider<String?>((ref) {
   return user?.id;
 });
 
-
 //returns a userProfile based on the provided ID
 final userByIDProvider = FutureProvider.family<UserProfile?, String?>((
   ref,
@@ -79,19 +78,18 @@ class EditProfileNotifier extends StateNotifier<AsyncValue<void>> {
     required String? bio,
     required String? avatarUrl,
   }) async {
-    state = const AsyncLoading();
     try {
       await repo.updateUser(
         userId: userId,
         name: name,
+        year: year,
         bio: bio,
         avatarUrl: avatarUrl,
         email: email,
-        pNumber: pNumber, 
+        pNumber: pNumber,
       );
-      state = const AsyncData(null);
     } catch (e) {
-      state = AsyncError(e, StackTrace.current);
+      throw Exception('Failed to update user: $e');
     }
   }
 }

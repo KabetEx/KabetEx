@@ -31,6 +31,7 @@ class UserRepository {
     required String name,
     required String email,
     required String pNumber,
+    required String year,
     required String? bio,
     required String? avatarUrl,
   }) async {
@@ -41,6 +42,7 @@ class UserRepository {
           'bio': bio,
           'email': email,
           'phone_number': pNumber,
+          'year': year,
           if (avatarUrl != null) 'avatar_url': avatarUrl,
         })
         .eq('id', userId);

@@ -48,6 +48,10 @@ class CommunityRepository {
         query = query.eq('user_id', profileUserId);
       }
 
+      if (currentUserId.isEmpty) {
+        query = query;
+      }
+      
       // Audience filter
       if (audience != null && audience != 'Everyone') {
         query = query.eq('audience', audience);
