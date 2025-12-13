@@ -3,13 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kabetex/common/slide_routing.dart';
 import 'package:kabetex/features/1community/providers/post_provider.dart';
+import 'package:kabetex/features/1community/providers/selected_audience_provider.dart';
 import 'package:kabetex/features/1community/utils/functions.dart';
 import 'package:kabetex/providers/theme_provider.dart';
 import 'package:kabetex/utils/snackbars.dart';
 import 'package:kabetex/features/1community/data/models/post.dart';
 import 'package:kabetex/features/1community/presentation/pages/post_details_page.dart';
 import 'package:kabetex/features/1community/presentation/pages/profile_page.dart';
- import 'package:kabetex/features/1community/providers/feed_provider.dart';
+import 'package:kabetex/features/1community/providers/feed_provider.dart';
 import 'package:kabetex/features/auth/providers/user_provider.dart';
 import 'package:kabetex/features/auth/presentation/login.dart';
 import 'package:kabetex/utils/time_utils.dart';
@@ -18,8 +19,9 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class PostWidget extends ConsumerWidget {
   final Post post;
+  final FeedFilter feedFilter;
 
-  const PostWidget({super.key, required this.post});
+  const PostWidget({super.key, required this.post, required this.feedFilter});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -27,8 +29,6 @@ class PostWidget extends ConsumerWidget {
     final loggedInUser = ref.watch(currentUserIdProvider);
     final postOwnerID = post.userId;
     final userProfileAsync = ref.watch(userByIDProvider(postOwnerID));
-
-    bool isOwner = loggedInUser == postOwnerID;
 
     return GestureDetector(
       onTap: () {
@@ -80,7 +80,7 @@ class PostWidget extends ConsumerWidget {
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            timeAgo(post.createdAt!),
+                            timeAgo(post.createdAt ?? DateTime.now()),
                             style: TextStyle(
                               fontSize: 13,
                               color: isDark
@@ -154,7 +154,7 @@ class PostWidget extends ConsumerWidget {
                   const SizedBox(height: 6),
 
                   Text(
-                    post.content,
+                    post.content ?? '',
                     style: TextStyle(
                       fontSize: 15,
                       color: isDark
@@ -212,6 +212,11 @@ class _PostWidgetActionsRowState extends ConsumerState<PostWidgetActionsRow> {
     }
   }
 
+  FeedFilter get feedFilter {
+    final audience = ref.watch(selectedAudienceProvider);
+    return FeedFilter(audience: audience == 'Everyone' ? null : audience);
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -249,7 +254,7 @@ class _PostWidgetActionsRowState extends ConsumerState<PostWidgetActionsRow> {
                     try {
                       // Access the notifier directly via ref and perform the action.
                       final result = await ref
-                          .read(feedProvider(null).notifier)
+                          .read(feedProvider(feedFilter).notifier)
                           .toggleLike(widget.post.id);
 
                       // Confirm the UI with the actual data from the database.

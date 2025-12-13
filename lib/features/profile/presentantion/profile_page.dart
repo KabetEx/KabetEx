@@ -7,7 +7,6 @@ import 'package:kabetex/features/1community/presentation/pages/edit_profile_page
 import 'package:kabetex/features/auth/presentation/login.dart';
 import 'package:kabetex/features/auth/providers/auth_provider.dart';
 import 'package:kabetex/features/profile/presentantion/change_password.dart';
-import 'package:kabetex/features/profile/presentantion/edit_profile.dart';
 import 'package:kabetex/features/profile/presentantion/phone_verification.dart';
 import 'package:kabetex/features/profile/widgets/not_logged_In.dart';
 import 'package:kabetex/features/auth/providers/user_provider.dart';

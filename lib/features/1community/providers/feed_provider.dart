@@ -6,23 +6,39 @@ import 'package:riverpod/legacy.dart';
 
 // Provider
 final feedProvider =
-    StateNotifierProvider.family<FeedNotifier, FeedState, Map<String, dynamic>?>(
-      (ref, feedFilter) {
-        final repo = ref.read(communityRepoProvider);
-        final loggedInUserId =
-            ref.watch(currentUserIdProvider) ?? ''; //for like feature
+    StateNotifierProvider.family<FeedNotifier, FeedState, FeedFilter?>((
+      ref,
+      feedFilter,
+    ) {
+      final repo = ref.read(communityRepoProvider);
+      final loggedInUserId = ref.watch(currentUserIdProvider) ?? '';
 
-        return FeedNotifier(
-          repo: repo,
-          currentUserID: loggedInUserId,
-          profileUserID:
-              feedFilter?['profileUID'], //not null if needs to filter posts
-          audience: feedFilter?['audience'], //null means all audiences
-        );
-      },
-    );
+      return FeedNotifier(
+        repo: repo,
+        currentUserID: loggedInUserId,
+        feedFilter: feedFilter,
+      );
+    });
 
-// The STATE of posts feed
+class FeedFilter {
+  final String? profileUID;
+  final String? audience;
+
+  const FeedFilter({this.profileUID, this.audience});
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FeedFilter &&
+          runtimeType == other.runtimeType &&
+          profileUID == other.profileUID &&
+          audience == other.audience;
+
+  @override
+  int get hashCode => profileUID.hashCode ^ (audience?.hashCode ?? 0);
+}
+
+// Feed State
 class FeedState {
   final List<Post> posts;
   final bool isLoading;
@@ -59,98 +75,105 @@ class FeedState {
 class FeedNotifier extends StateNotifier<FeedState> {
   final CommunityRepository repo;
   final String currentUserID;
-  final String? profileUserID;
-  final String? audience;
+  final FeedFilter? feedFilter;
 
   bool _loadingMore = false;
+  String? userYear;
 
   FeedNotifier({
     required this.repo,
     required this.currentUserID,
-    required this.audience,
-    this.profileUserID,
+    this.feedFilter,
   }) : super(FeedState(posts: [])) {
-    fetchPosts();
+    _init();
   }
 
-  // --------------------------
-  // PAGINATION: LOAD MORE
-  // --------------------------
-  Future<void> loadMore() async {
-    if (_loadingMore || !state.hasMore) return;
-
-    _loadingMore = true;
-
+  Future<void> _init() async {
+    // fetch user year once
     try {
-      final nextPage = state.page + 1;
+      final currentUser = await repo.client
+          .from('profiles')
+          .select('year')
+          .eq('id', currentUserID)
+          .maybeSingle();
 
-      final raw = await repo.fetchPosts(
-        profileUserId: profileUserID,
-        currentUserId: currentUserID,
-        page: nextPage,
-        limit: 3,
-      );
-
-      final enriched = await Future.wait(
-        raw.map((post) async {
-          final isLiked = currentUserID.isEmpty
-              ? false
-              : await repo.isPostLiked(post.id, currentUserID);
-          final likeCount = await repo.getLikeCount(post.id);
-          return post.copyWith(isLiked: isLiked, likeCount: likeCount);
-        }),
-      );
-
-      state = state.copyWith(
-        posts: [...state.posts, ...enriched],
-        page: nextPage,
-        hasMore: enriched.length == 3,
-      );
-    } catch (_) {
-    } finally {
-      _loadingMore = false;
+      userYear = currentUser?['year'] as String?;
+      print('Current user year: $userYear, userID: $currentUserID`');
+    } catch (e, st) {
+      print('Failed to fetch user year: $e');
+      print(st);
     }
+
+    await fetchPosts();
   }
 
   // --------------------------
-  // INITIAL FETCH
+  // FETCH POSTS
   // --------------------------
   Future<void> fetchPosts() async {
     state = state.copyWith(isLoading: true, error: null, page: 0);
 
     try {
       final rawPosts = await repo.fetchPosts(
-        profileUserId: profileUserID,
+        profileUserId: feedFilter?.profileUID,
+        audience: feedFilter?.audience,
         currentUserId: currentUserID,
-        audience: audience,
+        userYear: userYear,
         page: 0,
-        limit: 3,
+        limit: 10,
       );
 
-      final enrichedPosts = await Future.wait(
-        rawPosts.map((post) async {
-          final isLiked = currentUserID.isEmpty
-              ? false
-              : await repo.isPostLiked(post.id, currentUserID);
-          final likeCount = await repo.getLikeCount(post.id);
-          return post.copyWith(isLiked: isLiked, likeCount: likeCount);
-        }),
-      );
+      final enrichedPosts = await _enrichPosts(rawPosts);
 
       state = state.copyWith(
         posts: enrichedPosts,
         isLoading: false,
-        hasMore: enrichedPosts.length == 3,
+        hasMore: enrichedPosts.length == 10,
         page: 0,
       );
-    } catch (e) {
+    } catch (e, st) {
+      print('FeedNotifier.fetchPosts failed: $e');
+      print(st);
       state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
 
   // --------------------------
+  // LOAD MORE
+  // --------------------------
+  Future<void> loadMore() async {
+    if (_loadingMore || !state.hasMore) return;
+    _loadingMore = true;
+
+    try {
+      final nextPage = state.page + 1;
+
+      final rawPosts = await repo.fetchPosts(
+        profileUserId: feedFilter?.profileUID,
+        audience: feedFilter?.audience,
+        currentUserId: currentUserID,
+        userYear: userYear,
+        page: nextPage,
+        limit: 10,
+      );
+
+      final enrichedPosts = await _enrichPosts(rawPosts);
+
+      state = state.copyWith(
+        posts: [...state.posts, ...enrichedPosts],
+        page: nextPage,
+        hasMore: enrichedPosts.length == 10,
+      );
+    } catch (e, st) {
+      print('FeedNotifier.loadMore failed: $e');
+      print(st);
+    } finally {
+      _loadingMore = false;
+    }
+  }
+
+  // --------------------------
   // LIKE / UNLIKE
-  // (Optimistic update)
   // --------------------------
   Future<Map<String, dynamic>> toggleLike(String postId) async {
     if (currentUserID.isEmpty) {
@@ -165,8 +188,6 @@ class FeedNotifier extends StateNotifier<FeedState> {
       if (index == -1) return {'isLiked': false, 'likeCount': 0};
 
       final old = state.posts[index];
-
-      // Optimistic update
       final optimistic = old.copyWith(
         isLiked: !old.isLiked,
         likeCount: old.isLiked ? old.likeCount - 1 : old.likeCount + 1,
@@ -176,7 +197,6 @@ class FeedNotifier extends StateNotifier<FeedState> {
       updated[index] = optimistic;
       state = state.copyWith(posts: updated);
 
-      // Update DB
       final result = await repo.toggleLike(postId, currentUserID);
 
       final confirmed = optimistic.copyWith(
@@ -191,5 +211,20 @@ class FeedNotifier extends StateNotifier<FeedState> {
     } catch (e) {
       return {'isLiked': false, 'likeCount': 0};
     }
+  }
+
+  // --------------------------
+  // HELPER: ENRICH POSTS
+  // --------------------------
+  Future<List<Post>> _enrichPosts(List<Post> posts) async {
+    return await Future.wait(
+      posts.map((post) async {
+        final isLiked = currentUserID.isEmpty
+            ? false
+            : await repo.isPostLiked(post.id, currentUserID);
+        final likeCount = await repo.getLikeCount(post.id);
+        return post.copyWith(isLiked: isLiked, likeCount: likeCount);
+      }),
+    );
   }
 }

@@ -24,7 +24,12 @@ class CommunityProfilePage extends ConsumerStatefulWidget {
 }
 
 class _CommunityProfilePageState extends ConsumerState<CommunityProfilePage> {
-  late final feedProviderWithID = feedProvider({'profileUID': widget.userID});
+  FeedFilter get feedFilter => FeedFilter(profileUID: widget.userID);
+
+  late final feedProviderWithID = feedProvider(
+    feedFilter,
+  ); //pass in the ID to filter posts
+
   bool isRefreshing = false;
 
   @override
@@ -59,7 +64,9 @@ class _CommunityProfilePageState extends ConsumerState<CommunityProfilePage> {
               ref.invalidate(
                 userByIDProvider(widget.userID),
               ); //refresh userprofile
-              ref.refresh(feedProvider({'profileUID': widget.userID})); //refresh user posts
+              ref.refresh(
+                feedProvider(FeedFilter(profileUID: widget.userID)),
+              ); //refresh user posts
               await Future.delayed(const Duration(milliseconds: 300));
 
               SuccessSnackBar.show(
@@ -144,7 +151,7 @@ class _CommunityProfilePageState extends ConsumerState<CommunityProfilePage> {
                   SliverList(
                     delegate: SliverChildBuilderDelegate((context, index) {
                       final post = feedState.posts[index];
-                      return PostWidget(post: post);
+                      return PostWidget(post: post, feedFilter: feedFilter);
                     }, childCount: feedState.posts.length),
                   ),
                 const SliverToBoxAdapter(child: SizedBox(height: 24)),

@@ -31,8 +31,9 @@ class CommunityRepository {
   // Fetch all posts (and if user liked or not)
   Future<List<Post>> fetchPosts({
     required String currentUserId,
-    String? profileUserId, // whose posts to show (optional) //if null show all
+    String? profileUserId,
     String? audience,
+    String? userYear,
     int limit = 10,
     required int page,
   }) async {
@@ -40,45 +41,54 @@ class CommunityRepository {
     final end = start + limit - 1;
 
     try {
-      // 1️⃣ Base query
       var query = client.from('community-posts').select();
 
-      // 2️⃣ profileUserID is NOT null? filter
+      // Profile filter
       if (profileUserId != null) {
         query = query.eq('user_id', profileUserId);
       }
 
-      // 3️⃣ Order by creation date
+      // Audience filter
+      if (audience != null && audience != 'Everyone') {
+        query = query.eq('audience', audience);
+
+        if (audience == 'Classmates' && userYear != null) {
+          query = query.eq('year', userYear);
+
+          print('Filtering posts for year: $userYear, audience: $audience');
+        }
+
+        // Friends: no filter yet (future feature)
+      }
+
+      // Pagination & ordering
       final response = await query
           .order('created_at', ascending: false)
           .range(start, end);
-      final data = response as List<dynamic>;
 
-      // 4️⃣ Enrich posts with like info
-      final posts = await Future.wait(
-        data.map((raw) async {
-          final postId = raw['id'] as String;
+      final data = response as List<dynamic>? ?? [];
+      print('Raw posts from DB: ${data.length}');
 
-          final isLiked = currentUserId.isEmpty
-              ? false
-              : await isPostLiked(postId, currentUserId);
-          final likeCount = await getLikeCount(postId);
+      final List<Post> posts = [];
 
-          return Post.fromMap({
-            ...raw,
-            'isLiked': isLiked,
-            'likeCount': likeCount,
-          });
-        }),
-      );
-      //audience filter
-      if (audience != null && audience != 'Everyone') {
-        return posts.where((post) => post.audience == audience).toList();
+      for (final raw in data) {
+        final postId = raw['id'] as String;
+
+        final isLiked = currentUserId.isEmpty
+            ? false
+            : await isPostLiked(postId, currentUserId);
+
+        final likeCount = await getLikeCount(postId);
+
+        posts.add(
+          Post.fromMap({...raw, 'isLiked': isLiked, 'likeCount': likeCount}),
+        );
       }
 
+      print('Fetched posts: ${posts.length}');
       return posts;
     } catch (e) {
-      throw Exception('Failed to fetch posts $e');
+      throw Exception('repo failed to fetch posts $e');
     }
   }
 
@@ -106,6 +116,7 @@ class CommunityRepository {
             'full_name': userProfile.name,
             'avatar_url': userProfile.avatarUrl,
             'audience': audience,
+            'year': userProfile.year,
           })
           .select()
           .single();
