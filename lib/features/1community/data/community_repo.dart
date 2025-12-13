@@ -49,16 +49,17 @@ class CommunityRepository {
       }
 
       // Audience filter
-      if (audience != null && audience != 'Everyone') {
-        query = query.eq('audience', audience);
-
+      if (audience != null) {
         if (audience == 'Classmates' && userYear != null) {
           query = query.eq('year', userYear);
-
-          print('Filtering posts for year: $userYear, audience: $audience');
+          print('Filtering posts for classmates, year: $userYear');
+        } else if (audience == 'For you🔥') {
+          // For You🔥: keep unfiltered OR filter later with your own logic
+          print('Fetching For You🔥 posts');
+        } else {
+          // Any other audience
+          query = query.eq('audience', audience);
         }
-
-        // Friends: no filter yet (future feature)
       }
 
       // Pagination & ordering

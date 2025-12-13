@@ -1,3 +1,3 @@
 import 'package:riverpod/legacy.dart';
 
-final selectedAudienceProvider = StateProvider<String>((ref) => 'Everyone');
+final selectedAudienceProvider = StateProvider<String>((ref) => 'For you🔥');

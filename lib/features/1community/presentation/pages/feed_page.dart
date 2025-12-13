@@ -30,7 +30,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
   // Use watch here so feedFilter gets updated on audience change
   FeedFilter get feedFilter {
     final audience = ref.watch(selectedAudienceProvider);
-    return FeedFilter(audience: audience == 'Everyone' ? null : audience);
+    return FeedFilter(audience: audience == 'For you' ? null : audience);
   }
 
   @override
@@ -328,7 +328,7 @@ class _MySliverAppBarState extends ConsumerState<MySliverAppBar> {
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: ['Everyone', 'Friends', 'Classmates'].map((
+                  children: ['For you🔥', 'Friends', 'Classmates'].map((
                     audience,
                   ) {
                     final isSelected = widget.selectedAudience == audience;
