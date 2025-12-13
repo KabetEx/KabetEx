@@ -3,7 +3,7 @@ class UserProfile {
   final String name;
   final String pNumber;
   final String email;
-  final String year;
+  final int year;
   final String bio;
   final String avatarUrl;
   DateTime? createdAt;
@@ -43,7 +43,7 @@ class UserProfile {
     bio: map?['bio'] ?? '',
     pNumber: map?['phone_number'] ?? '',
     email: map?['email'] ?? '',
-    year: map?['year'] ?? '',
+    year: map?['year'] != null ? int.parse(map!['year'].toString()) : 1,
     isActive: map?['isActive'] ?? true,
     isVerified: map?['isVerified'] ?? false,
     createdAt: map?['created_at'] != null

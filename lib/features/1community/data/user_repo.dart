@@ -31,7 +31,7 @@ class UserRepository {
     required String name,
     required String email,
     required String pNumber,
-    required String year,
+    required int year,
     required String? bio,
     required String? avatarUrl,
   }) async {
@@ -61,6 +61,7 @@ class UserRepository {
         .maybeSingle();
 
     if (response == null) return null;
+    print(response);
     return UserProfile.fromMap(response);
   }
 }

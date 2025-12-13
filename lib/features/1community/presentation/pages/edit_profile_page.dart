@@ -23,12 +23,12 @@ class _CommunityEditProfilePageState
   late final TextEditingController bioCtrl;
   late final TextEditingController phoneCtrl;
   late final TextEditingController emailCtrl;
-  String? selectedYear;
+  int? selectedYear;
 
   File? pendingImage;
   String? tempAvatarUrl;
 
-  final List<String> years = ['1st Year', '2nd Year', '3rd Year', '4th Year'];
+  final List<int> years = [1, 2, 3, 4];
 
   @override
   void initState() {
@@ -159,14 +159,21 @@ class _CommunityEditProfilePageState
             const SizedBox(height: 20),
 
             // Year dropdown
-            DropdownButtonFormField<String>(
+            DropdownButtonFormField<int>(
               initialValue: selectedYear,
               items: years
                   .map(
                     (year) => DropdownMenuItem(
                       value: year,
                       child: Text(
-                        year,
+                        year.toString() +
+                            (year == 1
+                                ? 'st Year'
+                                : year == 2
+                                ? 'nd Year'
+                                : year == 3
+                                ? 'rd Year'
+                                : 'th Year'),
                         style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                           fontSize: 16,
                           color: isDark ? Colors.white : Colors.black,
@@ -242,9 +249,8 @@ class _CommunityEditProfilePageState
                               avatarUrl: avatarUrl,
                               pNumber: phoneCtrl.text.trim(),
                               email: emailCtrl.text.trim(),
-                              year: selectedYear ?? '1st',
+                              year: selectedYear ?? 1,
                             );
-                        print('New yr $selectedYear');
 
                         if (mounted) {
                           SuccessSnackBar.show(

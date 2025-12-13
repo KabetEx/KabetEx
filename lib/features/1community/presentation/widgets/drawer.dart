@@ -112,7 +112,7 @@ class _MyCommunityDrawerState extends ConsumerState<MyCommunityDrawer> {
                             const SizedBox(height: 4),
 
                             Text(
-                              "${user.year},  BCom",
+                              "${user.year.toString()},  BCom",
                               style: TextStyle(
                                 fontSize: 14,
                                 color: isDark

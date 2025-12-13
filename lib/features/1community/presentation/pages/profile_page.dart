@@ -413,7 +413,14 @@ class YearNJoinedDateColumn extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             Text(
-              user.year,
+              user.year.toString() +
+                  (user.year == 1
+                      ? ' st Year'
+                      : user.year == 2
+                      ? ' nd Year'
+                      : user.year == 3
+                      ? ' rd Year'
+                      : ' th Year'),
               style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                 color: isDark ? Colors.grey : Colors.grey[900],
                 fontSize: 16,

@@ -74,7 +74,7 @@ class EditProfileNotifier extends StateNotifier<AsyncValue<void>> {
     required String name,
     required String email,
     required String pNumber,
-    required String year,
+    required int year,
     required String? bio,
     required String? avatarUrl,
   }) async {
